@@ -1,16 +1,121 @@
-.sidebar_containor {
+.sidebar-left {
+  display: flex;
+  flex-direction: column;
+  width: 210px;
+  min-width: 190px;
+  height: 100vh;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  padding: 36px 18px 24px;
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+}
+
+.sidebar-profile {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 15vw;
-  min-width: 120px;
-  height: 100vh;
-  background-color: #fff;
+  margin-bottom: 36px;
 }
 
-.sidebar_img {
-    width: 80%;
-    height: 20vh;
-    margin: 20px 0;
-    cursor: pointer;
+.profile-img-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--accent-light);
+  margin-bottom: 12px;
+  background: var(--accent-light);
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.profile-tag {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+  width: 100%;
+}
+
+.nav-item:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.nav-item.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.nav-icon {
+  font-size: 17px;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .sidebar-left {
+    width: 100%;
+    height: auto;
+    min-width: unset;
+    flex-direction: row;
+    align-items: center;
+    padding: 14px 16px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    position: static;
+    gap: 16px;
+  }
+
+  .sidebar-profile {
+    flex-direction: row;
+    margin-bottom: 0;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .profile-img-wrap {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
 }

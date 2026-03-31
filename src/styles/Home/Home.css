@@ -1,15 +1,363 @@
-.main-containor {
+/* ── 전체 레이아웃 ─────────────────────────────────── */
+.home-layout {
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  background: var(--bg);
 }
 
 .main-content {
   flex: 1;
+  padding: 28px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ── 공용 카드 ─────────────────────────────────────── */
+.card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+/* ── ① 상단 정보 바 ────────────────────────────────── */
+.info-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  overflow-y: auto;
+  justify-content: space-between;
+  padding: 16px 28px;
+}
+
+.info-date {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.date-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+
+.date-sep {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.date-day {
+  font-size: 13px;
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.info-weather {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.weather-city {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ── ② 감정 분석 요약 ──────────────────────────────── */
+.emotion-summary {
+  display: flex;
+  align-items: stretch;
+  padding: 20px 0;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 28px;
+  flex: 1;
+  min-width: 0;
+}
+
+.summary-item-wide {
+  flex: 1.6;
+}
+
+.summary-divider {
+  width: 1px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.summary-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.summary-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.summary-analysis {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.emotion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.chip-happy { background: #fef3c7; color: #d97706; }
+.chip-calm  { background: #d1fae5; color: #059669; }
+.chip-sad   { background: #e0e7ff; color: #4338ca; }
+.chip-angry { background: #fee2e2; color: #dc2626; }
+
+.kw-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.kw-chip {
+  font-size: 12px;
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* ── ③ 일기 리스트 ─────────────────────────────────── */
+.diary-section {
+  flex: 1;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.diary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.diary-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.diary-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.search-group {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.search-select {
+  border: none;
+  outline: none;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 13px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  border-right: 1px solid var(--border);
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  padding: 8px 12px;
+  width: 190px;
+  font-family: inherit;
+  color: var(--text);
+  background: transparent;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.write-btn {
+  padding: 9px 18px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.write-btn:hover {
+  opacity: 0.85;
+}
+
+/* 테이블 */
+.diary-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.diary-table-head {
+  display: grid;
+  grid-template-columns: 2.5fr 1.2fr 1.2fr 2fr;
+  padding: 10px 16px;
+  background: var(--bg);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 6px;
+}
+
+.diary-row {
+  display: grid;
+  grid-template-columns: 2.5fr 1.2fr 1.2fr 2fr;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.diary-row:hover {
+  background: var(--bg);
+}
+
+.diary-row:last-child {
+  border-bottom: none;
+}
+
+.dr-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 8px;
+}
+
+.dr-date {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.dr-emotion {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.dr-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.kw-small {
+  font-size: 11px;
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.diary-empty {
+  text-align: center;
+  padding: 40px 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ── 반응형 ────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .emotion-summary {
+    flex-wrap: wrap;
+    gap: 0;
+    padding: 0;
+  }
+
+  .summary-divider {
+    display: none;
+  }
+
+  .summary-item {
+    padding: 16px 20px;
+    min-width: 45%;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .summary-item:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-layout {
+    flex-direction: column;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+
+  .diary-table-head,
+  .diary-row {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .diary-table-head span:last-child,
+  .dr-keywords {
+    display: none;
+  }
+
+  .search-input {
+    width: 130px;
+  }
 }
