@@ -1,0 +1,9 @@
+.sidebar_right_containor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 15vw;
+  min-width: 120px;
+  height: 100vh;
+  background-color: #f5f0e8
+}

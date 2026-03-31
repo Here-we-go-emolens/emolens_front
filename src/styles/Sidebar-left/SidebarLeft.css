@@ -1,0 +1,16 @@
+.sidebar_containor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 15vw;
+  min-width: 120px;
+  height: 100vh;
+  background-color: #f5f0e8;
+}
+
+.sidebar_img {
+    width: 80%;
+    height: 20vh;
+    margin: 20px 0;
+    cursor: pointer;
+}
