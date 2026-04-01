@@ -4,6 +4,7 @@ import DiaryWritePage from './pages/CreateDiary/DiaryWritePage.jsx';
 import AiDiaryChatPage from './pages/AiDiary/AiDiaryChatPage.jsx';
 import DiaryDetailPage from './pages/DiaryDetail/DiaryDetailPage.jsx';
 import StatsPage from './pages/Stats/StatsPage.jsx';
+import SettingsPage from './pages/Settings/SettingsPage.jsx';
 import './App.css'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
       <Route path="/ai-chat"    element={<AiDiaryChatPage />} />
       <Route path="/diary/:id"  element={<DiaryDetailPage />} />
       <Route path="/stats"      element={<StatsPage />} />
+      <Route path="/settings"   element={<SettingsPage />} />
     </Routes>
   )
 }
