@@ -5,12 +5,14 @@ import AiDiaryChatPage from './pages/AiDiary/AiDiaryChatPage.jsx';
 import DiaryDetailPage from './pages/DiaryDetail/DiaryDetailPage.jsx';
 import StatsPage from './pages/Stats/StatsPage.jsx';
 import SettingsPage from './pages/Settings/SettingsPage.jsx';
+import OnboardingPage from './pages/Onboarding/OnboardingPage.jsx';
 import './App.css'
 
 function App() {
   return (
     <Routes>
-      <Route path="/"           element={<Home />} />
+      <Route path="/"           element={<OnboardingPage />} />
+      <Route path="/home"       element={<Home />} />
       <Route path="/write"      element={<DiaryWritePage />} />
       <Route path="/ai-chat"    element={<AiDiaryChatPage />} />
       <Route path="/diary/:id"  element={<DiaryDetailPage />} />
