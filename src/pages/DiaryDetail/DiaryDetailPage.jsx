@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './DiaryDetailPage.css';
+import '@/styles/DiaryDetail/DiaryDetailPage.css';
 
 // ── 더미 데이터 (추후 API로 교체) ──────────────────────────
 const DIARY = {

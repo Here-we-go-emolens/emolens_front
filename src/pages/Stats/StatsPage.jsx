@@ -5,7 +5,7 @@ import {
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
-import './StatsPage.css';
+import '@/styles/Stats/StatsPage.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler);
 

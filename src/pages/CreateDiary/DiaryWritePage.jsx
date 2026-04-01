@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getCurrentWeather } from '@/api/Weather/Weather';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
-import './DiaryWritePage.css';
+import '@/styles/CreateDiary/DiaryWritePage.css';
 
 const TEMPLATES = [
   { id: 'plain',    label: '내지',   icon: '📄', desc: '빈 페이지 형식' },

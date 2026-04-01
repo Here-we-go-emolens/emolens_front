@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './OnboardingPage.css';
+import '@/styles/Onboarding/OnboardingPage.css';
 
 /* ── 더미 데이터 ─────────────────────────────────────── */
 const FEATURES = [

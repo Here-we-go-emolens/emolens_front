@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
-import './SettingsPage.css';
+import '@/styles/Settings/SettingsPage.css';
 
 /* ── 기본값 ───────────────────────────────────────────── */
 const DEFAULT_SETTINGS = {

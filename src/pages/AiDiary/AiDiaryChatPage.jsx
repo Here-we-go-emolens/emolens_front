@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getAiResponse } from '@/api/aiChat';
-import './AiDiaryChatPage.css';
+import '@/styles/AiDiary/AiDiaryChatPage.css';
 
 // ── 상수 ──────────────────────────────────────────────────
 const MENU_ITEMS = [
