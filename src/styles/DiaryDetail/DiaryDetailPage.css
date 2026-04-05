@@ -121,7 +121,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  box-shadow: 0 2px 12px rgba(100, 90, 140, 0.07);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
 }
 
 .dd-header-left {
@@ -183,7 +183,7 @@
   border-radius: 18px;
   border: 1px solid var(--border);
   padding: 32px 36px;
-  box-shadow: 0 2px 12px rgba(100, 90, 140, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
 .dd-body-label {
@@ -264,7 +264,7 @@
   color: #fff;
   padding: 11px 24px;
   font-size: 14px;
-  box-shadow: 0 4px 16px rgba(124, 111, 205, 0.35);
+  box-shadow: 0 4px 16px rgba(242, 106, 33, 0.35);
 }
 
 .btn-primary:hover { opacity: 0.88; }
@@ -522,4 +522,95 @@
   .dd-actions-left { justify-content: center; }
   .btn-primary   { text-align: center; }
   .dd-panel      { grid-template-columns: 1fr; padding: 16px; }
+}
+
+/* ── Premium 잠금 카드 ────────────────────────────────── */
+.premium-lock-card {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 80px;
+}
+
+.plc-blur-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0;
+  filter: blur(4px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.plc-blur-line {
+  height: 10px;
+  background: var(--accent-light);
+  border-radius: 6px;
+}
+
+.plc-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(2px);
+}
+
+.plc-lock {
+  font-size: 18px;
+}
+
+.plc-title {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.plc-cta {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  padding: 5px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+
+.plc-cta:hover { opacity: 0.85; }
+
+/* 추천 행동 Premium 힌트 */
+.rec-premium-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+
+.rec-hint-text {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.rec-hint-btn {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: none;
+  border-radius: 8px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: inherit;
 }

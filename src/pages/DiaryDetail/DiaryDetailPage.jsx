@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '@/styles/DiaryDetail/DiaryDetailPage.css';
 
@@ -78,6 +77,27 @@ function AnalysisCard({ icon, title, children }) {
         <span className="ac-title">{title}</span>
       </div>
       {children}
+    </div>
+  );
+}
+
+// ── PremiumLockCard ──────────────────────────────────────────
+function PremiumLockCard({ title, previewLines = [] }) {
+  const navigate = useNavigate();
+  return (
+    <div className="premium-lock-card">
+      <div className="plc-blur-content">
+        {previewLines.map((line, i) => (
+          <div key={i} className="plc-blur-line" style={{ width: line }} />
+        ))}
+      </div>
+      <div className="plc-overlay">
+        <span className="plc-lock">🔒</span>
+        <p className="plc-title">{title}</p>
+        <button className="plc-cta" onClick={() => navigate('/premium')}>
+          Premium에서 확인하기
+        </button>
+      </div>
     </div>
   );
 }
@@ -195,40 +215,34 @@ export default function DiaryDetailPage() {
           </div>
         </AnalysisCard>
 
-        {/* 감정 원인 추정 */}
-        <AnalysisCard icon="🔍" title="감정 원인 추정">
-          <ul className="cause-list">
-            {ANALYSIS.causes.map((c, i) => (
-              <li key={i} className="cause-item">
-                <span className="cause-dot" />
-                {c}
-              </li>
-            ))}
-          </ul>
-        </AnalysisCard>
-
-        {/* 추천 행동 */}
+        {/* 추천 행동 - 무료: 1개만 공개 */}
         <AnalysisCard icon="🌱" title="추천 행동">
           <div className="rec-list">
-            {ANALYSIS.recommendations.map((r, i) => (
-              <div key={i} className="rec-item">
-                <span className="rec-icon">{r.icon}</span>
-                <span>{r.text}</span>
-              </div>
-            ))}
+            <div className="rec-item">
+              <span className="rec-icon">{ANALYSIS.recommendations[0].icon}</span>
+              <span>{ANALYSIS.recommendations[0].text}</span>
+            </div>
+          </div>
+          <div className="rec-premium-hint">
+            <span className="rec-hint-text">🔒 추천 2가지 더 보기</span>
+            <button className="rec-hint-btn" onClick={() => navigate('/premium')}>Premium</button>
           </div>
         </AnalysisCard>
 
-        {/* 이전 일기와 비교 */}
+        {/* 감정 원인 추정 - Premium 잠금 */}
+        <AnalysisCard icon="🔍" title="감정 원인 추정">
+          <PremiumLockCard
+            title="감정의 근본 원인을 분석해드려요"
+            previewLines={['85%', '70%', '60%']}
+          />
+        </AnalysisCard>
+
+        {/* 이전 일기와 비교 - Premium 잠금 */}
         <AnalysisCard icon="📈" title="이전 일기와 비교">
-          <div className="cmp-list">
-            {ANALYSIS.comparison.map((c, i) => (
-              <div key={i} className={`cmp-item ${c.type}`}>
-                <span className="cmp-icon">{c.icon}</span>
-                <span>{c.text}</span>
-              </div>
-            ))}
-          </div>
+          <PremiumLockCard
+            title="지난 기록과 비교해 패턴을 발견하세요"
+            previewLines={['90%', '65%']}
+          />
         </AnalysisCard>
 
       </aside>

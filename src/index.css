@@ -1,19 +1,20 @@
 :root {
-  --bg: #f0edf7;
-  --sidebar-bg: #faf9fd;
+  --bg: #f4f4f4;
+  --sidebar-bg: #ffffff;
   --card-bg: #ffffff;
-  --accent: #7c6fcd;
-  --accent-light: #ede9f8;
-  --text: #3d3552;
-  --text-muted: #9088a8;
-  --border: #e8e4f0;
-  --shadow: 0 2px 12px rgba(100, 90, 140, 0.08);
+  --accent: #f26a21;
+  --accent-light: #fef3ec;
+  --text: #111111;
+  --text-muted: #555555;
+  --border: #e0e0e0;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 
-  font: 14px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
+  font: 14px/1.6 'Pretendard Variable', 'Pretendard', 'Apple SD Gothic Neo', system-ui, sans-serif;
   color: var(--text);
   background: var(--bg);
   color-scheme: light;
   -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.02em;
 }
 
 * {

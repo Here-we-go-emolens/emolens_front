@@ -84,6 +84,84 @@
 .nav-icon {
   font-size: 17px;
   line-height: 1;
+  flex-shrink: 0;
+}
+
+/* 채팅 사용량 배지 */
+.chat-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 2px 7px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.chat-badge.warn {
+  background: #fff3cd;
+  color: #b45309;
+}
+
+/* 플랜 배지 */
+.plan-badge {
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+
+.free-badge {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.premium-badge {
+  background: linear-gradient(90deg, #f26a21, #e05a10);
+  color: #fff;
+}
+
+/* Premium 업그레이드 배너 */
+.sidebar-premium-cta {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #fff1e6, #fef3ec);
+  border: 1.5px solid #ffd5be;
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+
+.sidebar-premium-cta:hover {
+  box-shadow: 0 4px 16px rgba(242, 106, 33, 0.18);
+}
+
+.sidebar-premium-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar-premium-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sidebar-premium-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.sidebar-premium-desc {
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
 @media (max-width: 768px) {

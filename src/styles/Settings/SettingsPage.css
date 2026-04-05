@@ -57,7 +57,7 @@
 }
 
 .toast-msg.success {
-  background: #7c6fcd;
+  background: #f26a21;
   color: #fff;
 }
 
@@ -88,7 +88,7 @@
   gap: 14px;
   padding: 22px 28px 18px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(135deg, var(--card-bg) 0%, #faf9ff 100%);
+  background: linear-gradient(135deg, var(--card-bg) 0%, #f9f9f9 100%);
 }
 
 .section-icon {
@@ -140,7 +140,7 @@
 }
 
 .toggle-switch.off {
-  background: #d1c9e8;
+  background: #d1d1d1;
 }
 
 .toggle-switch.disabled {
@@ -178,7 +178,7 @@
 }
 
 .toggle-row:hover {
-  background: #faf9ff;
+  background: #f9f9f9;
 }
 
 .toggle-info {
@@ -576,8 +576,8 @@
 
 /* 팁 카드 */
 .rp-tip {
-  background: linear-gradient(135deg, #f0edfc 0%, #e8f4fd 100%);
-  border-color: #ddd6fe;
+  background: linear-gradient(135deg, #fff8f4 0%, #fff1ea 100%);
+  border-color: #ffd5be;
 }
 
 .rp-tip-list {
@@ -591,7 +591,7 @@
 
 .rp-tip-list li {
   font-size: 12px;
-  color: #5b5280;
+  color: #555555;
   line-height: 1.55;
   padding-left: 14px;
   position: relative;

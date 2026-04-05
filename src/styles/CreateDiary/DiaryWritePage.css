@@ -53,10 +53,10 @@
 
 /* ── 일기장 종이 ────────────────────────────────────────── */
 .dw-paper {
-  background: #fffefb;
+  background: var(--card-bg);
   border-radius: 20px;
   border: 1px solid var(--border);
-  box-shadow: 0 4px 28px rgba(100, 90, 140, 0.1), 0 1px 4px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow);
   padding: 44px 52px;
   display: flex;
   flex-direction: column;
@@ -90,7 +90,7 @@
 }
 
 .dw-title::placeholder {
-  color: #d4cedf;
+  color: #cccccc;
   font-weight: 400;
 }
 
@@ -175,7 +175,7 @@
 }
 
 .dw-body::placeholder {
-  color: #d4cedf;
+  color: #cccccc;
 }
 
 /* 하단 바 */
@@ -335,7 +335,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(61, 53, 82, 0.4);
+  background: rgba(17, 17, 17, 0.5);
   backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
@@ -347,7 +347,7 @@
   background: var(--card-bg);
   border-radius: 20px;
   border: 1px solid var(--border);
-  box-shadow: 0 12px 48px rgba(100, 90, 140, 0.2);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
   padding: 28px;
   width: 580px;
   max-width: 92vw;
@@ -467,14 +467,14 @@
 
 /* ── 내지 (plain) ── 기본값, 변경 없음 ─────────────────── */
 .dw-paper--plain {
-  background: #fffefb;
+  background: var(--card-bg);
 }
 
 /* ── 공책 (notebook) ───────────────────────────────────── */
 .dw-paper--notebook {
-  background: #f8f9ff;
-  border-color: #c8d0f0;
-  box-shadow: 0 4px 28px rgba(80, 100, 200, 0.09);
+  background: #f8f8f8;
+  border-color: var(--border);
+  box-shadow: 0 4px 28px rgba(100, 90, 160, 0.09);
   position: relative;
 }
 
@@ -502,48 +502,48 @@
     to bottom,
     transparent,
     transparent 31px,
-    #d8dcf0 31px,
-    #d8dcf0 32px
+    var(--border) 31px,
+    var(--border) 32px
   );
   line-height: 32px;
   padding-top: 4px;
 }
 
 .dw-paper--notebook .dw-title {
-  border-bottom-color: #c8d0f0;
-  color: #2e3a8a;
+  border-bottom-color: var(--border);
+  color: var(--text);
 }
 
 .dw-paper--notebook .dw-title:focus {
-  border-bottom-color: #5060cc;
+  border-bottom-color: var(--accent);
 }
 
 .dw-paper--notebook .meta-date {
-  background: #e4e8ff;
-  color: #3d4dbf;
+  background: var(--accent-light);
+  color: var(--accent);
 }
 
 .dw-paper--notebook .meta-weather {
-  background: #e4e8ff;
-  color: #3d4dbf;
+  background: var(--accent-light);
+  color: var(--accent);
 }
 
 .dw-paper--notebook .dw-rule {
-  background: #c8d0f0;
+  background: var(--border);
 }
 
 .dw-paper--notebook .dw-footer {
-  border-top-color: #c8d0f0;
+  border-top-color: var(--border);
 }
 
 .dw-paper--notebook .dw-submit {
-  background: #5060cc;
+  background: var(--accent);
 }
 
 /* ── 템플릿 (template) ─────────────────────────────────── */
 .dw-paper--template {
-  background: #fff;
-  border-color: #e0daf5;
+  background: var(--card-bg);
+  border-color: var(--border);
 }
 
 .tpl-form {
@@ -616,12 +616,12 @@
 }
 
 .tpl-textarea::placeholder {
-  color: #d4cedf;
+  color: #cccccc;
 }
 
 .tpl-textarea:focus {
   border-color: var(--accent);
-  background: #fff;
+  background: var(--card-bg);
 }
 
 /* ── 편지 (letter) ─────────────────────────────────────── */

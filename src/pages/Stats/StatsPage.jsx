@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Chart as ChartJS,
   CategoryScale, LinearScale, PointElement, LineElement,
@@ -26,7 +28,7 @@ const TREND_DATA   = [6, 5, 7, 4, 5, 6, 3, 4, 6, 7, 6, 5, 8, 7, 6, 5];
 
 const DIST_LABELS = ['부담감', '피곤함', '안정감', '우울', '설렘'];
 const DIST_DATA   = [35, 28, 18, 11, 8];
-const DIST_COLORS = ['#7c6fcd', '#a89ee0', '#80cbc4', '#ef9a9a', '#f48fb1'];
+const DIST_COLORS = ['#f26a21', '#f9a06e', '#fbbf90', '#fcd3b0', '#fde8d0'];
 
 const KEYWORDS = [
   { text: '과제',  size: 'lg' }, { text: '피곤',  size: 'lg' },
@@ -52,9 +54,9 @@ const TIME_SLOTS = [
 ];
 
 const TRIGGERS = [
-  { keyword: '과제 · 발표', arrow: '→', emotion: '부담감', color: '#7c6fcd' },
-  { keyword: '야간 작업',   arrow: '→', emotion: '피로감', color: '#a89ee0' },
-  { keyword: '산책 · 음악', arrow: '→', emotion: '안정감', color: '#80cbc4' },
+  { keyword: '과제 · 발표', arrow: '→', emotion: '부담감', color: '#f26a21' },
+  { keyword: '야간 작업',   arrow: '→', emotion: '피로감', color: '#f9a06e' },
+  { keyword: '산책 · 음악', arrow: '→', emotion: '안정감', color: '#6bba7c' },
 ];
 
 const AI_INSIGHTS = {
@@ -76,10 +78,10 @@ const lineData = {
     label: '감정 점수',
     data: TREND_DATA,
     fill: true,
-    backgroundColor: 'rgba(124, 111, 205, 0.08)',
-    borderColor: '#7c6fcd',
-    borderWidth: 2.5,
-    pointBackgroundColor: '#7c6fcd',
+    backgroundColor: 'rgba(242, 106, 33, 0.07)',
+    borderColor: '#f26a21',
+    borderWidth: 2,
+    pointBackgroundColor: '#f26a21',
     pointBorderColor: '#fff',
     pointBorderWidth: 2,
     pointRadius: 4,
@@ -95,10 +97,10 @@ const lineOptions = {
     legend: { display: false },
     tooltip: {
       backgroundColor: '#fff',
-      borderColor: '#e8e4f0',
+      borderColor: '#e0e0e0',
       borderWidth: 1,
-      titleColor: '#3d3552',
-      bodyColor: '#7c6fcd',
+      titleColor: '#111',
+      bodyColor: '#f26a21',
       padding: 12,
       cornerRadius: 10,
       callbacks: { label: ctx => ` 감정 점수 ${ctx.parsed.y}점` },
@@ -108,13 +110,13 @@ const lineOptions = {
     x: {
       grid: { display: false },
       border: { display: false },
-      ticks: { color: '#9088a8', font: { size: 11 } },
+      ticks: { color: '#555', font: { size: 11 } },
     },
     y: {
       min: 1, max: 10,
-      grid: { color: '#f0edf7', lineWidth: 1 },
+      grid: { color: '#f0f0f0', lineWidth: 1 },
       border: { display: false },
-      ticks: { color: '#9088a8', font: { size: 11 }, stepSize: 3,
+      ticks: { color: '#9a9080', font: { size: 11 }, stepSize: 3,
                callback: v => `${v}점` },
     },
   },
@@ -138,16 +140,16 @@ const donutOptions = {
     legend: {
       position: 'bottom',
       labels: {
-        color: '#3d3552', font: { size: 12 },
+        color: '#111', font: { size: 12 },
         padding: 14, usePointStyle: true, pointStyleWidth: 8,
       },
     },
     tooltip: {
       backgroundColor: '#fff',
-      borderColor: '#e8e4f0',
+      borderColor: '#e0e0e0',
       borderWidth: 1,
-      titleColor: '#3d3552',
-      bodyColor: '#7c6fcd',
+      titleColor: '#111',
+      bodyColor: '#f26a21',
       padding: 12,
       cornerRadius: 10,
       callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` },
@@ -187,6 +189,18 @@ function PanelCard({ icon, title, children }) {
 // 메인 페이지
 // ══════════════════════════════════════════════════════════
 export default function StatsPage() {
+  const navigate = useNavigate();
+  const [graphPeriod, setGraphPeriod] = useState('7일');
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+
+  const handlePeriodClick = (period) => {
+    if (period !== '7일') {
+      setShowPremiumModal(true);
+    } else {
+      setGraphPeriod(period);
+    }
+  };
+
   return (
     <div className="stats-layout">
       <SidebarLeft />
@@ -215,10 +229,67 @@ export default function StatsPage() {
                 <h3 className="card-title">감정 변화 추이</h3>
                 <p className="card-desc">날짜별 감정 점수 · 1(매우 나쁨) ~ 10(매우 좋음)</p>
               </div>
-              <span className="period-badge">3월 전체</span>
+              <div className="period-tabs">
+                {['7일', '30일', '90일'].map(p => (
+                  <button
+                    key={p}
+                    className={`period-tab ${graphPeriod === p ? 'active' : ''} ${p !== '7일' ? 'locked' : ''}`}
+                    onClick={() => handlePeriodClick(p)}
+                  >
+                    {p !== '7일' && <span className="tab-lock">🔒</span>}
+                    {p}
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="chart-wrap" style={{ height: 220 }}>
               <Line data={lineData} options={lineOptions} />
+            </div>
+            <div className="chart-free-notice">
+              <span>무료 플랜: 최근 7일만 표시</span>
+              <button className="chart-upgrade-btn" onClick={() => navigate('/premium')}>
+                30일·90일 보기 →
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* ②-b 주간/월간 리포트 잠금 배너 */}
+        <section className="section">
+          <div className="report-lock-grid">
+            <div className="report-lock-card">
+              <div className="rlc-left">
+                <span className="rlc-icon">📋</span>
+                <div>
+                  <span className="rlc-title">주간 감정 리포트</span>
+                  <p className="rlc-desc">이번 주 감정 패턴과 반복 고민 키워드를 정리해드려요</p>
+                </div>
+              </div>
+              <div className="rlc-preview">
+                <div className="rlc-blur-line w80" />
+                <div className="rlc-blur-line w60" />
+                <div className="rlc-blur-line w70" />
+              </div>
+              <button className="rlc-cta" onClick={() => navigate('/premium')}>
+                🔒 리포트 보기
+              </button>
+            </div>
+            <div className="report-lock-card">
+              <div className="rlc-left">
+                <span className="rlc-icon">📅</span>
+                <div>
+                  <span className="rlc-title">월간 감정 리포트</span>
+                  <p className="rlc-desc">한 달간의 감정 여정과 성장 포인트를 돌아봐요</p>
+                </div>
+              </div>
+              <div className="rlc-preview">
+                <div className="rlc-blur-line w90" />
+                <div className="rlc-blur-line w55" />
+                <div className="rlc-blur-line w75" />
+              </div>
+              <button className="rlc-cta" onClick={() => navigate('/premium')}>
+                🔒 리포트 보기
+              </button>
             </div>
           </div>
         </section>
@@ -268,7 +339,7 @@ export default function StatsPage() {
                       <div
                         className="dow-fill"
                         style={{ '--pct': `${(d.score / 10) * 100}%`,
-                                 background: d.score >= 7 ? '#80cbc4' : d.score >= 5 ? '#a89ee0' : '#ef9a9a' }}
+                                 background: d.score >= 7 ? '#6bba7c' : d.score >= 5 ? '#f9a06e' : '#e57373' }}
                       />
                     </div>
                     <span className="dow-score">{d.score}</span>
@@ -293,7 +364,7 @@ export default function StatsPage() {
                       <div
                         className="time-fill"
                         style={{ '--pct': `${(t.score / 10) * 100}%`,
-                                 background: t.score >= 7 ? '#80cbc4' : t.score >= 5 ? '#a89ee0' : '#ef9a9a' }}
+                                 background: t.score >= 7 ? '#6bba7c' : t.score >= 5 ? '#f9a06e' : '#e57373' }}
                       />
                     </div>
                     <span className="time-score">{t.score}</span>
@@ -324,6 +395,26 @@ export default function StatsPage() {
         </section>
 
       </main>
+
+      {/* Premium 모달 */}
+      {showPremiumModal && (
+        <div className="stats-modal-overlay" onClick={() => setShowPremiumModal(false)}>
+          <div className="stats-modal-box" onClick={e => e.stopPropagation()}>
+            <span className="stats-modal-emoji">📈</span>
+            <h3 className="stats-modal-title">30일·90일 그래프는 Premium에서</h3>
+            <p className="stats-modal-desc">
+              한 달간의 감정 흐름을 보면,<br />
+              당신의 패턴과 회복 지점이 보여요.
+            </p>
+            <button className="stats-modal-primary" onClick={() => navigate('/premium')}>
+              Premium 알아보기
+            </button>
+            <button className="stats-modal-secondary" onClick={() => setShowPremiumModal(false)}>
+              나중에 볼게요
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 오른쪽 AI 패널 */}
       <aside className="stats-panel">

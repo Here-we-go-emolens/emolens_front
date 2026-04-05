@@ -4,8 +4,11 @@ import { getAiResponse } from '@/api/aiChat';
 import '@/styles/AiDiary/AiDiaryChatPage.css';
 
 // ── 상수 ──────────────────────────────────────────────────
+const CHAT_LIMIT = 10; // 무료 월 한도
+const CHAT_USED_INIT = 7; // 초기 사용량 (실제로는 API에서 가져옴)
+
 const MENU_ITEMS = [
-  { label: '홈',         icon: '🏠', route: '/'        },
+  { label: '홈',         icon: '🏠', route: '/home'    },
   { label: '일반 일기',   icon: '📝', route: '/write'   },
   { label: '대화형 일기', icon: '🤖', route: '/ai-chat' },
   { label: '통계',       icon: '📊', route: '/stats'   },
@@ -50,6 +53,8 @@ export default function AiDiaryChatPage() {
   const [input,      setInput]      = useState('');
   const [isTyping,   setIsTyping]   = useState(false);
   const [saveState,  setSaveState]  = useState('idle'); // 'idle' | 'saved'
+  const [chatUsed,   setChatUsed]   = useState(CHAT_USED_INIT);
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   const bottomRef  = useRef(null);
   const textareaRef = useRef(null);
@@ -70,11 +75,18 @@ export default function AiDiaryChatPage() {
     const text = input.trim();
     if (!text || isTyping) return;
 
+    // 사용량 한도 체크
+    if (chatUsed >= CHAT_LIMIT) {
+      setShowLimitModal(true);
+      return;
+    }
+
     const userMsg = { id: Date.now(), role: 'user', text, time: getNow() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
     setIsTyping(true);
+    setChatUsed(prev => prev + 1);
 
     try {
       const aiText = await getAiResponse([...messages, userMsg]);
@@ -150,8 +162,23 @@ export default function AiDiaryChatPage() {
             <h2 className="chat-title">인공지능 대화형 일기</h2>
             <p className="chat-subtitle">AI와 대화하며 오늘의 감정을 정리해보세요</p>
           </div>
-          <span className="chat-date">{formatDate(new Date())}</span>
+          <div className="chat-header-right">
+            <span className="chat-date">{formatDate(new Date())}</span>
+            <span className={`chat-usage-badge ${CHAT_LIMIT - chatUsed <= 3 ? 'warn' : ''}`}>
+              이번 달 {chatUsed}/{CHAT_LIMIT}회
+            </span>
+          </div>
         </div>
+
+        {/* 소프트 배너: 잔여 3회 이하 */}
+        {CHAT_LIMIT - chatUsed <= 3 && CHAT_LIMIT - chatUsed > 0 && (
+          <div className="chat-soft-banner">
+            <span>이번 달 대화를 거의 다 사용했어요 🌿 남은 횟수: {CHAT_LIMIT - chatUsed}회</span>
+            <button className="chat-banner-cta" onClick={() => navigate('/premium')}>
+              무제한으로 대화하기
+            </button>
+          </div>
+        )}
 
         {/* 메시지 목록 */}
         <div className="chat-messages">
@@ -190,25 +217,58 @@ export default function AiDiaryChatPage() {
 
         {/* 입력 영역 */}
         <div className="chat-input-area">
-          <div className="chat-input-box">
-            <textarea
-              ref={textareaRef}
-              className="chat-textarea"
-              placeholder="오늘 있었던 일을 편하게 입력해보세요 (Enter 전송, Shift+Enter 줄바꿈)"
-              value={input}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              rows={1}
-            />
-            <button
-              className={`chat-send ${input.trim() && !isTyping ? 'active' : ''}`}
-              onClick={sendMessage}
-              disabled={!input.trim() || isTyping}
-            >
-              ↑
-            </button>
-          </div>
+          {chatUsed >= CHAT_LIMIT ? (
+            <div className="chat-limit-reached">
+              <span className="chat-limit-icon">💙</span>
+              <p className="chat-limit-msg">이번 달 대화를 모두 사용했어요.<br />Premium으로 계속 대화할 수 있어요.</p>
+              <button className="chat-limit-cta" onClick={() => navigate('/premium')}>
+                Premium으로 계속 대화하기
+              </button>
+              <button className="chat-limit-later" onClick={() => {}}>
+                다음 달까지 기다릴게요
+              </button>
+            </div>
+          ) : (
+            <div className="chat-input-box">
+              <textarea
+                ref={textareaRef}
+                className="chat-textarea"
+                placeholder="오늘 있었던 일을 편하게 입력해보세요 (Enter 전송, Shift+Enter 줄바꿈)"
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                rows={1}
+              />
+              <button
+                className={`chat-send ${input.trim() && !isTyping ? 'active' : ''}`}
+                onClick={sendMessage}
+                disabled={!input.trim() || isTyping}
+              >
+                ↑
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* 한도 초과 모달 */}
+        {showLimitModal && (
+          <div className="chat-modal-overlay" onClick={() => setShowLimitModal(false)}>
+            <div className="chat-modal-box" onClick={e => e.stopPropagation()}>
+              <div className="chat-modal-emoji">💙</div>
+              <h3 className="chat-modal-title">오늘도 이야기 나눠줘서 고마워요</h3>
+              <p className="chat-modal-desc">
+                이번 달 대화 횟수를 모두 사용했어요.<br />
+                충분히 이야기했으니, 오늘은 여기서 쉬어가도 좋아요.
+              </p>
+              <button className="chat-modal-primary" onClick={() => navigate('/premium')}>
+                Premium으로 계속 대화하기
+              </button>
+              <button className="chat-modal-secondary" onClick={() => setShowLimitModal(false)}>
+                다음 달까지 기다릴게요
+              </button>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* ── 오른쪽 요약 패널 ──────────────────── */}

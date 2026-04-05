@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import SidebarRight from '../../components/Sidebar-right/SidebarRight';
 import WeatherCard from '../../components/WeatherCard/WeatherCard';
@@ -16,6 +17,7 @@ const diaries = [
 ];
 
 const Home = () => {
+  const navigate = useNavigate();
   const now = new Date();
   const year  = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -53,7 +55,62 @@ const Home = () => {
           </div>
         </div>
 
-        {/* ② 감정 분석 요약 */}
+        {/* ② 주간 감정 그래프 잠금 + 리포트 배너 (2열) */}
+        <div className="home-premium-row">
+
+          {/* 주간 감정 그래프 미리보기 */}
+          <div className="home-graph-lock card">
+            <div className="hgl-head">
+              <span className="hgl-title">이번 주 감정 흐름</span>
+              <span className="hgl-period">최근 7일</span>
+            </div>
+            <div className="hgl-chart-preview">
+              {/* 블러 처리된 미니 그래프 */}
+              <svg viewBox="0 0 260 70" className="hgl-svg">
+                <polyline
+                  points="0,50 40,35 80,55 120,20 160,40 200,28 260,45"
+                  fill="none" stroke="#7c6fcd" strokeWidth="2.5"
+                  strokeLinecap="round" strokeLinejoin="round"
+                />
+                <polyline
+                  points="0,50 40,35 80,55 120,20 160,40 200,28 260,45"
+                  fill="url(#grad)" stroke="none"
+                />
+                <defs>
+                  <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#7c6fcd" stopOpacity="0.15"/>
+                    <stop offset="100%" stopColor="#7c6fcd" stopOpacity="0"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="hgl-blur-overlay">
+                <span className="hgl-lock-icon">🔒</span>
+                <p className="hgl-lock-msg">7일 전체 감정 흐름이 여기 있어요</p>
+                <button className="hgl-cta" onClick={() => navigate('/premium')}>
+                  Premium에서 보기
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 주간 리포트 잠금 배너 */}
+          <div className="home-report-lock card">
+            <div className="hrl-icon">📋</div>
+            <div className="hrl-body">
+              <span className="hrl-label">주간 감정 리포트</span>
+              <p className="hrl-msg">
+                지난 주 감정 리포트가 완성됐어요.<br />
+                어떤 순간이 가장 힘들었는지 정리해뒀어요.
+              </p>
+            </div>
+            <button className="hrl-cta" onClick={() => navigate('/premium')}>
+              🔒 리포트 보기
+            </button>
+          </div>
+
+        </div>
+
+        {/* ③ 감정 분석 요약 */}
         <div className="emotion-summary card">
           <div className="summary-item">
             <span className="summary-label">총 감정 요약</span>
@@ -111,7 +168,7 @@ const Home = () => {
                   onChange={e => setSearchQuery(e.target.value)}
                 />
               </div>
-              <button className="write-btn">✏️ 일기 작성</button>
+              <button className="write-btn" onClick={() => navigate('/write')}>✏️ 일기 작성</button>
             </div>
           </div>
 
