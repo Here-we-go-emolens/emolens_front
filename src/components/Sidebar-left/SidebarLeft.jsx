@@ -6,11 +6,12 @@ const CHAT_USED  = 7;
 const CHAT_LIMIT = 10;
 
 const menuItems = [
-  { label: '홈',         icon: '🏠', route: '/home'     },
-  { label: '일기 작성',   icon: '✏️', route: '/write'   },
-  { label: '대화형 일기', icon: '🤖', route: '/ai-chat' },
-  { label: '통계',       icon: '📊', route: '/stats'   },
-  { label: '설정',       icon: '⚙️', route: '/settings' },
+  { label: '홈',         icon: '🏠', route: '/home'      },
+  { label: '일기 작성',   icon: '✏️', route: '/write'    },
+  { label: '대화형 일기', icon: '🤖', route: '/ai-chat'  },
+  { label: '통계',       icon: '📊', route: '/stats'    },
+  { label: 'EchoLens',  icon: '🌊', route: '/community' },
+  { label: '설정',       icon: '⚙️', route: '/settings'  },
 ];
 
 const SidebarLeft = () => {

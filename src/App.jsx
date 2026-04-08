@@ -9,12 +9,14 @@ import OnboardingPage from './pages/Onboarding/OnboardingPage.jsx';
 import PremiumPage from './pages/Premium/PremiumPage.jsx';
 import LoginPage from './pages/Login/LoginPage.jsx';
 import './App.css'
+import CommunityPage from './pages/Community/CommunityPage.jsx';
 
 function App() {
   return (
     <Routes>
       <Route path="/"           element={<OnboardingPage />} />
       <Route path="/home"       element={<Home />} />
+      <Route path="/community" element={<CommunityPage />} />
       <Route path="/write"      element={<DiaryWritePage />} />
       <Route path="/ai-chat"    element={<AiDiaryChatPage />} />
       <Route path="/diary/:id"  element={<DiaryDetailPage />} />
