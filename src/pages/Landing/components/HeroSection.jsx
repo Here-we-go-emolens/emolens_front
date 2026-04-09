@@ -146,7 +146,7 @@ export default function HeroSection() {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                to="/login"
+                to="/write"
                 className="px-7 py-3.5 rounded-full text-white font-semibold text-base text-center transition-all hover:opacity-90"
                 style={{ backgroundColor: '#E8834A' }}
               >

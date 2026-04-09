@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import Home from './pages/Home/Home.jsx';
 import DiaryWritePage from './pages/CreateDiary/DiaryWritePage.jsx';
 import AiDiaryChatPage from './pages/AiDiary/AiDiaryChatPage.jsx';
@@ -11,31 +11,25 @@ import LoginPage from './pages/Login/LoginPage.jsx';
 import OAuthCallbackPage from './pages/OAuthCallback/OAuthCallbackPage.jsx';
 import SignupPage from './pages/SignUp/SignupPage.jsx';
 import LandingPage from './pages/Landing/LandingPage.jsx';
-import { isLoggedIn } from './services/auth.js';
 import './App.css'
 import CommunityPage from './pages/Community/CommunityPage.jsx';
-
-function PrivateRoute({ children }) {
-  return isLoggedIn() ? children : <Navigate to="/login" replace />;
-}
 
 function App() {
   return (
     <Routes>
-      <Route path="/"               element={<LandingPage />} />
-      <Route path="/onboarding"     element={<OnboardingPage />} />
+      <Route path="/"               element={<OnboardingPage />} />
       <Route path="/login"          element={<LoginPage />} />
       <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
-      <Route path="/home"           element={<PrivateRoute><Home /></PrivateRoute>} />
-      <Route path="/community" element={<CommunityPage />} />
-      <Route path="/write"          element={<PrivateRoute><DiaryWritePage /></PrivateRoute>} />
-      <Route path="/ai-chat"        element={<PrivateRoute><AiDiaryChatPage /></PrivateRoute>} />
-      <Route path="/diary/:id"      element={<PrivateRoute><DiaryDetailPage /></PrivateRoute>} />
-      <Route path="/stats"          element={<PrivateRoute><StatsPage /></PrivateRoute>} />
-      <Route path="/settings"       element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
-      <Route path="/premium"        element={<PrivateRoute><PremiumPage /></PrivateRoute>} />
-      <Route path="/signup"         element={<PrivateRoute><SignupPage /></PrivateRoute>} />
+      <Route path="/home"           element={<Home />} />
+      <Route path="/community"      element={<CommunityPage />} />
+      <Route path="/write"          element={<DiaryWritePage />} />
+      <Route path="/ai-chat"        element={<AiDiaryChatPage />} />
+      <Route path="/diary/:id"      element={<DiaryDetailPage />} />
+      <Route path="/stats"          element={<StatsPage />} />
+      <Route path="/settings"       element={<SettingsPage />} />
+      <Route path="/premium"        element={<PremiumPage />} />
+      <Route path="/signup"         element={<SignupPage />} />
     </Routes>
   )
 }

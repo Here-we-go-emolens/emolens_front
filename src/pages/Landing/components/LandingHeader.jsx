@@ -46,7 +46,7 @@ export default function LandingHeader() {
             로그인
           </Link>
           <Link
-            to="/login"
+            to="/write"
             className="text-sm font-semibold px-5 py-2.5 rounded-full text-white transition-all"
             style={{ backgroundColor: '#E8834A' }}
           >
@@ -74,7 +74,7 @@ export default function LandingHeader() {
             </a>
           ))}
           <Link
-            to="/login"
+            to="/write"
             className="text-sm font-semibold px-5 py-2.5 rounded-full text-white text-center mt-2"
             style={{ backgroundColor: '#E8834A' }}
           >

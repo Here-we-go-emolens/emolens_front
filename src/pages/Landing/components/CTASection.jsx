@@ -47,7 +47,7 @@ export default function CTASection() {
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
-              to="/login"
+              to="/write"
               className="px-8 py-4 rounded-full text-white font-semibold text-base text-center transition-all hover:opacity-90 hover:-translate-y-0.5"
               style={{ backgroundColor: '#E8834A', boxShadow: '0 4px 20px rgba(232,131,74,0.4)' }}
             >
