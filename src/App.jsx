@@ -13,6 +13,7 @@ import SignupPage from './pages/SignUp/SignupPage.jsx';
 import LandingPage from './pages/Landing/LandingPage.jsx';
 import { isLoggedIn } from './services/auth.js';
 import './App.css'
+import CommunityPage from './pages/Community/CommunityPage.jsx';
 
 function PrivateRoute({ children }) {
   return isLoggedIn() ? children : <Navigate to="/login" replace />;
@@ -27,6 +28,7 @@ function App() {
       <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
       <Route path="/home"           element={<PrivateRoute><Home /></PrivateRoute>} />
+      <Route path="/community" element={<CommunityPage />} />
       <Route path="/write"          element={<PrivateRoute><DiaryWritePage /></PrivateRoute>} />
       <Route path="/ai-chat"        element={<PrivateRoute><AiDiaryChatPage /></PrivateRoute>} />
       <Route path="/diary/:id"      element={<PrivateRoute><DiaryDetailPage /></PrivateRoute>} />
