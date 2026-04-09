@@ -1,14 +1,22 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '@/styles/Login/LoginPage.css';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [errorMsg, setErrorMsg] = useState('');
 
-  // 실제 연동 시 각 provider의 OAuth URL로 교체
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error')) {
+      setErrorMsg('로그인에 실패했습니다. 다시 시도해주세요.');
+    }
+  }, []);
+
   const handleSocialLogin = (provider) => {
-    console.log(`${provider} 로그인 시도`);
-    // TODO: OAuth 연동
-    navigate('/home');
+    window.location.href = `${API_BASE_URL}/oauth2/authorization/${provider}`;
   };
 
   return (
@@ -32,6 +40,9 @@ export default function LoginPage() {
           로그인하고 당신의 감정을<br />
           기록하고 이해해보세요
         </p>
+
+        {/* 에러 메시지 */}
+        {errorMsg && <p className="login-error">{errorMsg}</p>}
 
         {/* 소셜 로그인 버튼 */}
         <div className="login-buttons">

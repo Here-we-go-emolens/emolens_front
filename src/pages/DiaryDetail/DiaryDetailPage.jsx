@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import '@/styles/DiaryDetail/DiaryDetailPage.css';
 
 // ── 더미 데이터 (추후 API로 교체) ──────────────────────────
@@ -106,6 +107,7 @@ function PremiumLockCard({ title, previewLines = [] }) {
 export default function DiaryDetailPage() {
   const navigate     = useNavigate();
   const { pathname } = useLocation();
+  const user = useCurrentUser();
   const isActive = (route) => route && pathname.startsWith(route);
 
   return (
@@ -117,8 +119,8 @@ export default function DiaryDetailPage() {
           <div className="dd-profile-img">
             <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="profile" />
           </div>
-          <div className="dd-profile-name">달빛소녀</div>
-          <div className="dd-profile-tag">#1234</div>
+          <div className="dd-profile-name">{user?.nickname ?? '...'}</div>
+          <div className="dd-profile-tag">{user?.tag ?? ''}</div>
         </div>
         <nav className="dd-nav">
           {MENU_ITEMS.map(item => (

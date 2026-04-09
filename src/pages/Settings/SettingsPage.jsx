@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import '@/styles/Settings/SettingsPage.css';
 
 /* ── 기본값 ───────────────────────────────────────────── */
 const DEFAULT_SETTINGS = {
   profile: {
-    nickname: '규뚱',
-    bio: '감정을 천천히 기록하고 싶은 사람',
-    email: 'example@email.com',
+    nickname: '',
+    bio: '',
+    email: '',
   },
   notifications: {
     dailyReminder: true,
@@ -147,9 +148,21 @@ const RightPanel = ({ settings }) => {
    메인 컴포넌트
 ═══════════════════════════════════════════════════════ */
 const SettingsPage = () => {
+  const user = useCurrentUser();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [profileDraft, setProfileDraft] = useState({ ...DEFAULT_SETTINGS.profile });
   const [toast, setToast] = useState(null); // { msg, type }
+
+  useEffect(() => {
+    if (!user) return;
+    const profile = {
+      nickname: user.nickname ?? '',
+      bio:      user.bio      ?? '',
+      email:    user.email    ?? '',
+    };
+    setSettings(prev => ({ ...prev, profile }));
+    setProfileDraft(profile);
+  }, [user]);
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });

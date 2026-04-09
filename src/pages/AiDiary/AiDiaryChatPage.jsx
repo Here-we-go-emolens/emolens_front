@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getAiResponse } from '@/api/aiChat';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import '@/styles/AiDiary/AiDiaryChatPage.css';
 
-// ── 상수 ──────────────────────────────────────────────────
-const CHAT_LIMIT = 10; // 무료 월 한도
-const CHAT_USED_INIT = 7; // 초기 사용량 (실제로는 API에서 가져옴)
 
 const MENU_ITEMS = [
   { label: '홈',         icon: '🏠', route: '/home'    },
@@ -47,13 +45,17 @@ function formatDate(d) {
 export default function AiDiaryChatPage() {
   const navigate        = useNavigate();
   const { pathname }    = useLocation();
+  const user = useCurrentUser();
   const isActive = (route) => route && pathname.startsWith(route);
+
+  const chatLimit = user?.chatLimit ?? 10;
+  const [chatAdded, setChatAdded] = useState(0);
+  const chatUsed = (user?.chatUsed ?? 0) + chatAdded;
 
   const [messages,   setMessages]   = useState(INITIAL_MESSAGES);
   const [input,      setInput]      = useState('');
   const [isTyping,   setIsTyping]   = useState(false);
   const [saveState,  setSaveState]  = useState('idle'); // 'idle' | 'saved'
-  const [chatUsed,   setChatUsed]   = useState(CHAT_USED_INIT);
   const [showLimitModal, setShowLimitModal] = useState(false);
 
   const bottomRef  = useRef(null);
@@ -86,7 +88,7 @@ export default function AiDiaryChatPage() {
     setInput('');
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
     setIsTyping(true);
-    setChatUsed(prev => prev + 1);
+    setChatAdded(prev => prev + 1);
 
     try {
       const aiText = await getAiResponse([...messages, userMsg]);
@@ -136,8 +138,8 @@ export default function AiDiaryChatPage() {
           <div className="ai-profile-img">
             <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="profile" />
           </div>
-          <div className="ai-profile-name">달빛소녀</div>
-          <div className="ai-profile-tag">#1234</div>
+          <div className="ai-profile-name">{user?.nickname ?? '...'}</div>
+          <div className="ai-profile-tag">{user?.tag ?? ''}</div>
         </div>
         <nav className="ai-nav">
           {MENU_ITEMS.map(item => (

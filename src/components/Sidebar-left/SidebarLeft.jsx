@@ -1,9 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import "@/styles/Sidebar-left/SidebarLeft.css";
-
-// 무료 사용자 채팅 사용량 (실제 서비스에서는 전역 상태/API로 관리)
-const CHAT_USED  = 7;
-const CHAT_LIMIT = 10;
 
 const menuItems = [
   { label: '홈',         icon: '🏠', route: '/home'     },
@@ -16,6 +13,7 @@ const menuItems = [
 const SidebarLeft = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const user = useCurrentUser();
 
   const isActive = (route) => {
     if (!route) return false;
@@ -23,8 +21,11 @@ const SidebarLeft = () => {
     return pathname.startsWith(route);
   };
 
-  const chatRemaining = CHAT_LIMIT - CHAT_USED;
+  const chatUsed      = user?.chatUsed  ?? 0;
+  const chatLimit     = user?.chatLimit ?? 10;
+  const chatRemaining = chatLimit - chatUsed;
   const chatWarning   = chatRemaining <= 3;
+  const isPremium     = user?.plan === 'premium';
 
   return (
     <div className="sidebar-left">
@@ -36,10 +37,11 @@ const SidebarLeft = () => {
             alt="profile"
           />
         </div>
-        <div className="profile-name">달빛소녀</div>
-        <div className="profile-tag">#1234</div>
-        {/* 플랜 배지 */}
-        <div className="plan-badge free-badge">Free 플랜</div>
+        <div className="profile-name">{user?.nickname ?? '...'}</div>
+        <div className="profile-tag">{user?.tag ?? ''}</div>
+        <div className={`plan-badge ${isPremium ? 'premium-badge' : 'free-badge'}`}>
+          {isPremium ? 'Premium 플랜' : 'Free 플랜'}
+        </div>
       </div>
 
       <nav className="sidebar-nav">
@@ -51,9 +53,9 @@ const SidebarLeft = () => {
           >
             <span className="nav-icon">{item.icon}</span>
             <span>{item.label}</span>
-            {item.route === '/ai-chat' && (
+            {item.route === '/ai-chat' && !isPremium && (
               <span className={`chat-badge ${chatWarning ? 'warn' : ''}`}>
-                {CHAT_USED}/{CHAT_LIMIT}
+                {chatUsed}/{chatLimit}
               </span>
             )}
           </button>
