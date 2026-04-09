@@ -1,17 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getAiResponse } from '@/api/aiChat';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import '@/styles/AiDiary/AiDiaryChatPage.css';
-
-
-const MENU_ITEMS = [
-  { label: '홈',         icon: '🏠', route: '/home'    },
-  { label: '일반 일기',   icon: '📝', route: '/write'   },
-  { label: '대화형 일기', icon: '🤖', route: '/ai-chat' },
-  { label: '통계',       icon: '📊', route: '/stats'   },
-  { label: '설정',       icon: '⚙️', route: null        },
-];
 
 const INITIAL_MESSAGES = [
   { id: 1, role: 'ai',   text: '안녕하세요 😊 오늘 하루는 어떠셨나요? 편하게 이야기해 주세요.',       time: '14:20' },
@@ -43,10 +35,8 @@ function formatDate(d) {
 
 // ── 컴포넌트 ──────────────────────────────────────────────
 export default function AiDiaryChatPage() {
-  const navigate        = useNavigate();
-  const { pathname }    = useLocation();
+  const navigate = useNavigate();
   const user = useCurrentUser();
-  const isActive = (route) => route && pathname.startsWith(route);
 
   const chatLimit = user?.chatLimit ?? 10;
   const [chatAdded, setChatAdded] = useState(0);
@@ -78,7 +68,7 @@ export default function AiDiaryChatPage() {
     if (!text || isTyping) return;
 
     // 사용량 한도 체크
-    if (chatUsed >= CHAT_LIMIT) {
+    if (chatUsed >= chatLimit) {
       setShowLimitModal(true);
       return;
     }
@@ -131,29 +121,7 @@ export default function AiDiaryChatPage() {
 
   return (
     <div className="ai-layout">
-
-      {/* ── 왼쪽 사이드바 ─────────────────────── */}
-      <aside className="ai-sidebar">
-        <div className="ai-profile">
-          <div className="ai-profile-img">
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="profile" />
-          </div>
-          <div className="ai-profile-name">{user?.nickname ?? '...'}</div>
-          <div className="ai-profile-tag">{user?.tag ?? ''}</div>
-        </div>
-        <nav className="ai-nav">
-          {MENU_ITEMS.map(item => (
-            <button
-              key={item.label}
-              className={`ai-nav-item ${isActive(item.route) ? 'active' : ''}`}
-              onClick={() => item.route && navigate(item.route)}
-            >
-              <span className="ai-nav-icon">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
-      </aside>
+      <SidebarLeft />
 
       {/* ── 가운데 채팅 영역 ──────────────────── */}
       <main className="ai-chat-main">
@@ -166,16 +134,16 @@ export default function AiDiaryChatPage() {
           </div>
           <div className="chat-header-right">
             <span className="chat-date">{formatDate(new Date())}</span>
-            <span className={`chat-usage-badge ${CHAT_LIMIT - chatUsed <= 3 ? 'warn' : ''}`}>
-              이번 달 {chatUsed}/{CHAT_LIMIT}회
+            <span className={`chat-usage-badge ${chatLimit - chatUsed <= 3 ? 'warn' : ''}`}>
+              이번 달 {chatUsed}/{chatLimit}회
             </span>
           </div>
         </div>
 
         {/* 소프트 배너: 잔여 3회 이하 */}
-        {CHAT_LIMIT - chatUsed <= 3 && CHAT_LIMIT - chatUsed > 0 && (
+        {chatLimit - chatUsed <= 3 && chatLimit - chatUsed > 0 && (
           <div className="chat-soft-banner">
-            <span>이번 달 대화를 거의 다 사용했어요 🌿 남은 횟수: {CHAT_LIMIT - chatUsed}회</span>
+            <span>이번 달 대화를 거의 다 사용했어요 🌿 남은 횟수: {chatLimit - chatUsed}회</span>
             <button className="chat-banner-cta" onClick={() => navigate('/premium')}>
               무제한으로 대화하기
             </button>
@@ -219,7 +187,7 @@ export default function AiDiaryChatPage() {
 
         {/* 입력 영역 */}
         <div className="chat-input-area">
-          {chatUsed >= CHAT_LIMIT ? (
+          {chatUsed >= chatLimit ? (
             <div className="chat-limit-reached">
               <span className="chat-limit-icon">💙</span>
               <p className="chat-limit-msg">이번 달 대화를 모두 사용했어요.<br />Premium으로 계속 대화할 수 있어요.</p>
