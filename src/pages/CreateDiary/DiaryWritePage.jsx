@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getCurrentWeather } from '@/api/Weather/Weather';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
+import useSpeechRecognition from '@/hooks/useSpeechRecognition';
 import '@/styles/CreateDiary/DiaryWritePage.css';
 
 const TEMPLATES = [
@@ -26,6 +28,7 @@ function getWeatherEmoji(id) {
 const today = new Date().toISOString().split('T')[0];
 
 export default function DiaryWritePage() {
+  const navigate = useNavigate();
   const [showModal, setShowModal]           = useState(false);
   const [mode, setMode]                     = useState('normal');
   const [title, setTitle]                   = useState('');
@@ -39,6 +42,13 @@ export default function DiaryWritePage() {
   // 편지 형식용
   const [letterTo, setLetterTo]   = useState('');
   const [letterFrom, setLetterFrom] = useState('');
+
+  // 음성 인식
+  const { isSupported: micSupported, isRecording, interimText, toggle: toggleMic } =
+    useSpeechRecognition({
+      onFinalResult: (text) =>
+        setContent(prev => prev + (prev && !prev.endsWith('\n') ? ' ' : '') + text),
+    });
 
   const [weather, setWeather]               = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(true);
@@ -55,7 +65,11 @@ export default function DiaryWritePage() {
       .finally(() => setWeatherLoading(false));
   }, []);
 
-  const handleModeSelect = (m) => { setMode(m); setShowModal(false); };
+  const handleModeSelect = (m) => {
+    setShowModal(false);
+    if (m === 'ai') { navigate('/ai-chat'); return; }
+    setMode(m);
+  };
 
   // 날씨 렌더
   const WeatherBadge = () => {
@@ -93,10 +107,35 @@ export default function DiaryWritePage() {
     </>
   );
 
+  // 마이크 버튼
+  const MicButton = () => {
+    if (!micSupported) {
+      return (
+        <button
+          className="dw-mic-btn"
+          disabled
+          title="이 브라우저는 음성 입력을 지원하지 않습니다 (Chrome 권장)"
+        >
+          🎙️
+        </button>
+      );
+    }
+    return (
+      <button
+        className={`dw-mic-btn${isRecording ? ' recording' : ''}`}
+        onClick={toggleMic}
+        title={isRecording ? '녹음 중지' : '음성으로 입력'}
+      >
+        🎙️
+      </button>
+    );
+  };
+
   // 하단 완료 버튼
   const Footer = ({ count }) => (
     <div className="dw-footer">
       <span className="dw-count">{count}자</span>
+      <MicButton />
       <button className="dw-submit">완료</button>
     </div>
   );
@@ -117,6 +156,7 @@ export default function DiaryWritePage() {
                 onChange={e => setContent(e.target.value)}
               />
             </div>
+            {interimText && <p className="dw-interim">{interimText}</p>}
             <Footer count={content.length} />
           </div>
         );
@@ -191,6 +231,7 @@ export default function DiaryWritePage() {
               value={content}
               onChange={e => setContent(e.target.value)}
             />
+            {interimText && <p className="dw-interim">{interimText}</p>}
             <div className="letter-from-row">
               <span className="meta-label">From.</span>
               <input
@@ -216,6 +257,7 @@ export default function DiaryWritePage() {
               value={content}
               onChange={e => setContent(e.target.value)}
             />
+            {interimText && <p className="dw-interim">{interimText}</p>}
             <Footer count={content.length} />
           </div>
         );
@@ -224,6 +266,50 @@ export default function DiaryWritePage() {
 
   return (
     <div className="dw-layout">
+      <style>{`
+        @keyframes mic-blink {
+          0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(220,38,38,0.35); }
+          50%       { opacity: 0.65; box-shadow: 0 0 0 7px rgba(220,38,38,0); }
+        }
+        .dw-mic-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: 1.5px solid var(--border);
+          background: var(--card-bg);
+          font-size: 16px;
+          cursor: pointer;
+          transition: border-color 0.15s, background 0.15s;
+          flex-shrink: 0;
+        }
+        .dw-mic-btn:hover:not(:disabled) {
+          border-color: var(--accent);
+          background: var(--accent-light);
+        }
+        .dw-mic-btn.recording {
+          border-color: #dc2626;
+          background: #fee2e2;
+          animation: mic-blink 1.2s ease-in-out infinite;
+        }
+        .dw-mic-btn:disabled {
+          opacity: 0.38;
+          cursor: not-allowed;
+        }
+        .dw-interim {
+          margin: 6px 0 0;
+          padding: 0 2px;
+          font-size: 13px;
+          line-height: 1.7;
+          color: var(--text-muted);
+          opacity: 0.5;
+          font-style: italic;
+          min-height: 20px;
+          filter: blur(0.4px);
+        }
+      `}</style>
       <SidebarLeft />
 
       <main className="dw-main">

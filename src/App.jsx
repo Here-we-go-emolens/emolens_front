@@ -10,7 +10,6 @@ import PremiumPage from './pages/Premium/PremiumPage.jsx';
 import LoginPage from './pages/Login/LoginPage.jsx';
 import OAuthCallbackPage from './pages/OAuthCallback/OAuthCallbackPage.jsx';
 import SignupPage from './pages/SignUp/SignupPage.jsx';
-import LandingPage from './pages/Landing/LandingPage.jsx';
 import './App.css'
 import CommunityPage from './pages/Community/CommunityPage.jsx';
 import CommunityPostDetailPage from './pages/Community/CommunityPostDetailPage.jsx';
