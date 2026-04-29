@@ -6,7 +6,8 @@
       "Bash(curl -s http://localhost:5173)",
       "Bash(grep:*)",
       "Bash(xargs ls *)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(kill 8541 *)"
     ]
   }
 }

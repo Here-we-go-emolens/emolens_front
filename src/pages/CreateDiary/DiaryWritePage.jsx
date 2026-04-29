@@ -134,6 +134,7 @@ export default function DiaryWritePage() {
         isSecret: false,
         imageUrls,
       });
+      localStorage.setItem(`diary_template_${id}`, selectedTemplate);
       navigate(`/diary/${id}`);
     } catch {
       alert('일기 저장에 실패했습니다.');
@@ -227,7 +228,7 @@ export default function DiaryWritePage() {
       case 'notebook':
         return (
           <div className={`dw-paper dw-paper--notebook`}>
-            <PaperMeta />
+            {PaperMeta()}
             <div className="notebook-body-wrap">
               <textarea
                 className="dw-body nb-body"
@@ -244,7 +245,7 @@ export default function DiaryWritePage() {
       case 'template':
         return (
           <div className={`dw-paper dw-paper--template`}>
-            <PaperMeta />
+            {PaperMeta()}
             <div className="tpl-form">
               <div className="tpl-section">
                 <label className="tpl-field-label">오늘의 감정</label>
@@ -294,7 +295,7 @@ export default function DiaryWritePage() {
         return (
           <div className={`dw-paper dw-paper--letter`}>
             <div className="letter-deco">✦ &nbsp; emolens diary &nbsp; ✦</div>
-            <PaperMeta />
+            {PaperMeta()}
             <div className="letter-to-row">
               <span className="meta-label">To.</span>
               <input
@@ -330,7 +331,7 @@ export default function DiaryWritePage() {
         return (
           <div className={`dw-paper dw-paper--plain`}>
             <div className="paper-stripe" />
-            <PaperMeta />
+            {PaperMeta()}
             <textarea
               className="dw-body"
               placeholder="오늘 하루를 자유롭게 기록해보세요…"
