@@ -67,7 +67,7 @@ export default function OnboardingPage() {
         <div className="ob-nav-inner">
           <span className="ob-logo">EmoLens</span>
           <div className="ob-nav-actions">
-            <button className="ob-nav-login" onClick={() => navigate('/')}>로그인</button>
+            <button className="ob-nav-login" onClick={() => navigate('/login')}>로그인</button>
             <button className="ob-nav-start" onClick={() => navigate('/write')}>시작하기</button>
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function OnboardingPage() {
               <button className="ob-btn-primary" onClick={() => navigate('/write')}>
                 지금 시작하기
               </button>
-              <button className="ob-btn-ghost" onClick={() => navigate('/')}>
+              <button className="ob-btn-ghost" onClick={() => navigate('/login')}>
                 로그인
               </button>
             </div>

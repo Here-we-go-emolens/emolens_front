@@ -1,17 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAiResponse } from '@/api/aiChat';
+import { getAiResponse, finishChat } from '@/api/aiChat';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import '@/styles/AiDiary/AiDiaryChatPage.css';
 
 const INITIAL_MESSAGES = [
-  { id: 1, role: 'ai',   text: '안녕하세요 😊 오늘 하루는 어떠셨나요? 편하게 이야기해 주세요.',       time: '14:20' },
-  { id: 2, role: 'user', text: '생각보다 조금 지쳤어요.',                                        time: '14:21' },
-  { id: 3, role: 'ai',   text: '그렇군요. 가장 피곤했던 순간은 언제였나요?',                       time: '14:21' },
-  { id: 4, role: 'user', text: '수업이 끝나고 나서 해야 할 일이 많다고 느꼈을 때요.',               time: '14:22' },
-  { id: 5, role: 'ai',   text: '그 순간에 어떤 감정이 가장 크게 느껴졌나요?',                      time: '14:22' },
-  { id: 6, role: 'user', text: '부담감이 컸고, 조금 답답했어요.',                                 time: '14:23' },
+  { id: 1, role: 'ai', text: '안녕하세요 😊 오늘 하루는 어떠셨나요? 편하게 이야기해 주세요.', time: '' },
 ];
 
 const SUGGESTED_QUESTIONS = [
@@ -45,7 +40,7 @@ export default function AiDiaryChatPage() {
   const [messages,   setMessages]   = useState(INITIAL_MESSAGES);
   const [input,      setInput]      = useState('');
   const [isTyping,   setIsTyping]   = useState(false);
-  const [saveState,  setSaveState]  = useState('idle'); // 'idle' | 'saved'
+  const [saveState,  setSaveState]  = useState('idle'); // 'idle' | 'saving' | 'saved'
   const [showLimitModal, setShowLimitModal] = useState(false);
 
   const bottomRef  = useRef(null);
@@ -114,9 +109,21 @@ export default function AiDiaryChatPage() {
     }, 0);
   };
 
-  const handleSave = () => {
-    setSaveState('saved');
-    setTimeout(() => setSaveState('idle'), 3000);
+  const handleSave = async () => {
+    const userMessages = messages.filter(m => m.role === 'user');
+    if (userMessages.length === 0) {
+      alert('먼저 AI와 대화를 나눠주세요.');
+      return;
+    }
+    setSaveState('saving');
+    try {
+      const diaryId = await finishChat(messages);
+      setSaveState('saved');
+      setTimeout(() => navigate(`/diary/${diaryId}`), 800);
+    } catch {
+      alert('일기 생성에 실패했습니다. 다시 시도해주세요.');
+      setSaveState('idle');
+    }
   };
 
   return (
@@ -248,11 +255,12 @@ export default function AiDiaryChatPage() {
         <button
           className={`save-btn ${saveState === 'saved' ? 'saved' : ''}`}
           onClick={handleSave}
+          disabled={saveState === 'saving'}
         >
-          {saveState === 'saved' ? '✓ 저장됨' : '💾 일기 저장'}
+          {saveState === 'saving' ? '일기 작성 중…' : saveState === 'saved' ? '✓ 저장됨' : '✍️ 대화로 일기 작성'}
         </button>
         {saveState === 'saved' && (
-          <div className="save-toast">대화형 일기가 임시 저장되었습니다.</div>
+          <div className="save-toast">일기가 생성됐어요! 이동 중...</div>
         )}
 
         {/* 감정 키워드 */}

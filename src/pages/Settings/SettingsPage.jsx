@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { logout } from '@/services/userApi';
 import '@/styles/Settings/SettingsPage.css';
 
 /* ── 기본값 ───────────────────────────────────────────── */
@@ -156,9 +157,9 @@ const SettingsPage = () => {
   useEffect(() => {
     if (!user) return;
     const profile = {
-      nickname: user.nickname ?? '',
-      bio:      user.bio      ?? '',
-      email:    user.email    ?? '',
+      nickname: user.name  ?? '',
+      bio:      user.bio   ?? '',
+      email:    user.email?.endsWith('@social.local') ? '' : (user.email ?? ''),
     };
     setSettings(prev => ({ ...prev, profile }));
     setProfileDraft(profile);
@@ -283,7 +284,7 @@ const SettingsPage = () => {
         >
           <div className="account-actions">
             <button className="btn-secondary">비밀번호 변경</button>
-            <button className="btn-secondary">로그아웃</button>
+            <button className="btn-secondary" onClick={logout}>로그아웃</button>
           </div>
           <div className="account-danger-zone">
             <div className="danger-zone-label">위험 구역</div>

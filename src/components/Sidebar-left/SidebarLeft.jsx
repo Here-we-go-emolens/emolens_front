@@ -38,8 +38,8 @@ const SidebarLeft = () => {
             alt="profile"
           />
         </div>
-        <div className="profile-name">{user?.nickname ?? '...'}</div>
-        <div className="profile-tag">{user?.tag ?? ''}</div>
+        <div className="profile-name">{user?.name ?? '...'}</div>
+        <div className="profile-tag">{user?.tag ? `#${user.tag}` : ''}</div>
         <div className={`plan-badge ${isPremium ? 'premium-badge' : 'free-badge'}`}>
           {isPremium ? 'Premium 플랜' : 'Free 플랜'}
         </div>

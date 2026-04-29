@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
+import { UserProvider } from '@/contexts/UserContext';
 import Home from './pages/Home/Home.jsx';
 import DiaryWritePage from './pages/CreateDiary/DiaryWritePage.jsx';
 import AiDiaryChatPage from './pages/AiDiary/AiDiaryChatPage.jsx';
@@ -17,6 +18,7 @@ import { CommunityProvider } from './pages/Community/CommunityContext.jsx';
 
 function App() {
   return (
+    <UserProvider>
     <CommunityProvider>
       <Routes>
         <Route path="/"               element={<OnboardingPage />} />
@@ -35,6 +37,7 @@ function App() {
         <Route path="/signup"         element={<SignupPage />} />
       </Routes>
     </CommunityProvider>
+    </UserProvider>
   )
 }
 

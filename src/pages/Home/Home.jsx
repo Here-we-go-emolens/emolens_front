@@ -1,20 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import SidebarRight from '../../components/Sidebar-right/SidebarRight';
 import WeatherCard from '../../components/WeatherCard/WeatherCard';
+import { getDiaryList } from '@/services/diaryApi';
 import "@/styles/Home/Home.css";
 
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
-const diaries = [
-  { id: 1, title: '오늘은 기분이 정말 좋았어',   date: '2026.03.31', emotion: '😊 행복', keywords: ['햇살', '산책', '커피'] },
-  { id: 2, title: '조금 지친 하루였다',           date: '2026.03.30', emotion: '😔 우울', keywords: ['야근', '피로'] },
-  { id: 3, title: '친구와 오랜만에 만남',          date: '2026.03.29', emotion: '🥰 설렘', keywords: ['우정', '식사', '대화'] },
-  { id: 4, title: '업무 스트레스가 너무 심했다',   date: '2026.03.28', emotion: '😤 분노', keywords: ['회의', '스트레스'] },
-  { id: 5, title: '조용히 혼자 쉰 날',            date: '2026.03.27', emotion: '😌 평온', keywords: ['휴식', '독서', '음악'] },
-  { id: 6, title: '봄비가 내리던 오후',            date: '2026.03.26', emotion: '😊 행복', keywords: ['비', '창가', '따뜻함'] },
-];
+const STATUS_LABEL = {
+  COMPLETED: '✦ 분석완료',
+  ANALYZING: '⏳ 분석중',
+  PENDING:   '⏳ 대기중',
+  FAILED:    '⚠ 실패',
+};
+
+const formatDate = (dateStr) => dateStr?.replace(/-/g, '.') ?? '';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -24,14 +25,22 @@ const Home = () => {
   const day   = String(now.getDate()).padStart(2, '0');
   const dayOfWeek = DAYS[now.getDay()];
 
+  const [diaries, setDiaries]         = useState([]);
+  const [loading, setLoading]         = useState(true);
   const [searchType,  setSearchType]  = useState('제목');
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    getDiaryList(0, 50)
+      .then((data) => setDiaries(data.content ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = diaries.filter(d => {
     if (!searchQuery) return true;
     if (searchType === '제목') return d.title.includes(searchQuery);
-    if (searchType === '감정') return d.emotion.includes(searchQuery);
-    if (searchType === '날짜') return d.date.includes(searchQuery);
+    if (searchType === '날짜') return formatDate(d.diaryDate).includes(searchQuery);
     return true;
   });
 
@@ -176,22 +185,20 @@ const Home = () => {
             <div className="diary-table-head">
               <span>제목</span>
               <span>날짜</span>
-              <span>대표 감정</span>
-              <span>키워드</span>
+              <span>AI 분석</span>
+              <span>공개</span>
             </div>
-            {filtered.length === 0 ? (
-              <div className="diary-empty">검색 결과가 없습니다.</div>
+            {loading ? (
+              <div className="diary-empty">불러오는 중...</div>
+            ) : filtered.length === 0 ? (
+              <div className="diary-empty">일기가 없습니다.</div>
             ) : (
               filtered.map(d => (
-                <div key={d.id} className="diary-row">
+                <div key={d.id} className="diary-row" style={{ cursor: 'pointer' }} onClick={() => navigate(`/diary/${d.id}`)}>
                   <span className="dr-title">{d.title}</span>
-                  <span className="dr-date">{d.date}</span>
-                  <span className="dr-emotion">{d.emotion}</span>
-                  <span className="dr-keywords">
-                    {d.keywords.map(k => (
-                      <span key={k} className="kw-small">#{k}</span>
-                    ))}
-                  </span>
+                  <span className="dr-date">{formatDate(d.diaryDate)}</span>
+                  <span className="dr-emotion">{STATUS_LABEL[d.status] ?? '-'}</span>
+                  <span className="dr-keywords">{d.isSecret ? '🔒 비공개' : '🌐 공개'}</span>
                 </div>
               ))
             )}

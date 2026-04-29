@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCurrentWeather } from '@/api/Weather/Weather';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import useSpeechRecognition from '@/hooks/useSpeechRecognition';
+import { createDiary, uploadImage } from '@/services/diaryApi';
 import '@/styles/CreateDiary/DiaryWritePage.css';
 
 const TEMPLATES = [
@@ -71,6 +72,76 @@ export default function DiaryWritePage() {
     setMode(m);
   };
 
+  const getWeatherEnum = (id) => {
+    if (!id) return null;
+    if (id === 800 || id === 801) return 'SUNNY';
+    if (id >= 802 && id <= 804) return 'CLOUDY';
+    if ((id >= 300 && id < 400) || (id >= 500 && id < 600)) return 'RAINY';
+    if (id >= 600 && id < 700) return 'SNOWY';
+    return 'CLOUDY';
+  };
+
+  const buildContent = () => {
+    if (selectedTemplate === 'template') {
+      return [
+        tplFields.emotion && `오늘의 감정: ${tplFields.emotion}`,
+        tplFields.good    && `좋았던 일: ${tplFields.good}`,
+        tplFields.bad     && `아쉬웠던 일: ${tplFields.bad}`,
+        tplFields.tomorrow && `내일의 다짐: ${tplFields.tomorrow}`,
+      ].filter(Boolean).join('\n\n');
+    }
+    if (selectedTemplate === 'letter') {
+      return [
+        letterTo   && `To. ${letterTo}`,
+        content,
+        letterFrom && `From. ${letterFrom}`,
+      ].filter(Boolean).join('\n\n');
+    }
+    return content;
+  };
+
+  const [imageUrls, setImageUrls]   = useState([]);
+  const [uploading, setUploading]   = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleImageSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadImage(file);
+      setImageUrls(prev => [...prev, url]);
+    } catch {
+      alert('이미지 업로드에 실패했습니다.');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleSubmit = async () => {
+    const finalContent = buildContent();
+    if (!title.trim()) { alert('제목을 입력해주세요.'); return; }
+    if (!finalContent.trim()) { alert('내용을 입력해주세요.'); return; }
+
+    setSubmitting(true);
+    try {
+      const id = await createDiary({
+        title: title.trim(),
+        content: finalContent,
+        diaryDate: date,
+        weather: getWeatherEnum(weather?.id),
+        isSecret: false,
+        imageUrls,
+      });
+      navigate(`/diary/${id}`);
+    } catch {
+      alert('일기 저장에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // 날씨 렌더
   const WeatherBadge = () => {
     if (weatherLoading) return <span className="meta-sub">불러오는 중…</span>;
@@ -135,8 +206,17 @@ export default function DiaryWritePage() {
   const Footer = ({ count }) => (
     <div className="dw-footer">
       <span className="dw-count">{count}자</span>
+      {imageUrls.length > 0 && (
+        <span className="dw-img-count">🖼 {imageUrls.length}</span>
+      )}
+      <label className={`dw-img-btn${uploading ? ' uploading' : ''}`} title="이미지 첨부">
+        📎
+        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageSelect} disabled={uploading} />
+      </label>
       <MicButton />
-      <button className="dw-submit">완료</button>
+      <button className="dw-submit" onClick={handleSubmit} disabled={submitting || uploading}>
+        {submitting ? '저장 중…' : '완료'}
+      </button>
     </div>
   );
 

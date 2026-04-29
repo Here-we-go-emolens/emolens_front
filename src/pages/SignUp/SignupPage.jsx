@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMe } from '@/services/userApi';
+import apiClient from '@/services/apiClient';
+import { useUserContext } from '@/contexts/UserContext';
 import '@/styles/Signup/SignupPage.css';
-
-// TODO: 백엔드 닉네임 저장 API 완성 시 아래 주석 해제
-// import { getAccessToken } from '@/services/auth';
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const { setUser } = useUserContext();
   const [nickname, setNickname] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -34,17 +33,9 @@ export default function SignupPage() {
     setError('');
 
     try {
-      // TODO: 백엔드 API 완성 시 실제 요청으로 교체
-      // const res = await fetch(`${API_BASE_URL}/api/users/profile`, {
-      //   method: 'PATCH',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Authorization: `Bearer ${getAccessToken()}`,
-      //   },
-      //   body: JSON.stringify({ nickname: trimmed }),
-      // });
-      // if (!res.ok) throw new Error('프로필 설정에 실패했습니다.');
-
+      await apiClient.patch('/api/users/profile', { name: trimmed });
+      const updatedUser = await getMe();
+      setUser(updatedUser);
       if (userId) localStorage.setItem(`emolens_signup_done_${userId}`, 'true');
       navigate('/home', { replace: true });
     } catch (err) {

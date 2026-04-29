@@ -4,7 +4,9 @@
       "Bash(npm run:*)",
       "Bash(npm install:*)",
       "Bash(curl -s http://localhost:5173)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(xargs ls *)",
+      "Bash(git *)"
     ]
   }
 }

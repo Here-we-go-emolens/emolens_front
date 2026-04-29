@@ -1,12 +1,5 @@
-import { useState, useEffect } from 'react';
-import { getMe } from '@/services/userApi';
+import { useUserContext } from '@/contexts/UserContext';
 
 export function useCurrentUser() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    getMe().then(setUser).catch(() => {});
-  }, []);
-
-  return user;
+  return useUserContext().user;
 }

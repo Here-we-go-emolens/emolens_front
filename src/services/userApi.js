@@ -1,14 +1,13 @@
-import { getAccessToken } from '@/services/auth';
+import apiClient from '@/services/apiClient';
+import { clearTokens } from '@/services/auth';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+export const getMe = () => apiClient.get('/api/auth/me').then((r) => r.data);
 
-export async function getMe() {
-  const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
-    headers: {
-      Authorization: `Bearer ${getAccessToken()}`,
-    },
-  });
-
-  if (!res.ok) throw new Error('사용자 정보를 불러오지 못했습니다.');
-  return res.json();
-}
+export const logout = async () => {
+  try {
+    await apiClient.post('/api/auth/logout');
+  } finally {
+    clearTokens();
+    window.location.href = '/login';
+  }
+};
