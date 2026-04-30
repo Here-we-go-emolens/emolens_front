@@ -302,11 +302,22 @@
   margin-top: 24px;
 }
 
+.character-chat-sample.secondary {
+  margin-top: 14px;
+}
+
 .sample-avatar {
   width: 52px;
   height: 52px;
   font-size: 22px;
   border-radius: 18px;
+}
+
+.sample-avatar.mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  font-size: 14px;
 }
 
 .sample-bubble {
@@ -317,6 +328,37 @@
   color: #473a31;
   line-height: 1.7;
   box-shadow: 0 10px 22px rgba(110, 88, 72, 0.08);
+}
+
+.sample-bubble.soft {
+  background: #f8f1e7;
+  box-shadow: none;
+  border: 1px solid rgba(154, 118, 80, 0.14);
+}
+
+.character-preview-detail {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(122, 97, 78, 0.1);
+}
+
+.character-preview-detail.accent {
+  background: linear-gradient(180deg, #f4e8d7 0%, #fbf6ef 100%);
+}
+
+.character-preview-detail h4 {
+  margin: 0 0 8px;
+  color: #3e2f26;
+  font-size: 14px;
+}
+
+.character-preview-detail p {
+  margin: 0;
+  color: #645348;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 @media (max-width: 1180px) {

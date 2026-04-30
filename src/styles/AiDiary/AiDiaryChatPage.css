@@ -307,6 +307,52 @@
   padding: 0 4px;
 }
 
+.starter-chip-wrap {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding: 2px 2px 6px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.starter-chip {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.starter-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.starter-chip-wrap::-webkit-scrollbar {
+  height: 4px;
+}
+
+.starter-chip-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.starter-chip-wrap::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
 /* 타이핑 인디케이터 */
 .typing-bubble {
   display: flex;

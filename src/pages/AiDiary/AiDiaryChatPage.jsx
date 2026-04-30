@@ -13,6 +13,24 @@ const SUGGESTED_QUESTIONS = [
   '지금 나에게 가장 필요한 것은?',
 ];
 
+const STARTER_CATEGORIES = [
+  '오늘 가장 힘들었던 순간',
+  '지금 가장 큰 감정',
+  '누군가와 있었던 일',
+  '내일이 걱정되는 이유',
+  '위로가 필요해',
+  '그냥 털어놓고 싶어',
+];
+
+const STARTER_PROMPTS = {
+  '오늘 가장 힘들었던 순간': '오늘 가장 힘들었던 순간에 대해 이야기하고 싶어. 그때 어떤 감정이었는지 같이 정리할 수 있게 질문해줘.',
+  '지금 가장 큰 감정': '지금 내 안에서 가장 크게 느껴지는 감정이 뭔지 잘 모르겠어. 하나씩 풀어볼 수 있게 도와줘.',
+  '누군가와 있었던 일': '오늘 누군가와 있었던 일이 계속 마음에 남아. 그 상황과 내 감정을 같이 정리해줘.',
+  '내일이 걱정되는 이유': '내일이 걱정돼. 뭐가 불안한지 차근차근 말할 수 있게 질문해줘.',
+  '위로가 필요해': '지금은 해결책보다 위로를 먼저 받고 싶어. 오늘 내 마음을 천천히 들어줘.',
+  '그냥 털어놓고 싶어': '정리되지 않았지만 그냥 털어놓고 싶어. 편하게 이야기할 수 있게 먼저 말 걸어줘.',
+};
+
 const KEYWORDS = ['피곤함', '부담감', '답답함'];
 
 // ── 유틸 ──────────────────────────────────────────────────
@@ -116,8 +134,8 @@ export default function AiDiaryChatPage() {
     e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
   };
 
-  const sendMessage = async () => {
-    const text = input.trim();
+  const sendMessage = async (forcedText) => {
+    const text = (forcedText ?? input).trim();
     if (!text || isTyping) return;
 
     // 사용량 한도 체크
@@ -165,6 +183,12 @@ export default function AiDiaryChatPage() {
         textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
       }
     }, 0);
+  };
+
+  const handleStarterPick = (category) => {
+    const starterPrompt = STARTER_PROMPTS[category];
+    if (!starterPrompt) return;
+    sendMessage(starterPrompt);
   };
 
   const handleSave = async () => {
@@ -273,6 +297,20 @@ export default function AiDiaryChatPage() {
                 <div className="msg-group">
                   <div className={`msg-bubble ${msg.role}`}>{msg.text}</div>
                   <span className="msg-time">{msg.time}</span>
+                  {msg.id === 1 && messages.length === 1 && (
+                    <div className="starter-chip-wrap">
+                      {STARTER_CATEGORIES.map((category) => (
+                        <button
+                          key={category}
+                          type="button"
+                          className="starter-chip"
+                          onClick={() => handleStarterPick(category)}
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

@@ -48,11 +48,46 @@ const EMPTY_FORM = {
 function buildPreview(form) {
   const tone = TONE_OPTIONS.find((item) => item.value === form.tone);
   const personality = PERSONALITY_OPTIONS.find((item) => item.value === form.personality);
+  const music = MUSIC_OPTIONS.find((item) => item.value === form.musicGenre);
+  const activity = ACTIVITY_OPTIONS.find((item) => item.value === form.activityType);
+  const baseName = form.name || '이 캐릭터';
+
+  const introsByTone = {
+    FRIENDLY_INFORMAL: `안녕, ${baseName}. 오늘 있었던 일 편하게 들려줘.`,
+    WARM_FORMAL: `${baseName}님과 함께 오늘 하루를 차분히 정리해볼게요. 어떤 하루였는지 말씀해 주세요.`,
+    PLAYFUL: `${baseName} 왔어. 오늘 마음속에 쌓인 얘기들 하나씩 풀어보자.`,
+    COOL: `오늘의 감정을 정리해보겠습니다. ${baseName}의 시선으로 차분히 말씀해 주세요.`,
+  };
+
+  const supportByPersonality = {
+    EMPATHETIC: '그 감정, 그냥 지나치기엔 꽤 컸겠네. 여기서는 천천히 다 말해도 괜찮아.',
+    POSITIVE: '분명 쉽진 않았겠지만, 그 안에서도 너는 잘 버틴 부분이 있었을 거야.',
+    DIRECT: '지금 핵심은 지친 이유를 정확히 짚는 거야. 뭐가 가장 크게 마음을 눌렀어?',
+    PHILOSOPHICAL: '오늘의 감정은 단순한 기분이 아니라, 네가 중요하게 여기는 것을 보여주는 신호일지도 몰라.',
+  };
+
+  const followUpByCombo = {
+    FRIENDLY_INFORMAL: '그 순간에 네 마음이 제일 크게 움직인 이유는 뭐였을까?',
+    WARM_FORMAL: '그 일 이후에 마음이 어떻게 달라졌는지 조금 더 들려주실 수 있을까요?',
+    PLAYFUL: '그 장면을 다시 떠올리면 제일 먼저 어떤 기분이 튀어나와?',
+    COOL: '그 상황에서 가장 영향이 컸던 요인을 하나만 꼽아보시겠어요?',
+  };
+
+  const recommendationStyleByPersonality = {
+    EMPATHETIC: '지금은 마음을 진정시키는 음악과 부담 없는 행동을 먼저 추천해요.',
+    POSITIVE: '기분을 조금 끌어올릴 수 있는 음악과 작게 시작할 행동을 추천해요.',
+    DIRECT: '지금 바로 실천할 수 있고 효과가 분명한 행동 위주로 추천해요.',
+    PHILOSOPHICAL: '감정을 돌아볼 수 있는 음악과 생각을 정리하는 행동을 추천해요.',
+  };
 
   return {
-    intro: tone?.sample ?? '',
-    title: `${form.name || '이 캐릭터'}가 이런 방식으로 함께할 거예요`,
+    intro: introsByTone[form.tone] ?? tone?.sample ?? '',
+    support: supportByPersonality[form.personality] ?? '',
+    followUp: followUpByCombo[form.tone] ?? '',
+    recommendationStyle: recommendationStyleByPersonality[form.personality] ?? '',
+    title: `${baseName}가 이런 방식으로 함께할 거예요`,
     subtitle: personality?.desc ?? '',
+    tasteSummary: `${music?.label ?? '장르 무관'} · ${activity?.label ?? '활동 무관'}`,
   };
 }
 
@@ -250,6 +285,7 @@ export default function CharacterSetupPage() {
               <div className="preview-chip-row">
                 <span>{TONE_OPTIONS.find((item) => item.value === form.tone)?.label}</span>
                 <span>{PERSONALITY_OPTIONS.find((item) => item.value === form.personality)?.label}</span>
+                <span>{preview.tasteSummary}</span>
               </div>
               <h3>{preview.title}</h3>
               <p>{preview.subtitle}</p>
@@ -259,6 +295,23 @@ export default function CharacterSetupPage() {
                 <div className="sample-bubble">
                   {preview.intro}
                 </div>
+              </div>
+
+              <div className="character-chat-sample secondary">
+                <div className="sample-avatar mini">AI</div>
+                <div className="sample-bubble soft">
+                  {preview.support}
+                </div>
+              </div>
+
+              <div className="character-preview-detail">
+                <h4>이렇게 대화를 이어갑니다</h4>
+                <p>{preview.followUp}</p>
+              </div>
+
+              <div className="character-preview-detail accent">
+                <h4>추천 스타일</h4>
+                <p>{preview.recommendationStyle}</p>
               </div>
             </div>
           </aside>
