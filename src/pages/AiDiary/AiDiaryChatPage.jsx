@@ -13,22 +13,61 @@ const SUGGESTED_QUESTIONS = [
   '지금 나에게 가장 필요한 것은?',
 ];
 
-const STARTER_CATEGORIES = [
-  '오늘 가장 힘들었던 순간',
-  '지금 가장 큰 감정',
-  '누군가와 있었던 일',
-  '내일이 걱정되는 이유',
-  '위로가 필요해',
-  '그냥 털어놓고 싶어',
-];
-
-const STARTER_PROMPTS = {
+const CATEGORY_PROMPTS = {
   '오늘 가장 힘들었던 순간': '오늘 가장 힘들었던 순간에 대해 이야기하고 싶어. 그때 어떤 감정이었는지 같이 정리할 수 있게 질문해줘.',
   '지금 가장 큰 감정': '지금 내 안에서 가장 크게 느껴지는 감정이 뭔지 잘 모르겠어. 하나씩 풀어볼 수 있게 도와줘.',
   '누군가와 있었던 일': '오늘 누군가와 있었던 일이 계속 마음에 남아. 그 상황과 내 감정을 같이 정리해줘.',
   '내일이 걱정되는 이유': '내일이 걱정돼. 뭐가 불안한지 차근차근 말할 수 있게 질문해줘.',
   '위로가 필요해': '지금은 해결책보다 위로를 먼저 받고 싶어. 오늘 내 마음을 천천히 들어줘.',
   '그냥 털어놓고 싶어': '정리되지 않았지만 그냥 털어놓고 싶어. 편하게 이야기할 수 있게 먼저 말 걸어줘.',
+  '왜 그게 마음에 남았을까': '그 일이 왜 이렇게 마음에 남는지 잘 모르겠어. 이유를 같이 짚어볼 수 있게 질문해줘.',
+  '그때 진짜 듣고 싶었던 말': '그 순간 내가 진짜 듣고 싶었던 말이 뭐였는지 생각해보고 싶어. 천천히 꺼낼 수 있게 도와줘.',
+  '내가 놓친 감정이 있을까': '겉으로는 하나의 감정 같지만 다른 감정도 섞여 있는 것 같아. 내가 놓친 감정이 있는지 같이 살펴봐줘.',
+  '관계에서 걸리는 부분': '사람과의 관계에서 걸리는 부분이 있어. 어떤 점이 마음을 불편하게 했는지 정리해보고 싶어.',
+  '지금 가장 필요한 위로': '지금 내게 가장 필요한 위로가 뭔지 모르겠어. 내 마음을 먼저 다독여줘.',
+  '오늘을 한 문장으로 정리': '오늘 하루를 한 문장으로 정리해보고 싶어. 핵심 감정을 같이 잡아줘.',
+  '내일 덜 불안해지려면': '내일을 조금 덜 불안하게 맞이하려면 무엇이 필요할지 같이 정리해줘.',
+  '지금 할 수 있는 작은 행동': '지금 당장 부담 없이 할 수 있는 작은 행동이 뭐가 있을지 같이 찾아줘.',
+  '오늘 내가 잘 버틴 점': '오늘 내가 그래도 잘 버틴 점이 있다면 무엇인지 같이 찾아보고 싶어.',
+};
+
+const CATEGORY_SETS = {
+  opening: [
+    '오늘 가장 힘들었던 순간',
+    '지금 가장 큰 감정',
+    '누군가와 있었던 일',
+    '내일이 걱정되는 이유',
+    '위로가 필요해',
+    '그냥 털어놓고 싶어',
+  ],
+  emotion: [
+    '지금 가장 큰 감정',
+    '내가 놓친 감정이 있을까',
+    '왜 그게 마음에 남았을까',
+    '그때 진짜 듣고 싶었던 말',
+    '지금 가장 필요한 위로',
+  ],
+  relationship: [
+    '누군가와 있었던 일',
+    '관계에서 걸리는 부분',
+    '그때 진짜 듣고 싶었던 말',
+    '왜 그게 마음에 남았을까',
+    '지금 가장 필요한 위로',
+  ],
+  anxiety: [
+    '내일이 걱정되는 이유',
+    '지금 가장 큰 감정',
+    '왜 그게 마음에 남았을까',
+    '내일 덜 불안해지려면',
+    '지금 할 수 있는 작은 행동',
+  ],
+  closing: [
+    '오늘을 한 문장으로 정리',
+    '오늘 내가 잘 버틴 점',
+    '지금 가장 필요한 위로',
+    '내일 덜 불안해지려면',
+    '지금 할 수 있는 작은 행동',
+  ],
 };
 
 const KEYWORDS = ['피곤함', '부담감', '답답함'];
@@ -57,6 +96,42 @@ function getCharacterGreeting(character) {
   };
 
   return byTone[character.tone] ?? '오늘 있었던 일을 편하게 이야기해 주세요.';
+}
+
+function inferConversationTopic(messages) {
+  const userMessages = messages.filter((msg) => msg.role === 'user');
+  const aiMessages = messages.filter((msg) => msg.role === 'ai');
+  const recentText = userMessages.slice(-2).map((msg) => msg.text).join(' ').toLowerCase();
+  const lastAiText = (aiMessages.at(-1)?.text ?? '').toLowerCase();
+
+  if (!recentText.trim() && !lastAiText.trim()) return 'opening';
+
+  const relationshipKeywords = ['친구', '엄마', '아빠', '가족', '선배', '후배', '동료', '사람', '관계', '대화', '말다툼', '연락', '상대'];
+  const anxietyKeywords = ['내일', '걱정', '불안', '긴장', '시험', '면접', '발표', '출근', '미래', '실수', '무서'];
+  const emotionKeywords = ['슬프', '우울', '눈물', '힘들', '지쳤', '외롭', '답답', '화나', '짜증', '허무', '공허', '속상'];
+  const closingKeywords = ['한 문장', '정리', '돌아보', '마무리', '지금 할 수 있는', '작은 행동', '내일', '어떻게 해보면 좋을', '잘 버틴'];
+
+  const containsAny = (text, keywords) => keywords.some((keyword) => text.includes(keyword));
+
+  if (containsAny(lastAiText, closingKeywords)) return 'closing';
+  if (containsAny(lastAiText, anxietyKeywords)) return 'anxiety';
+  if (containsAny(lastAiText, relationshipKeywords)) return 'relationship';
+  if (containsAny(lastAiText, emotionKeywords)) return 'emotion';
+
+  if (containsAny(recentText, anxietyKeywords)) return 'anxiety';
+  if (containsAny(recentText, relationshipKeywords)) return 'relationship';
+  if (containsAny(recentText, emotionKeywords)) return 'emotion';
+
+  return 'emotion';
+}
+
+function getCategorySet(messages) {
+  const userCount = messages.filter((msg) => msg.role === 'user').length;
+  if (userCount === 0) return CATEGORY_SETS.opening;
+  if (userCount >= 4) return CATEGORY_SETS.closing;
+
+  const topic = inferConversationTopic(messages);
+  return CATEGORY_SETS[topic] ?? CATEGORY_SETS.emotion;
 }
 
 function MicIcon() {
@@ -186,7 +261,7 @@ export default function AiDiaryChatPage() {
   };
 
   const handleStarterPick = (category) => {
-    const starterPrompt = STARTER_PROMPTS[category];
+    const starterPrompt = CATEGORY_PROMPTS[category];
     if (!starterPrompt) return;
     sendMessage(starterPrompt);
   };
@@ -233,6 +308,9 @@ export default function AiDiaryChatPage() {
       </button>
     );
   };
+
+  const activeCategories = getCategorySet(messages);
+  const lastAiMessageId = [...messages].reverse().find((msg) => msg.role === 'ai')?.id;
 
   return (
     <div className="ai-layout">
@@ -297,9 +375,9 @@ export default function AiDiaryChatPage() {
                 <div className="msg-group">
                   <div className={`msg-bubble ${msg.role}`}>{msg.text}</div>
                   <span className="msg-time">{msg.time}</span>
-                  {msg.id === 1 && messages.length === 1 && (
+                  {msg.role === 'ai' && msg.id === lastAiMessageId && (
                     <div className="starter-chip-wrap">
-                      {STARTER_CATEGORIES.map((category) => (
+                      {activeCategories.map((category) => (
                         <button
                           key={category}
                           type="button"
