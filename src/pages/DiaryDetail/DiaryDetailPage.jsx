@@ -305,17 +305,14 @@ export default function DiaryDetailPage() {
                 {renderContent(diary.content, templateType)}
               </div>
               {diary.imageUrls?.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '16px' }}>
+                <div className="dd-image-gallery">
                   {diary.imageUrls.map((url, i) => {
                     const src = url.startsWith('http') ? url : `${import.meta.env.VITE_API_BASE_URL}${url}`;
                     return (
-                      <img
-                        key={i}
-                        src={src}
-                        alt={`첨부 이미지 ${i + 1}`}
-                        style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer' }}
-                        onClick={() => window.open(src, '_blank')}
-                      />
+                      <div key={i} className="dd-image-item" onClick={() => window.open(src, '_blank')}>
+                        <img src={src} alt={`첨부 이미지 ${i + 1}`} />
+                        <div className="dd-image-overlay"><span>🔍 크게 보기</span></div>
+                      </div>
                     );
                   })}
                 </div>

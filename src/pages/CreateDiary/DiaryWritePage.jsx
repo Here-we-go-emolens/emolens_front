@@ -8,7 +8,6 @@ import '@/styles/CreateDiary/DiaryWritePage.css';
 
 const TEMPLATES = [
   { id: 'plain',    label: '내지',   icon: '📄', desc: '빈 페이지 형식' },
-  { id: 'template', label: '템플릿', icon: '📋', desc: '감정 기록 양식' },
   { id: 'notebook', label: '공책',   icon: '📓', desc: '줄 노트 형식' },
   { id: 'letter',   label: '편지',   icon: '✉️', desc: '편지 형식으로' },
 ];
@@ -36,9 +35,6 @@ export default function DiaryWritePage() {
   const [date, setDate]                     = useState(today);
   const [content, setContent]               = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('plain');
-
-  // 템플릿 형식용 구조화 필드
-  const [tplFields, setTplFields] = useState({ emotion: '', good: '', bad: '', tomorrow: '' });
 
   // 편지 형식용
   const [letterTo, setLetterTo]   = useState('');
@@ -82,14 +78,6 @@ export default function DiaryWritePage() {
   };
 
   const buildContent = () => {
-    if (selectedTemplate === 'template') {
-      return [
-        tplFields.emotion && `오늘의 감정: ${tplFields.emotion}`,
-        tplFields.good    && `좋았던 일: ${tplFields.good}`,
-        tplFields.bad     && `아쉬웠던 일: ${tplFields.bad}`,
-        tplFields.tomorrow && `내일의 다짐: ${tplFields.tomorrow}`,
-      ].filter(Boolean).join('\n\n');
-    }
     if (selectedTemplate === 'letter') {
       return [
         letterTo   && `To. ${letterTo}`,
@@ -117,6 +105,10 @@ export default function DiaryWritePage() {
       setUploading(false);
       e.target.value = '';
     }
+  };
+
+  const handleImageRemove = (index) => {
+    setImageUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async () => {
@@ -180,26 +172,47 @@ export default function DiaryWritePage() {
   );
 
   // 마이크 버튼
+  const MicIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+      <line x1="12" y1="19" x2="12" y2="23"/>
+      <line x1="8" y1="23" x2="16" y2="23"/>
+    </svg>
+  );
+
   const MicButton = () => {
     if (!micSupported) {
       return (
-        <button
-          className="dw-mic-btn"
-          disabled
-          title="이 브라우저는 음성 입력을 지원하지 않습니다 (Chrome 권장)"
-        >
-          🎙️
+        <button className="dw-mic-btn" disabled title="이 브라우저는 음성 입력을 지원하지 않습니다 (Chrome 권장)">
+          <MicIcon />
+          음성 입력
         </button>
       );
     }
     return (
-      <button
-        className={`dw-mic-btn${isRecording ? ' recording' : ''}`}
-        onClick={toggleMic}
-        title={isRecording ? '녹음 중지' : '음성으로 입력'}
-      >
-        🎙️
+      <button className={`dw-mic-btn${isRecording ? ' recording' : ''}`} onClick={toggleMic}>
+        <MicIcon />
+        {isRecording ? '녹음 중지' : '음성 입력'}
       </button>
+    );
+  };
+
+  // 이미지 미리보기
+  const ImagePreview = () => {
+    if (imageUrls.length === 0) return null;
+    return (
+      <div className="dw-image-preview">
+        {imageUrls.map((url, i) => {
+          const src = url.startsWith('http') ? url : `${import.meta.env.VITE_API_BASE_URL}${url}`;
+          return (
+            <div key={i} className="dw-preview-item">
+              <img src={src} alt={`첨부 이미지 ${i + 1}`} />
+              <button className="dw-preview-remove" onClick={() => handleImageRemove(i)} title="삭제">✕</button>
+            </div>
+          );
+        })}
+      </div>
     );
   };
 
@@ -207,11 +220,13 @@ export default function DiaryWritePage() {
   const Footer = ({ count }) => (
     <div className="dw-footer">
       <span className="dw-count">{count}자</span>
-      {imageUrls.length > 0 && (
-        <span className="dw-img-count">🖼 {imageUrls.length}</span>
-      )}
-      <label className={`dw-img-btn${uploading ? ' uploading' : ''}`} title="이미지 첨부">
-        📎
+      <label className={`dw-img-btn${uploading ? ' uploading' : ''}`}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        {uploading ? '업로드 중…' : '사진 추가'}
         <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageSelect} disabled={uploading} />
       </label>
       <MicButton />
@@ -238,56 +253,8 @@ export default function DiaryWritePage() {
               />
             </div>
             {interimText && <p className="dw-interim">{interimText}</p>}
+            <ImagePreview />
             <Footer count={content.length} />
-          </div>
-        );
-
-      case 'template':
-        return (
-          <div className={`dw-paper dw-paper--template`}>
-            {PaperMeta()}
-            <div className="tpl-form">
-              <div className="tpl-section">
-                <label className="tpl-field-label">오늘의 감정</label>
-                <div className="emotion-picker">
-                  {['😊 행복','😌 평온','😔 우울','😤 분노','🥰 설렘','😰 불안'].map(e => (
-                    <button
-                      key={e}
-                      className={`emo-btn ${tplFields.emotion === e ? 'active' : ''}`}
-                      onClick={() => setTplFields(p => ({ ...p, emotion: e }))}
-                    >{e}</button>
-                  ))}
-                </div>
-              </div>
-              <div className="tpl-section">
-                <label className="tpl-field-label">😊 좋았던 일</label>
-                <textarea
-                  className="tpl-textarea"
-                  placeholder="오늘 기분 좋았던 순간을 적어보세요."
-                  value={tplFields.good}
-                  onChange={e => setTplFields(p => ({ ...p, good: e.target.value }))}
-                />
-              </div>
-              <div className="tpl-section">
-                <label className="tpl-field-label">😔 아쉬웠던 일</label>
-                <textarea
-                  className="tpl-textarea"
-                  placeholder="오늘 힘들거나 아쉬웠던 점을 적어보세요."
-                  value={tplFields.bad}
-                  onChange={e => setTplFields(p => ({ ...p, bad: e.target.value }))}
-                />
-              </div>
-              <div className="tpl-section">
-                <label className="tpl-field-label">🌱 내일의 다짐</label>
-                <textarea
-                  className="tpl-textarea"
-                  placeholder="내일은 어떤 하루를 보내고 싶나요?"
-                  value={tplFields.tomorrow}
-                  onChange={e => setTplFields(p => ({ ...p, tomorrow: e.target.value }))}
-                />
-              </div>
-            </div>
-            <Footer count={Object.values(tplFields).join('').length} />
           </div>
         );
 
@@ -323,6 +290,7 @@ export default function DiaryWritePage() {
                 onChange={e => setLetterFrom(e.target.value)}
               />
             </div>
+            <ImagePreview />
             <Footer count={content.length} />
           </div>
         );
@@ -339,6 +307,7 @@ export default function DiaryWritePage() {
               onChange={e => setContent(e.target.value)}
             />
             {interimText && <p className="dw-interim">{interimText}</p>}
+            <ImagePreview />
             <Footer count={content.length} />
           </div>
         );
@@ -347,50 +316,6 @@ export default function DiaryWritePage() {
 
   return (
     <div className="dw-layout">
-      <style>{`
-        @keyframes mic-blink {
-          0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(220,38,38,0.35); }
-          50%       { opacity: 0.65; box-shadow: 0 0 0 7px rgba(220,38,38,0); }
-        }
-        .dw-mic-btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          border: 1.5px solid var(--border);
-          background: var(--card-bg);
-          font-size: 16px;
-          cursor: pointer;
-          transition: border-color 0.15s, background 0.15s;
-          flex-shrink: 0;
-        }
-        .dw-mic-btn:hover:not(:disabled) {
-          border-color: var(--accent);
-          background: var(--accent-light);
-        }
-        .dw-mic-btn.recording {
-          border-color: #dc2626;
-          background: #fee2e2;
-          animation: mic-blink 1.2s ease-in-out infinite;
-        }
-        .dw-mic-btn:disabled {
-          opacity: 0.38;
-          cursor: not-allowed;
-        }
-        .dw-interim {
-          margin: 6px 0 0;
-          padding: 0 2px;
-          font-size: 13px;
-          line-height: 1.7;
-          color: var(--text-muted);
-          opacity: 0.5;
-          font-style: italic;
-          min-height: 20px;
-          filter: blur(0.4px);
-        }
-      `}</style>
       <SidebarLeft />
 
       <main className="dw-main">

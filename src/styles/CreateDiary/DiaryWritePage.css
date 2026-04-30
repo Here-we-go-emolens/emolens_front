@@ -540,90 +540,6 @@
   background: var(--accent);
 }
 
-/* ── 템플릿 (template) ─────────────────────────────────── */
-.dw-paper--template {
-  background: var(--card-bg);
-  border-color: var(--border);
-}
-
-.tpl-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  flex: 1;
-}
-
-.tpl-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.tpl-field-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-}
-
-/* 감정 선택 버튼 그룹 */
-.emotion-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.emo-btn {
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1.5px solid var(--border);
-  background: var(--card-bg);
-  font-size: 13px;
-  cursor: pointer;
-  font-family: inherit;
-  color: var(--text);
-  transition: all 0.15s;
-}
-
-.emo-btn:hover {
-  border-color: var(--accent);
-  background: var(--accent-light);
-}
-
-.emo-btn.active {
-  border-color: var(--accent);
-  background: var(--accent-light);
-  color: var(--accent);
-  font-weight: 600;
-}
-
-/* 구조화 textarea */
-.tpl-textarea {
-  width: 100%;
-  min-height: 80px;
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  outline: none;
-  padding: 12px 14px;
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--text);
-  background: var(--bg);
-  font-family: inherit;
-  resize: none;
-  transition: border-color 0.15s;
-}
-
-.tpl-textarea::placeholder {
-  color: #cccccc;
-}
-
-.tpl-textarea:focus {
-  border-color: var(--accent);
-  background: var(--card-bg);
-}
-
 /* ── 편지 (letter) ─────────────────────────────────────── */
 .dw-paper--letter {
   background: #fffaf3;
@@ -723,6 +639,177 @@
 .dw-paper--letter .dw-submit:hover {
   background: #8a5520;
   opacity: 1;
+}
+
+/* ── 마이크 버튼 ─────────────────────────────────────────── */
+@keyframes mic-blink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35); }
+  50%       { opacity: 0.65; box-shadow: 0 0 0 7px rgba(220, 38, 38, 0); }
+}
+
+.dw-mic-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.dw-mic-btn svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.dw-mic-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.dw-mic-btn:hover:not(:disabled) svg {
+  color: var(--accent);
+}
+
+.dw-mic-btn.recording {
+  border-color: #dc2626;
+  background: #fee2e2;
+  color: #dc2626;
+  animation: mic-blink 1.2s ease-in-out infinite;
+}
+
+.dw-mic-btn.recording svg {
+  color: #dc2626;
+}
+
+.dw-mic-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* ── 음성 인식 미리보기 텍스트 ──────────────────────────── */
+.dw-interim {
+  margin: 6px 0 0;
+  padding: 0 2px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  opacity: 0.5;
+  font-style: italic;
+  min-height: 20px;
+  filter: blur(0.4px);
+}
+
+/* ── 이미지 첨부 버튼 ───────────────────────────────────── */
+.dw-img-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.dw-img-btn svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.dw-img-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.dw-img-btn:hover svg {
+  color: var(--accent);
+}
+
+.dw-img-btn.uploading {
+  opacity: 0.55;
+  cursor: not-allowed;
+  border-color: var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+}
+
+/* ── 이미지 미리보기 ─────────────────────────────────────── */
+.dw-image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--bg);
+  border-radius: 12px;
+  border: 1.5px dashed var(--border);
+}
+
+.dw-preview-item {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.dw-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.dw-preview-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: none;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.dw-preview-item:hover .dw-preview-remove {
+  opacity: 1;
+}
+
+.dw-preview-remove:hover {
+  background: rgba(220, 38, 38, 0.8);
 }
 
 /* ── 반응형 ────────────────────────────────────────────── */
