@@ -2,12 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAiResponse, finishChat } from '@/api/aiChat';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useCharacter } from '@/hooks/useCharacter';
+import useSpeechRecognition from '@/hooks/useSpeechRecognition';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import '@/styles/AiDiary/AiDiaryChatPage.css';
-
-const INITIAL_MESSAGES = [
-  { id: 1, role: 'ai', text: '안녕하세요 😊 오늘 하루는 어떠셨나요? 편하게 이야기해 주세요.', time: '' },
-];
 
 const SUGGESTED_QUESTIONS = [
   '오늘 가장 위로가 되었던 순간은?',
@@ -28,16 +26,45 @@ function formatDate(d) {
   return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${DAYS[d.getDay()]}요일`;
 }
 
+function getCharacterGreeting(character) {
+  if (!character) {
+    return '안녕하세요 😊 오늘 하루는 어떠셨나요? 편하게 이야기해 주세요.';
+  }
+
+  const byTone = {
+    FRIENDLY_INFORMAL: `안녕, ${character.name}. 오늘 하루는 어땠어? 편하게 말해줘.`,
+    WARM_FORMAL: `${character.name}님과 함께 오늘 하루를 차분히 돌아볼게요. 어떤 하루였는지 들려주세요.`,
+    PLAYFUL: `안녕, ${character.name} 왔어. 오늘 있었던 일들 하나씩 가볍게 풀어보자.`,
+    COOL: `오늘 하루를 정리해보겠습니다. ${character.name}의 시선으로 차분히 이야기해 주세요.`,
+  };
+
+  return byTone[character.tone] ?? '오늘 있었던 일을 편하게 이야기해 주세요.';
+}
+
+function MicIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+      <line x1="12" y1="19" x2="12" y2="23" />
+      <line x1="8" y1="23" x2="16" y2="23" />
+    </svg>
+  );
+}
+
 // ── 컴포넌트 ──────────────────────────────────────────────
 export default function AiDiaryChatPage() {
   const navigate = useNavigate();
   const user = useCurrentUser();
+  const { character, loading: characterLoading, notFound } = useCharacter();
 
   const chatLimit = user?.chatLimit ?? 10;
   const [chatAdded, setChatAdded] = useState(0);
   const chatUsed = (user?.chatUsed ?? 0) + chatAdded;
 
-  const [messages,   setMessages]   = useState(INITIAL_MESSAGES);
+  const [messages,   setMessages]   = useState([
+    { id: 1, role: 'ai', text: getCharacterGreeting(null), time: '' },
+  ]);
   const [input,      setInput]      = useState('');
   const [isTyping,   setIsTyping]   = useState(false);
   const [saveState,  setSaveState]  = useState('idle'); // 'idle' | 'saving' | 'saved'
@@ -45,6 +72,37 @@ export default function AiDiaryChatPage() {
 
   const bottomRef  = useRef(null);
   const textareaRef = useRef(null);
+  const { isSupported: micSupported, isRecording, interimText, toggle: toggleMic } =
+    useSpeechRecognition({
+      onFinalResult: (text) => {
+        setInput((prev) => {
+          const next = `${prev}${prev && !prev.endsWith(' ') ? ' ' : ''}${text}`.trimStart();
+          return next;
+        });
+
+        if (textareaRef.current) {
+          const nextValue = `${textareaRef.current.value}${textareaRef.current.value && !textareaRef.current.value.endsWith(' ') ? ' ' : ''}${text}`.trimStart();
+          textareaRef.current.value = nextValue;
+          textareaRef.current.style.height = 'auto';
+          textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+        }
+      },
+    });
+
+  useEffect(() => {
+    if (!characterLoading && notFound) {
+      navigate('/character?next=/ai-chat', { replace: true });
+    }
+  }, [characterLoading, navigate, notFound]);
+
+  useEffect(() => {
+    if (!character) return;
+
+    setMessages((prev) => {
+      if (prev.length !== 1 || prev[0].role !== 'ai') return prev;
+      return [{ ...prev[0], text: getCharacterGreeting(character) }];
+    });
+  }, [character]);
 
   // 새 메시지마다 하단 스크롤
   useEffect(() => {
@@ -126,6 +184,32 @@ export default function AiDiaryChatPage() {
     }
   };
 
+  const renderMicButton = () => {
+    if (!micSupported) {
+      return (
+        <button
+          className="chat-mic-btn"
+          disabled
+          title="이 브라우저는 음성 입력을 지원하지 않습니다 (Chrome 권장)"
+        >
+          <MicIcon />
+          음성 입력
+        </button>
+      );
+    }
+
+    return (
+      <button
+        type="button"
+        className={`chat-mic-btn${isRecording ? ' recording' : ''}`}
+        onClick={toggleMic}
+      >
+        <MicIcon />
+        {isRecording ? '녹음 중지' : '음성 입력'}
+      </button>
+    );
+  };
+
   return (
     <div className="ai-layout">
       <SidebarLeft />
@@ -137,7 +221,20 @@ export default function AiDiaryChatPage() {
         <div className="chat-header">
           <div>
             <h2 className="chat-title">인공지능 대화형 일기</h2>
-            <p className="chat-subtitle">AI와 대화하며 오늘의 감정을 정리해보세요</p>
+            <p className="chat-subtitle">
+              {character
+                ? `${character.name}와 대화하며 오늘의 감정을 정리해보세요`
+                : 'AI와 대화하며 오늘의 감정을 정리해보세요'}
+            </p>
+            {character && (
+              <div className="chat-character-row">
+                <div className="chat-character-avatar">{character.name[0]}</div>
+                <div className="chat-character-meta">
+                  <strong>{character.name}</strong>
+                  <span>{character.toneDescription} · {character.personalityDescription}</span>
+                </div>
+              </div>
+            )}
           </div>
           <div className="chat-header-right">
             <span className="chat-date">{formatDate(new Date())}</span>
@@ -168,7 +265,11 @@ export default function AiDiaryChatPage() {
 
             {messages.map(msg => (
               <div key={msg.id} className={`msg-row ${msg.role}`}>
-                {msg.role === 'ai' && <div className="msg-avatar">🤖</div>}
+                {msg.role === 'ai' && (
+                  <div className="msg-avatar msg-avatar-character">
+                    {character?.name?.[0] ?? 'AI'}
+                  </div>
+                )}
                 <div className="msg-group">
                   <div className={`msg-bubble ${msg.role}`}>{msg.text}</div>
                   <span className="msg-time">{msg.time}</span>
@@ -179,7 +280,7 @@ export default function AiDiaryChatPage() {
             {/* 타이핑 인디케이터 */}
             {isTyping && (
               <div className="msg-row ai">
-                <div className="msg-avatar">🤖</div>
+                <div className="msg-avatar msg-avatar-character">{character?.name?.[0] ?? 'AI'}</div>
                 <div className="msg-group">
                   <div className="msg-bubble ai typing-bubble">
                     <span className="dot" /><span className="dot" /><span className="dot" />
@@ -206,23 +307,27 @@ export default function AiDiaryChatPage() {
               </button>
             </div>
           ) : (
-            <div className="chat-input-box">
-              <textarea
-                ref={textareaRef}
-                className="chat-textarea"
-                placeholder="오늘 있었던 일을 편하게 입력해보세요 (Enter 전송, Shift+Enter 줄바꿈)"
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                rows={1}
-              />
-              <button
-                className={`chat-send ${input.trim() && !isTyping ? 'active' : ''}`}
-                onClick={sendMessage}
-                disabled={!input.trim() || isTyping}
-              >
-                ↑
-              </button>
+            <div className="chat-input-stack">
+              <div className="chat-input-box">
+                <textarea
+                  ref={textareaRef}
+                  className="chat-textarea"
+                  placeholder="오늘 있었던 일을 편하게 입력해보세요 (Enter 전송, Shift+Enter 줄바꿈)"
+                  value={input}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  rows={1}
+                />
+                {renderMicButton()}
+                <button
+                  className={`chat-send ${input.trim() && !isTyping ? 'active' : ''}`}
+                  onClick={sendMessage}
+                  disabled={!input.trim() || isTyping}
+                >
+                  ↑
+                </button>
+              </div>
+              {interimText && <p className="chat-interim">{interimText}</p>}
             </div>
           )}
         </div>

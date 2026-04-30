@@ -133,6 +133,41 @@
   margin: 0;
 }
 
+.chat-character-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.chat-character-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #dd8c54 0%, #8f66ba 100%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.chat-character-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-character-meta strong {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.chat-character-meta span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 .chat-date {
   font-size: 12px;
   color: var(--text-muted);
@@ -219,6 +254,15 @@
   border: 1px solid var(--border);
 }
 
+.msg-avatar-character {
+  border-radius: 12px;
+  background: linear-gradient(135deg, #dd8c54 0%, #8f66ba 100%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  border: none;
+}
+
 /* 말풍선 그룹 */
 .msg-group {
   display: flex;
@@ -295,6 +339,12 @@
   border-top: 1px solid var(--border);
 }
 
+.chat-input-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .chat-input-box {
   display: flex;
   align-items: flex-end;
@@ -355,6 +405,73 @@
 
 .chat-send.active:hover {
   opacity: 0.88;
+}
+
+@keyframes chat-mic-blink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35); }
+  50% { opacity: 0.65; box-shadow: 0 0 0 7px rgba(220, 38, 38, 0); }
+}
+
+.chat-mic-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.chat-mic-btn svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.chat-mic-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.chat-mic-btn:hover:not(:disabled) svg {
+  color: var(--accent);
+}
+
+.chat-mic-btn.recording {
+  border-color: #dc2626;
+  background: #fee2e2;
+  color: #dc2626;
+  animation: chat-mic-blink 1.2s ease-in-out infinite;
+}
+
+.chat-mic-btn.recording svg {
+  color: #dc2626;
+}
+
+.chat-mic-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.chat-interim {
+  margin: 0;
+  padding: 0 6px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  opacity: 0.5;
+  font-style: italic;
+  min-height: 20px;
+  filter: blur(0.4px);
 }
 
 /* ══════════════════════════════════════════════════════════

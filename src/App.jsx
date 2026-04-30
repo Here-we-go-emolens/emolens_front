@@ -11,6 +11,7 @@ import PremiumPage from './pages/Premium/PremiumPage.jsx';
 import LoginPage from './pages/Login/LoginPage.jsx';
 import OAuthCallbackPage from './pages/OAuthCallback/OAuthCallbackPage.jsx';
 import SignupPage from './pages/SignUp/SignupPage.jsx';
+import CharacterSetupPage from './pages/Character/CharacterSetupPage.jsx';
 import './App.css'
 import CommunityPage from './pages/Community/CommunityPage.jsx';
 import CommunityPostDetailPage from './pages/Community/CommunityPostDetailPage.jsx';
@@ -30,6 +31,7 @@ function App() {
         <Route path="/community/:id"  element={<CommunityPostDetailPage />} />
         <Route path="/write"          element={<DiaryWritePage />} />
         <Route path="/ai-chat"        element={<AiDiaryChatPage />} />
+        <Route path="/character"      element={<CharacterSetupPage />} />
         <Route path="/diary/:id"      element={<DiaryDetailPage />} />
         <Route path="/stats"          element={<StatsPage />} />
         <Route path="/settings"       element={<SettingsPage />} />
