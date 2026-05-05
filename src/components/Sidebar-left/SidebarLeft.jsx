@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { getUnreadCount } from '@/services/letterApi';
 import "@/styles/Sidebar-left/SidebarLeft.css";
 
 const menuItems = [
@@ -7,6 +9,7 @@ const menuItems = [
   { label: '일기 작성',   icon: '✏️', route: '/write'    },
   { label: '대화형 일기', icon: '🤖', route: '/ai-chat'  },
   { label: 'AI 캐릭터',  icon: '🪄', route: '/character' },
+  { label: '편지함',     icon: '💌', route: '/letters'  },
   { label: '통계',       icon: '📊', route: '/stats'    },
   { label: 'EchoLens',  icon: '🌊', route: '/community' },
   { label: '설정',       icon: '⚙️', route: '/settings'  },
@@ -22,6 +25,12 @@ const SidebarLeft = () => {
     if (route === '/home') return pathname === '/home';
     return pathname.startsWith(route);
   };
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    getUnreadCount().then(setUnreadCount).catch(() => {});
+  }, [pathname]);
 
   const chatUsed      = user?.chatUsed  ?? 0;
   const chatLimit     = user?.chatLimit ?? 10;
@@ -59,6 +68,9 @@ const SidebarLeft = () => {
               <span className={`chat-badge ${chatWarning ? 'warn' : ''}`}>
                 {chatUsed}/{chatLimit}
               </span>
+            )}
+            {item.route === '/letters' && unreadCount > 0 && (
+              <span className="chat-badge">{unreadCount}</span>
             )}
           </button>
         ))}

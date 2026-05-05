@@ -1,0 +1,171 @@
+.letter-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #faf9f7;
+}
+
+.letter-main {
+  flex: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.letter-page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2d2a26;
+  margin-bottom: 6px;
+}
+
+.letter-page-desc {
+  font-size: 13px;
+  color: #9a9080;
+  margin-bottom: 28px;
+}
+
+/* 목록 */
+.letter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.letter-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  border: 1.5px solid #f0ece4;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.letter-item:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-color: #e0d9f0;
+}
+
+.letter-item.unread {
+  border-color: #c9bfef;
+  background: #faf8ff;
+}
+
+.letter-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.letter-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.letter-item-type {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7c6fcd;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+
+.letter-item-date {
+  font-size: 12px;
+  color: #b0a898;
+}
+
+.letter-item-badge {
+  font-size: 11px;
+  background: #7c6fcd;
+  color: #fff;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-weight: 600;
+}
+
+/* 상세 오버레이 */
+.letter-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.letter-detail-box {
+  background: #fffdf7;
+  border-radius: 20px;
+  max-width: 560px;
+  width: 100%;
+  padding: 36px 40px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.letter-detail-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #9a9080;
+  line-height: 1;
+}
+
+.letter-detail-deco {
+  text-align: center;
+  color: #c9a96e;
+  font-size: 11px;
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+}
+
+.letter-detail-type {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7c6fcd;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 16px;
+}
+
+.letter-detail-content {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  line-height: 1.9;
+  color: #3a3530;
+  white-space: pre-wrap;
+}
+
+.letter-detail-date {
+  margin-top: 24px;
+  font-size: 12px;
+  color: #b0a898;
+  text-align: right;
+}
+
+/* 빈 상태 */
+.letter-empty {
+  text-align: center;
+  padding: 80px 0;
+  color: #b0a898;
+}
+
+.letter-empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.letter-empty-text {
+  font-size: 14px;
+}
