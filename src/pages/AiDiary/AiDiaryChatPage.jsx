@@ -70,7 +70,39 @@ const CATEGORY_SETS = {
   ],
 };
 
-const KEYWORDS = ['피곤함', '부담감', '답답함'];
+const EMOTION_MAP = [
+  { words: ['피곤', '피로', '지침'], label: '피곤함' },
+  { words: ['불안', '걱정', '두려'], label: '불안감' },
+  { words: ['슬프', '우울', '눈물', '속상'], label: '슬픔' },
+  { words: ['기쁘', '행복', '좋아', '즐거'], label: '기쁨' },
+  { words: ['화나', '짜증', '분노', '억울'], label: '분노' },
+  { words: ['설레', '기대', '신나'], label: '설렘' },
+  { words: ['외로', '혼자'], label: '외로움' },
+  { words: ['부담', '스트레스', '압박'], label: '부담감' },
+  { words: ['답답', '막막'], label: '답답함' },
+  { words: ['후회', '아쉬', '미안'], label: '후회' },
+  { words: ['감사', '고마'], label: '감사함' },
+  { words: ['편안', '평온', '안정'], label: '편안함' },
+  { words: ['힘들', '고통', '괴로'], label: '힘듦' },
+  { words: ['지쳤', '무기력', '의욕'], label: '무기력' },
+  { words: ['허무', '공허'], label: '허무함' },
+];
+
+function extractKeywords(messages) {
+  const text = messages.filter(m => m.role === 'user').map(m => m.text).join(' ');
+  if (!text) return [];
+  return EMOTION_MAP
+    .filter(({ words }) => words.some(w => text.includes(w)))
+    .map(e => e.label)
+    .slice(0, 4);
+}
+
+function buildSummary(messages) {
+  const userMsgs = messages.filter(m => m.role === 'user');
+  if (userMsgs.length === 0) return null;
+  const combined = userMsgs.map(m => m.text).join(' ');
+  return combined.length > 80 ? combined.slice(0, 80) + '…' : combined;
+}
 
 // ── 유틸 ──────────────────────────────────────────────────
 function getNow() {
@@ -162,6 +194,8 @@ export default function AiDiaryChatPage() {
   const [isTyping,   setIsTyping]   = useState(false);
   const [saveState,  setSaveState]  = useState('idle'); // 'idle' | 'saving' | 'saved'
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [panelKeywords, setPanelKeywords] = useState([]);
+  const [panelSummary,  setPanelSummary]  = useState(null);
 
   const bottomRef  = useRef(null);
   const textareaRef = useRef(null);
@@ -228,10 +262,11 @@ export default function AiDiaryChatPage() {
 
     try {
       const aiText = await getAiResponse([...messages, userMsg]);
-      setMessages(prev => [
-        ...prev,
-        { id: Date.now() + 1, role: 'ai', text: aiText, time: getNow() },
-      ]);
+      const aiMsg = { id: Date.now() + 1, role: 'ai', text: aiText, time: getNow() };
+      const updatedMessages = [...messages, userMsg, aiMsg];
+      setMessages(updatedMessages);
+      setPanelKeywords(extractKeywords(updatedMessages));
+      setPanelSummary(buildSummary(updatedMessages));
     } catch {
       setMessages(prev => [
         ...prev,
@@ -488,9 +523,10 @@ export default function AiDiaryChatPage() {
         <div className="panel-card">
           <p className="panel-card-title">오늘의 감정 키워드</p>
           <div className="kw-row">
-            {KEYWORDS.map(k => (
-              <span key={k} className="kw-chip">{k}</span>
-            ))}
+            {panelKeywords.length > 0
+              ? panelKeywords.map(k => <span key={k} className="kw-chip">{k}</span>)
+              : <span style={{ fontSize: '12px', color: '#b0a8c8' }}>대화를 나누면 감정 키워드가 나타나요</span>
+            }
           </div>
         </div>
 
@@ -498,17 +534,17 @@ export default function AiDiaryChatPage() {
         <div className="panel-card">
           <p className="panel-card-title">대화 요약</p>
           <p className="panel-card-body">
-            오늘은 해야 할 일이 많아 부담을 느꼈고, 피로가 쌓여 있었음.
+            {panelSummary ?? <span style={{ color: '#b0a8c8' }}>대화를 나누면 요약이 표시돼요</span>}
           </p>
         </div>
 
-        {/* 추천 질문 */}
+        {/* 추천 주제 */}
         <div className="panel-card">
-          <p className="panel-card-title">추천 질문</p>
+          <p className="panel-card-title">이야기 주제 제안</p>
           <div className="suggest-list">
-            {SUGGESTED_QUESTIONS.map(q => (
-              <button key={q} className="suggest-btn" onClick={() => handleSuggest(q)}>
-                {q}
+            {activeCategories.slice(0, 3).map(category => (
+              <button key={category} className="suggest-btn" onClick={() => handleStarterPick(category)}>
+                {category}
               </button>
             ))}
           </div>
