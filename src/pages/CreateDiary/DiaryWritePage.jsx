@@ -4,7 +4,7 @@ import { getCurrentWeather } from '@/api/Weather/Weather';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import useSpeechRecognition from '@/hooks/useSpeechRecognition';
 import { createDiary, uploadImage } from '@/services/diaryApi';
-import mascotImg from '@/assets/mascot.png';
+import mascotImg from '@/assets/mascot-removebg-preview.png';
 import '@/styles/CreateDiary/DiaryWritePage.css';
 
 const TEMPLATES = [

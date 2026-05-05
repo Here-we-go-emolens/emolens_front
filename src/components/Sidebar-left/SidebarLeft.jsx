@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { getUnreadCount } from '@/services/letterApi';
+import mascotImg from '@/assets/mascot-removebg-preview.png';
 import "@/styles/Sidebar-left/SidebarLeft.css";
 
 const menuItems = [
@@ -40,6 +41,17 @@ const SidebarLeft = () => {
 
   return (
     <div className="sidebar-left">
+
+      {/* 로고 */}
+      <div className="sidebar-logo" onClick={() => navigate('/home')}>
+        <div className="sidebar-logo-icon">
+          <img src={mascotImg} alt="EmoLens" />
+        </div>
+        <span className="sidebar-logo-text">
+          Emo<span className="sidebar-logo-accent">Lens</span>
+        </span>
+      </div>
+
       <div className="sidebar-profile">
         <div className="profile-img-wrap">
           <img

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Doughnut } from 'react-chartjs-2';
+import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import { getDiary, deleteDiary, updateDiary } from '@/services/diaryApi';
+import mascotImg from '@/assets/mascot-removebg-preview.png';
 import '@/styles/DiaryDetail/DiaryDetailPage.css';
 
-const EMOTION_COLORS = ['#7c6fcd', '#a89ee0', '#c9c3ec', '#e0bbff', '#b8d4ff'];
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const WEATHER_ICON = { SUNNY: '☀️', CLOUDY: '⛅', RAINY: '🌧️', SNOWY: '❄️' };
 
@@ -14,6 +17,36 @@ const TEMPLATE_LABELS = {
   '아쉬웠던 일:': '😔 아쉬웠던 일',
   '내일의 다짐:': '🌱 내일의 다짐',
 };
+
+const EMOTION_CONFIG = {
+  '기쁨':   { bg: '#fffbe8', color: '#FFD93D', icon: '😊' },
+  '행복':   { bg: '#fffbe8', color: '#FFD93D', icon: '😊' },
+  '설렘':   { bg: '#fff4e8', color: '#f26a21', icon: '🥰' },
+  '평온':   { bg: '#e8f6f7', color: '#48CAE4', icon: '😌' },
+  '슬픔':   { bg: '#eef3ff', color: '#74B9FF', icon: '😢' },
+  '우울':   { bg: '#eef3ff', color: '#74B9FF', icon: '😔' },
+  '분노':   { bg: '#fff0f0', color: '#FF7675', icon: '😤' },
+  '불안':   { bg: '#f3f0ff', color: '#A29BFE', icon: '😟' },
+  '두려움': { bg: '#f3f0ff', color: '#A29BFE', icon: '😨' },
+};
+
+const FALLBACK_COLORS = ['#f26a21', '#FFD93D', '#7c6fcd', '#74B9FF', '#48CAE4', '#FF7675', '#A29BFE', '#6BCB77'];
+
+const MASCOT_SPEECH = {
+  '기쁨':   '오늘 정말 행복해 보여요! 😊',
+  '행복':   '행복한 하루를 보내셨군요! 😊',
+  '설렘':   '설레는 마음이 전해져요! ✨',
+  '평온':   '차분하고 평온한 하루였군요 🌿',
+  '슬픔':   '많이 힘드셨겠어요. 제가 있을게요 💙',
+  '우울':   '오늘 하루 잘 버텨내셨어요 💙',
+  '분노':   '많이 답답하셨겠어요. 다 표현해도 돼요 💪',
+  '불안':   '걱정이 많으셨군요. 함께 살펴봐요 🤍',
+  '두려움': '괜찮아요. 제가 함께할게요 🤍',
+};
+
+function emotionColor(name, idx) {
+  return EMOTION_CONFIG[name]?.color ?? FALLBACK_COLORS[idx % FALLBACK_COLORS.length];
+}
 
 function renderContent(content, templateType) {
   const paras = content.split('\n\n');
@@ -31,25 +64,22 @@ function renderContent(content, templateType) {
       </div>
     );
   }
-
   if (templateType === 'template') {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {paras.map((p, i) => {
           const key = Object.keys(TEMPLATE_LABELS).find(k => p.startsWith(k));
           if (!key) return null;
-          const value = p.slice(key.length).trim();
           return (
             <div key={i} style={{ background: '#f8f6ff', borderRadius: '10px', padding: '14px 18px' }}>
               <div style={{ fontSize: '12px', color: '#9088a8', marginBottom: '6px' }}>{TEMPLATE_LABELS[key]}</div>
-              <div style={{ fontSize: '14px', lineHeight: '1.8' }}>{value}</div>
+              <div style={{ fontSize: '14px', lineHeight: '1.8' }}>{p.slice(key.length).trim()}</div>
             </div>
           );
         })}
       </div>
     );
   }
-
   if (templateType === 'notebook') {
     return (
       <div style={{ background: '#fafafa', borderRadius: '8px', padding: '20px 24px', borderLeft: '3px solid #7c6fcd', lineHeight: '2.2', fontFamily: 'monospace', fontSize: '14px' }}>
@@ -57,96 +87,44 @@ function renderContent(content, templateType) {
       </div>
     );
   }
-
-  // plain (기본)
   return <>{paras.map((p, i) => <p key={i}>{p}</p>)}</>;
 }
 
-const MENU_ITEMS = [
-  { label: '홈',           icon: '🏠', route: '/'        },
-  { label: '일기 작성',    icon: '✏️', route: '/write'   },
-  { label: '대화형 일기',  icon: '🤖', route: '/ai-chat' },
-  { label: '통계',         icon: '📊', route: '/stats'   },
-  { label: '설정',         icon: '⚙️', route: null        },
-];
-
-// ── EmotionBar ──────────────────────────────────────────────
-function EmotionBar({ label, percent, color, size = 'md' }) {
-  return (
-    <div className={`emo-bar-wrap ${size}`}>
-      <div className="emo-bar-top">
-        <span className="emo-bar-label">{label}</span>
-        <span className="emo-bar-pct" style={{ color }}>{percent}%</span>
-      </div>
-      <div className="emo-bar-track">
-        <div
-          className="emo-bar-fill"
-          style={{ '--pct': `${percent}%`, background: color }}
-        />
-      </div>
-    </div>
-  );
-}
-
-// ── AnalysisCard ────────────────────────────────────────────
-function AnalysisCard({ icon, title, children }) {
-  return (
-    <div className="ac-card">
-      <div className="ac-head">
-        <span className="ac-icon">{icon}</span>
-        <span className="ac-title">{title}</span>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-// ── PremiumLockCard ──────────────────────────────────────────
-function PremiumLockCard({ title, previewLines = [] }) {
+function PremiumLockCard({ title }) {
   const navigate = useNavigate();
   return (
-    <div className="premium-lock-card">
-      <div className="plc-blur-content">
-        {previewLines.map((line, i) => (
-          <div key={i} className="plc-blur-line" style={{ width: line }} />
-        ))}
+    <div className="plc-wrap">
+      <div className="plc-blur-rows">
+        <div className="plc-blur-row" style={{ width: '80%' }} />
+        <div className="plc-blur-row" style={{ width: '55%' }} />
       </div>
       <div className="plc-overlay">
-        <span className="plc-lock">🔒</span>
-        <p className="plc-title">{title}</p>
-        <button className="plc-cta" onClick={() => navigate('/premium')}>
-          Premium에서 확인하기
-        </button>
+        <span style={{ fontSize: '18px' }}>🔒</span>
+        <p className="plc-label">{title}</p>
+        <button className="plc-btn" onClick={() => navigate('/premium')}>Premium에서 보기</button>
       </div>
     </div>
   );
 }
 
-// ── 메인 페이지 ─────────────────────────────────────────────
 export default function DiaryDetailPage() {
-  const navigate     = useNavigate();
-  const { pathname } = useLocation();
-  const { id }       = useParams();
-  const user = useCurrentUser();
-  const isActive = (route) => route && pathname.startsWith(route);
+  const navigate = useNavigate();
+  const { id }   = useParams();
 
   const [diary, setDiary]     = useState(null);
   const [loading, setLoading] = useState(true);
   const templateType = localStorage.getItem(`diary_template_${id}`) ?? 'plain';
 
-  const [isEditing, setIsEditing]       = useState(false);
-  const [editTitle, setEditTitle]       = useState('');
-  const [editContent, setEditContent]   = useState('');
-  const [editWeather, setEditWeather]   = useState('');
-  const [editIsSecret, setEditIsSecret] = useState(false);
+  const [isEditing, setIsEditing]         = useState(false);
+  const [editTitle, setEditTitle]         = useState('');
+  const [editContent, setEditContent]     = useState('');
+  const [editWeather, setEditWeather]     = useState('');
+  const [editIsSecret, setEditIsSecret]   = useState(false);
   const [editImageUrls, setEditImageUrls] = useState([]);
-  const [submitting, setSubmitting]     = useState(false);
+  const [submitting, setSubmitting]       = useState(false);
 
   useEffect(() => {
-    getDiary(id)
-      .then(setDiary)
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    getDiary(id).then(setDiary).catch(() => {}).finally(() => setLoading(false));
   }, [id]);
 
   const handleDelete = async () => {
@@ -164,28 +142,16 @@ export default function DiaryDetailPage() {
     setIsEditing(true);
   };
 
-  const handleEditCancel = () => setIsEditing(false);
-
   const handleUpdate = async () => {
-    if (!editTitle.trim()) { alert('제목을 입력해주세요.'); return; }
+    if (!editTitle.trim())   { alert('제목을 입력해주세요.'); return; }
     if (!editContent.trim()) { alert('내용을 입력해주세요.'); return; }
     setSubmitting(true);
     try {
       await updateDiary(id, {
-        title: editTitle.trim(),
-        content: editContent.trim(),
-        weather: editWeather || null,
-        isSecret: editIsSecret,
-        imageUrls: editImageUrls,
+        title: editTitle.trim(), content: editContent.trim(),
+        weather: editWeather || null, isSecret: editIsSecret, imageUrls: editImageUrls,
       });
-      setDiary(prev => ({
-        ...prev,
-        title: editTitle.trim(),
-        content: editContent.trim(),
-        weather: editWeather || null,
-        isSecret: editIsSecret,
-        imageUrls: editImageUrls,
-      }));
+      setDiary(prev => ({ ...prev, title: editTitle.trim(), content: editContent.trim(), weather: editWeather || null, isSecret: editIsSecret, imageUrls: editImageUrls }));
       setIsEditing(false);
     } catch {
       alert('일기 수정에 실패했습니다. 다시 시도해주세요.');
@@ -194,113 +160,120 @@ export default function DiaryDetailPage() {
     }
   };
 
+  if (loading) return (
+    <div className="dd-fullcenter"><div className="dd-spinner" /><p>불러오는 중...</p></div>
+  );
+  if (!diary) return (
+    <div className="dd-fullcenter"><p>일기를 찾을 수 없습니다.</p><button className="dd-btn btn-ghost" onClick={() => navigate('/home')}>홈으로</button></div>
+  );
 
-  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#9088a8' }}>불러오는 중...</div>;
-  if (!diary)  return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#9088a8' }}>일기를 찾을 수 없습니다.</div>;
+  const emotions     = diary.emotions ?? [];
+  const mainEmotion  = emotions[0];
+  const emoName      = mainEmotion?.emotionName ?? '';
+  const isCompleted  = diary.status === 'COMPLETED';
+  const heroBg       = EMOTION_CONFIG[emoName]?.bg ?? '#f8f6ff';
+  const mascotSpeech = MASCOT_SPEECH[emoName] ?? '오늘 하루, 정말 의미 있었네요 😊';
 
-  const mainEmotion = diary.emotions?.[0];
-  const subEmotions = diary.emotions?.slice(1) ?? [];
-  const isCompleted = diary.status === 'COMPLETED';
+  const donutData = {
+    labels: emotions.map(e => e.emotionName),
+    datasets: [{
+      data: emotions.map(e => e.score),
+      backgroundColor: emotions.map((e, i) => emotionColor(e.emotionName, i)),
+      borderWidth: 0,
+      hoverOffset: 6,
+    }],
+  };
+  const donutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed}%` } },
+    },
+    cutout: '68%',
+  };
 
   return (
     <div className="dd-layout">
-
-      {/* ── 왼쪽 사이드바 ─────────────────────── */}
-      <aside className="dd-sidebar">
-        <div className="dd-profile">
-          <div className="dd-profile-img">
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="profile" />
-          </div>
-          <div className="dd-profile-name">{user?.name ?? '...'}</div>
-          <div className="dd-profile-tag">{user?.tag ? `#${user.tag}` : ''}</div>
-        </div>
-        <nav className="dd-nav">
-          {MENU_ITEMS.map(item => (
-            <button
-              key={item.label}
-              className={`dd-nav-item ${isActive(item.route) ? 'active' : ''}`}
-              onClick={() => item.route && navigate(item.route)}
-            >
-              <span className="dd-nav-icon">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
-      </aside>
+      <SidebarLeft />
 
       {/* ── 가운데 본문 ──────────────────────── */}
       <main className="dd-main">
 
-        {/* 일기 헤더 카드 */}
-        <div className="dd-header-card">
-          <div className="dd-header-left">
-            <div className="dd-emotion-badge">{mainEmotion?.emotionName ?? '📖'}</div>
-            <div>
-              <h1 className="dd-title">{diary.title}</h1>
-              <div className="dd-meta">
-                <span className="dd-meta-item">📅 {diary.diaryDate}</span>
-                {diary.weather && (
-                  <>
-                    <span className="dd-meta-sep">·</span>
-                    <span className="dd-meta-item">{WEATHER_ICON[diary.weather] ?? '🌡️'} {diary.weather}</span>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="dd-header-badge">
-            <span className="analysis-badge">{isCompleted ? '✦ AI 분석 완료' : '⏳ 분석 중'}</span>
+        {/* 상단 바 */}
+        <div className="dd-topbar">
+          <button className="dd-back-btn" onClick={() => navigate('/home')}>← 목록으로</button>
+          <div className="dd-topbar-actions">
+            {isEditing ? (
+              <>
+                <button className="dd-btn btn-ghost" onClick={() => setIsEditing(false)} disabled={submitting}>취소</button>
+                <button className="dd-btn btn-primary" onClick={handleUpdate} disabled={submitting}>
+                  {submitting ? '저장 중…' : '저장'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="dd-btn btn-ghost" onClick={handleEditStart}>✏️ 수정</button>
+                <button className="dd-btn btn-danger" onClick={handleDelete}>🗑 삭제</button>
+              </>
+            )}
           </div>
         </div>
 
-        {/* 일기 본문 */}
-        <div className="dd-body-card">
-          <div className="dd-body-label">일기 본문</div>
-          {isEditing ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <input
-                type="text"
-                value={editTitle}
-                onChange={e => setEditTitle(e.target.value)}
-                maxLength={100}
-                placeholder="제목"
-                style={{ padding: '10px 12px', borderRadius: '8px', border: '1.5px solid #e0d9f0', fontSize: '15px', outline: 'none' }}
-              />
-              <textarea
-                value={editContent}
-                onChange={e => setEditContent(e.target.value)}
-                placeholder="내용을 입력하세요"
-                rows={10}
-                style={{ padding: '10px 12px', borderRadius: '8px', border: '1.5px solid #e0d9f0', fontSize: '14px', resize: 'vertical', outline: 'none', lineHeight: '1.7' }}
-              />
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '13px', color: '#7c6fcd', fontWeight: 600 }}>날씨</span>
+        {isEditing ? (
+          /* ── 수정 모드 ── */
+          <div className="dd-edit-card">
+            <div className="dd-card-label">✏️ 일기 수정</div>
+            <div className="dd-edit-form">
+              <input className="dd-edit-input" type="text" value={editTitle} onChange={e => setEditTitle(e.target.value)} maxLength={100} placeholder="제목" />
+              <textarea className="dd-edit-textarea" value={editContent} onChange={e => setEditContent(e.target.value)} placeholder="내용을 입력하세요" rows={12} />
+              <div className="dd-edit-row">
+                <span className="dd-edit-row-label">날씨</span>
                 {['SUNNY', 'CLOUDY', 'RAINY', 'SNOWY'].map(w => (
-                  <button
-                    key={w}
-                    onClick={() => setEditWeather(w)}
-                    style={{
-                      padding: '5px 12px', borderRadius: '20px', fontSize: '12px', cursor: 'pointer',
-                      border: editWeather === w ? '2px solid #7c6fcd' : '1.5px solid #e0d9f0',
-                      background: editWeather === w ? '#f0edf8' : '#fff',
-                      color: editWeather === w ? '#7c6fcd' : '#555',
-                    }}
-                  >
+                  <button key={w} className={`dd-weather-btn ${editWeather === w ? 'active' : ''}`} onClick={() => setEditWeather(w)}>
                     {WEATHER_ICON[w]} {w}
                   </button>
                 ))}
               </div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={editIsSecret}
-                  onChange={e => setEditIsSecret(e.target.checked)}
-                />
+              <label className="dd-edit-secret">
+                <input type="checkbox" checked={editIsSecret} onChange={e => setEditIsSecret(e.target.checked)} />
                 🔒 비공개
               </label>
             </div>
-          ) : (
-            <>
+          </div>
+        ) : (
+          <>
+            {/* ── 1. 상단 요약 카드 ── */}
+            <div className="dd-hero-card" style={{ background: heroBg }}>
+
+              {/* 왼쪽: 아이콘 + 제목 */}
+              <div className="dd-hero-body">
+                <div className="dd-hero-top">
+                  <span className="dd-hero-emoicon">{EMOTION_CONFIG[emoName]?.icon ?? '📖'}</span>
+                  <div className="dd-hero-info">
+                    <h1 className="dd-hero-title">{diary.title}</h1>
+                    <div className="dd-hero-meta">
+                      <span className="dd-meta-chip">📅 {diary.diaryDate}</span>
+                      {diary.weather && <span className="dd-meta-chip">{WEATHER_ICON[diary.weather]} {diary.weather}</span>}
+                      <span className={`dd-status-chip ${isCompleted ? 'done' : 'pending'}`}>
+                        {isCompleted ? '✦ AI 분석완료' : '⏳ 분석중'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 오른쪽: 마스코트 */}
+              <div className="dd-mascot-area">
+                <div className="dd-speech-bubble">{mascotSpeech}</div>
+                <img src={mascotImg} alt="EmoLens 마스코트" className="dd-mascot-img" />
+              </div>
+
+            </div>
+
+            {/* ── 2. 일기 본문 ── */}
+            <div className="dd-content-card">
+              <div className="dd-card-label">📝 일기 내용</div>
               <div className="dd-body-text">
                 {renderContent(diary.content, templateType)}
               </div>
@@ -317,110 +290,181 @@ export default function DiaryDetailPage() {
                   })}
                 </div>
               )}
-            </>
-          )}
-        </div>
+            </div>
 
-        {/* 액션 버튼 */}
-        <div className="dd-actions">
-          <div className="dd-actions-left">
-            <button className="dd-btn btn-ghost" onClick={() => navigate('/home')}>← 목록으로</button>
-            {!isEditing && <button className="dd-btn btn-danger" onClick={handleDelete}>🗑 삭제</button>}
-          </div>
-          {isEditing ? (
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button className="dd-btn btn-ghost" onClick={handleEditCancel} disabled={submitting}>취소</button>
-              <button className="dd-btn btn-primary" onClick={handleUpdate} disabled={submitting}>
-                {submitting ? '저장 중…' : '저장'}
+            {/* ── 3. AI 핵심 요약 카드 ── */}
+            <div className="dd-ai-summary-card">
+              <span className="dd-ai-summary-icon">✨</span>
+              <div className="dd-ai-summary-body">
+                <div className="dd-ai-summary-label">오늘의 핵심 인사이트</div>
+                <p className="dd-ai-summary-text">
+                  {isCompleted && diary.feedback
+                    ? `"${diary.feedback}"`
+                    : '"AI 분석이 완료되면 오늘 하루의 핵심 인사이트를 보여드릴게요."'}
+                </p>
+              </div>
+            </div>
+
+            {/* ── 4. 추천 행동 ── */}
+            <div className="dd-main-rec-card">
+              <div className="dd-main-rec-head">
+                <span className="dd-main-rec-icon">🌱</span>
+                <div>
+                  <div className="dd-main-rec-label">추천 행동</div>
+                  <h2 className="dd-main-rec-title">내일 바로 해볼 한 가지</h2>
+                </div>
+              </div>
+              {isCompleted && diary.recommendations?.length > 0 ? (
+                <div className="dd-main-rec-list">
+                  {diary.recommendations.slice(0, 3).map((rec, index) => (
+                    <div key={`${rec.type}-${index}`} className={`dd-main-rec-item ${index === 0 ? 'primary' : ''}`}>
+                      <span className="dd-main-rec-step">{index + 1}</span>
+                      <span className="dd-main-rec-text">{rec.content}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="dd-main-rec-empty">
+                  {isCompleted ? '추천 행동 분석 결과가 없습니다.' : 'AI 분석이 완료되면 오늘에 맞는 추천 행동을 보여드릴게요.'}
+                </p>
+              )}
+            </div>
+
+            {/* ── 5. 하단 액션 카드 3개 ── */}
+            <div className="dd-action-row">
+              <button className="dd-action-card" onClick={() => navigate('/ai-chat')}>
+                <span className="dd-action-icon">🤖</span>
+                <div className="dd-action-body">
+                  <div className="dd-action-title">AI와 더 이야기하기</div>
+                  <div className="dd-action-desc">오늘 일기에 대해 더 깊이 대화해요</div>
+                </div>
+                <span className="dd-action-arrow">›</span>
+              </button>
+              <button className="dd-action-card" onClick={() => navigate('/stats')}>
+                <span className="dd-action-icon">📈</span>
+                <div className="dd-action-body">
+                  <div className="dd-action-title">감정 변화 보기</div>
+                  <div className="dd-action-desc">나의 감정 패턴을 확인해요</div>
+                </div>
+                <span className="dd-action-arrow">›</span>
+              </button>
+              <button className="dd-action-card" onClick={() => navigate('/write')}>
+                <span className="dd-action-icon">🌱</span>
+                <div className="dd-action-body">
+                  <div className="dd-action-title">내일을 위한 한 가지 행동</div>
+                  <div className="dd-action-desc">작은 실천으로 내일을 준비해요</div>
+                </div>
+                <span className="dd-action-arrow">›</span>
               </button>
             </div>
-          ) : (
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button className="dd-btn btn-ghost" onClick={handleEditStart}>✏️ 수정</button>
-              <button className="dd-btn btn-primary" onClick={() => navigate('/ai-chat')}>
-                🤖 AI와 이어서 대화하기
-              </button>
-            </div>
-          )}
-        </div>
-
+          </>
+        )}
       </main>
 
-      {/* ── 오른쪽 AI 분석 패널 ──────────────── */}
+      {/* ── 오른쪽 패널 ──────────────────────── */}
       <aside className="dd-panel">
 
-        {/* 감정 분석 */}
-        <AnalysisCard icon="💜" title="오늘의 감정 분석">
-          {!isCompleted ? (
-            <p style={{ color: '#9088a8', fontSize: '13px' }}>AI 분석이 완료되면 표시됩니다.</p>
-          ) : mainEmotion ? (
+        {/* 감정 분석 도넛 */}
+        <div className="dd-panel-card">
+          <div className="dd-panel-head"><span>💜</span><span>감정 분석</span></div>
+          {isCompleted && emotions.length > 0 ? (
             <>
-              <EmotionBar label={mainEmotion.emotionName} percent={mainEmotion.score} color={EMOTION_COLORS[0]} size="lg" />
-              <div className="sub-emotions">
-                {subEmotions.map((e, i) => (
-                  <EmotionBar key={e.emotionName} label={e.emotionName} percent={e.score} color={EMOTION_COLORS[i + 1] ?? '#c9c3ec'} />
+              <div className="dd-donut-wrap">
+                <Doughnut data={donutData} options={donutOptions} />
+                <div className="dd-donut-center">
+                  <div className="dd-donut-emoicon">{EMOTION_CONFIG[emoName]?.icon ?? '💜'}</div>
+                  <div className="dd-donut-emoname">{emoName}</div>
+                </div>
+              </div>
+              <div className="dd-donut-legend">
+                {emotions.map((e, i) => (
+                  <div key={e.emotionName} className="dd-legend-row">
+                    <span className="dd-legend-dot" style={{ background: emotionColor(e.emotionName, i) }} />
+                    <span className="dd-legend-label">{e.emotionName}</span>
+                    <span className="dd-legend-pct">{e.score}%</span>
+                  </div>
                 ))}
               </div>
             </>
           ) : (
-            <p style={{ color: '#9088a8', fontSize: '13px' }}>감정 데이터가 없습니다.</p>
+            <p className="dd-muted-msg">AI 분석이 완료되면 표시됩니다.</p>
           )}
-        </AnalysisCard>
+        </div>
 
-        {/* AI 한줄 해석 */}
-        <AnalysisCard icon="💬" title="AI 한줄 해석">
-          <blockquote className="ai-summary">
-            "{isCompleted && diary.feedback ? diary.feedback : '분석이 완료되면 표시됩니다.'}"
-          </blockquote>
-        </AnalysisCard>
-
-        {/* 감정 키워드 */}
-        <AnalysisCard icon="🏷" title="감정 키워드">
-          <div className="kw-chips">
-            {isCompleted && diary.keywords?.length > 0
-              ? diary.keywords.map(k => <span key={k} className="kw-chip">{k}</span>)
-              : <span style={{ color: '#9088a8', fontSize: '13px' }}>분석이 완료되면 표시됩니다.</span>
-            }
-          </div>
-        </AnalysisCard>
-
-        {/* 추천 행동 - 무료: 1개만 공개 */}
-        <AnalysisCard icon="🌱" title="추천 행동">
-          {isCompleted && diary.recommendations?.length > 0 ? (
-            <>
-              <div className="rec-list">
-                <div className="rec-item">
-                  <span className="rec-icon">🌱</span>
-                  <span>{diary.recommendations[0].content}</span>
+        {/* 깊은 AI 분석 */}
+        <div className="dd-panel-card">
+          <div className="dd-panel-head"><span>🔍</span><span>깊은 AI 분석</span></div>
+          {isCompleted ? (
+            <div className="dd-deep-list">
+              <div className="dd-deep-item">
+                <span className="dd-deep-icon">💡</span>
+                <div>
+                  <div className="dd-deep-section-label">감정의 이유</div>
+                  <div className="dd-deep-text">{diary.feedback ?? '분석 결과가 없습니다.'}</div>
                 </div>
               </div>
+              <div className="dd-deep-item">
+                <span className="dd-deep-icon">✨</span>
+                <div>
+                  <div className="dd-deep-section-label">의미 있는 순간</div>
+                  <div className="dd-deep-text">
+                    {diary.keywords?.length > 0
+                      ? `${diary.keywords.slice(0, 3).join(', ')} 등이 오늘의 의미 있는 키워드예요.`
+                      : '키워드 분석 결과가 없습니다.'}
+                  </div>
+                </div>
+              </div>
+              <div className="dd-deep-item">
+                <span className="dd-deep-icon">💎</span>
+                <div>
+                  <div className="dd-deep-section-label">내가 중요하게 생각한 것</div>
+                  <div className="dd-deep-text">
+                    {diary.recommendations?.[0]?.content ?? '추천 분석 결과가 없습니다.'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <PremiumLockCard title="분석이 완료되면 깊은 통찰을 보여드려요" />
+          )}
+        </div>
+
+        {/* 감정 키워드 */}
+        <div className="dd-panel-card">
+          <div className="dd-panel-head"><span>🏷</span><span>감정 키워드</span></div>
+          <div className="dd-kw-chips">
+            {isCompleted && diary.keywords?.length > 0
+              ? diary.keywords.map(k => <span key={k} className="dd-kw-chip">{k}</span>)
+              : <span className="dd-muted-msg">분석이 완료되면 표시됩니다.</span>}
+          </div>
+        </div>
+
+        {/* 추천 행동 */}
+        <div className="dd-panel-card">
+          <div className="dd-panel-head"><span>🌱</span><span>추천 행동</span></div>
+          {isCompleted && diary.recommendations?.length > 0 ? (
+            <>
+              <div className="dd-rec-item">
+                <span className="dd-rec-icon">🌱</span>
+                <span className="dd-rec-text">{diary.recommendations[0].content}</span>
+              </div>
               {diary.recommendations.length > 1 && (
-                <div className="rec-premium-hint">
-                  <span className="rec-hint-text">🔒 추천 {diary.recommendations.length - 1}가지 더 보기</span>
-                  <button className="rec-hint-btn" onClick={() => navigate('/premium')}>Premium</button>
+                <div className="dd-rec-more">
+                  <span>🔒 {diary.recommendations.length - 1}개 더 보기</span>
+                  <button className="dd-rec-more-btn" onClick={() => navigate('/premium')}>Premium</button>
                 </div>
               )}
             </>
           ) : (
-            <p style={{ color: '#9088a8', fontSize: '13px' }}>분석이 완료되면 표시됩니다.</p>
+            <p className="dd-muted-msg">분석이 완료되면 표시됩니다.</p>
           )}
-        </AnalysisCard>
+        </div>
 
-        {/* 감정 원인 추정 - Premium 잠금 */}
-        <AnalysisCard icon="🔍" title="감정 원인 추정">
-          <PremiumLockCard
-            title="감정의 근본 원인을 분석해드려요"
-            previewLines={['85%', '70%', '60%']}
-          />
-        </AnalysisCard>
-
-        {/* 이전 일기와 비교 - Premium 잠금 */}
-        <AnalysisCard icon="📈" title="이전 일기와 비교">
-          <PremiumLockCard
-            title="지난 기록과 비교해 패턴을 발견하세요"
-            previewLines={['90%', '65%']}
-          />
-        </AnalysisCard>
+        {/* 감정 원인 - Premium 잠금 */}
+        <div className="dd-panel-card">
+          <div className="dd-panel-head"><span>📈</span><span>이전 일기와 비교</span></div>
+          <PremiumLockCard title="지난 기록과 비교해 패턴을 발견하세요" />
+        </div>
 
       </aside>
     </div>

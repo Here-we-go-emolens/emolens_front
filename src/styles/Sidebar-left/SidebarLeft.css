@@ -6,10 +6,52 @@
   height: 100vh;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--border);
-  padding: 36px 18px 24px;
+  padding: 0 18px 24px;
   position: sticky;
   top: 0;
   flex-shrink: 0;
+}
+
+/* ── 로고 ────────────────────────────────────────────────── */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 0 0 20px;
+  margin-bottom: 32px;
+  cursor: pointer;
+  width: fit-content;
+  flex-shrink: 0;
+}
+
+.sidebar-logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-logo-icon img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.sidebar-logo-text {
+  font-size: 20px;
+  font-weight: 800;
+  color: #2d2a26;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.sidebar-logo-accent {
+  color: var(--accent);
 }
 
 .sidebar-profile {
@@ -177,6 +219,10 @@
     position: static;
     gap: 16px;
   }
+
+  .sidebar-logo { margin-bottom: 0; }
+
+  .sidebar-logo-text { display: none; }
 
   .sidebar-profile {
     flex-direction: row;
