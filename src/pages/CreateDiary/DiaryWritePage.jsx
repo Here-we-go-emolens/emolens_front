@@ -475,14 +475,17 @@ export default function DiaryWritePage() {
         .sort((a, b) => a.order - b.order)
         .map(({ id, score, order }) => ({ emotion: id, score, order }));
 
+      const templateTypeEnum = selectedTemplate === 'template' ? 'PLAIN' : selectedTemplate.toUpperCase();
+
       const id = await createDiary({
         title: title.trim(),
         content: finalContent,
         diaryDate: date,
         weather: getWeatherEnum(weather?.id),
+        templateType: templateTypeEnum,
         isSecret: false,
         imageUrls,
-        emotions,
+        userEmotions: emotions,
       });
 
       if (selectedEmotions.length > 0) {

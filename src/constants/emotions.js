@@ -4,7 +4,7 @@ import calmImg     from '../assets/emotions/calm-removebg-preview.png';
 import proudImg    from '../assets/emotions/proud-removebg-preview.png';
 import anxiousImg  from '../assets/emotions/anxious-removebg-preview.png';
 import angryImg    from '../assets/emotions/angry-removebg-preview.png';
-import sadImg      from '../assets/emotions/sad.png';
+import sadImg      from '../assets/emotions/sad-removebg.png';
 import tiredImg    from '../assets/emotions/tired-removebg-preview.png';
 import gratefulImg from '../assets/emotions/grateful-removebg-preview.png';
 import longingImg  from '../assets/emotions/longing-removebg-preview.png';
