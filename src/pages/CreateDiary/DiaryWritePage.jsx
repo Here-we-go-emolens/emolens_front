@@ -5,7 +5,7 @@ import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import useSpeechRecognition from '@/hooks/useSpeechRecognition';
 import { createDiary, uploadImage } from '@/services/diaryApi';
 import { incrementEmotionUsage } from '@/utils/emotionUsage';
-import { EMOTION_MAP } from '@/constants/emotions';
+import { EMOTION_MAP, findEmotionById } from '@/constants/emotions';
 import EmotionSelector from './EmotionSelector';
 import mascotFallback from '@/assets/mascot-removebg-preview.png';
 import '@/styles/CreateDiary/DiaryWritePage.css';
@@ -338,7 +338,7 @@ const EMOTION_QUESTIONS = {
 
 // ── 마스코트 cross-fade 컴포넌트 ───────────────────────────
 function MascotImage({ emotionId }) {
-  const [src, setSrc] = useState(null);
+  const [displaySrc, setDisplaySrc] = useState(mascotFallback);
   const [opacity, setOpacity] = useState(1);
   const prevId = useRef(null);
 
@@ -348,7 +348,8 @@ function MascotImage({ emotionId }) {
 
     setOpacity(0);
     const t = setTimeout(() => {
-      setSrc(emotionId ? new URL(`../../assets/emotions/mascot-${emotionId}.svg`, import.meta.url).href : null);
+      const emotion = emotionId ? findEmotionById(emotionId) : null;
+      setDisplaySrc(emotion?.image ?? mascotFallback);
       setOpacity(1);
     }, 150);
     return () => clearTimeout(t);
@@ -356,7 +357,7 @@ function MascotImage({ emotionId }) {
 
   return (
     <img
-      src={src || mascotFallback}
+      src={displaySrc}
       onError={e => { e.target.src = mascotFallback; }}
       alt="EmoLens 마스코트"
       className="dw-mascot"

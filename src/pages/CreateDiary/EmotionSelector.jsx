@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { BASIC_EMOTION_IDS, EXTENDED_EMOTION_IDS } from '@/constants/emotions';
 import { getPersonalizedBasicIds } from '@/utils/emotionUsage';
-import EmotionChip from './EmotionChip';
+import EmotionCard from './EmotionCard';
 import EmotionIntensitySlider from './EmotionIntensitySlider';
 
 const MAX_EMOTIONS = 3;
@@ -26,7 +26,7 @@ export default function EmotionSelector({ selectedEmotions, onToggle, onScoreCha
     toastTimer.current = setTimeout(() => setToastVisible(false), 2500);
   };
 
-  const handleChipClick = (id) => {
+  const handleCardClick = (id) => {
     const alreadySelected = selectedEmotions.some(e => e.id === id);
     if (!alreadySelected && selectedEmotions.length >= MAX_EMOTIONS) {
       showToast();
@@ -57,7 +57,7 @@ export default function EmotionSelector({ selectedEmotions, onToggle, onScoreCha
       {/* 기본 8개 그리드 */}
       <div className="dw-emotion-grid">
         {personalizedBasic.map(id => (
-          <EmotionChip key={id} id={id} order={getOrder(id)} onClick={handleChipClick} />
+          <EmotionCard key={id} id={id} order={getOrder(id)} onClick={handleCardClick} />
         ))}
       </div>
 
@@ -66,6 +66,7 @@ export default function EmotionSelector({ selectedEmotions, onToggle, onScoreCha
         className={`es-expand-btn${expanded ? ' expanded' : ''}`}
         onClick={() => setExpanded(v => !v)}
         aria-expanded={expanded}
+        aria-controls="es-extended-region"
       >
         더 많은 감정 보기
         <svg
@@ -74,17 +75,21 @@ export default function EmotionSelector({ selectedEmotions, onToggle, onScoreCha
           viewBox="0 0 24 24"
           fill="none" stroke="currentColor"
           strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+          aria-hidden="true"
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
 
-      {/* 확장 영역 — max-height 인라인 트랜지션 */}
-      <div className={`es-extended-wrap${expanded ? ' open' : ''}`}>
+      {/* 확장 영역 */}
+      <div
+        id="es-extended-region"
+        className={`es-extended-wrap${expanded ? ' open' : ''}`}
+      >
         <div className="es-extended-inner">
           <div className="dw-emotion-grid">
             {extendedDisplay.map(id => (
-              <EmotionChip key={id} id={id} order={getOrder(id)} onClick={handleChipClick} />
+              <EmotionCard key={id} id={id} order={getOrder(id)} onClick={handleCardClick} />
             ))}
           </div>
         </div>
