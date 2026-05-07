@@ -250,6 +250,11 @@
   height: 100%;
   object-fit: contain;
   display: block;
+  transition: transform 0.2s ease-out;
+}
+
+.ec-card:hover .ec-image {
+  transform: scale(1.18);
 }
 
 .ec-image-fallback {
