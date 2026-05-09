@@ -3,8 +3,12 @@ import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import { getWeeklyReports, completeAction } from '@/services/weeklyReportApi';
 import '@/styles/WeeklyReport/WeeklyReportPage.css';
 
-const ACTION_ICON = { MUSIC: '🎵', MOVIE: '🎬', ACTIVITY: '🏃', REST: '😴' };
-const ACTION_LABEL = { MUSIC: '음악 추천', MOVIE: '영화 추천', ACTIVITY: '활동 추천', REST: '휴식 추천' };
+const ACTION_META = {
+  MUSIC:    { icon: '🎵', label: '음악 추천',  colorClass: 'rec-music' },
+  MOVIE:    { icon: '🎬', label: '영화 추천',  colorClass: 'rec-movie' },
+  ACTIVITY: { icon: '🏃', label: '활동 추천',  colorClass: 'rec-activity' },
+  REST:     { icon: '😴', label: '휴식 추천',  colorClass: 'rec-rest' },
+};
 
 const EMOTION_COLOR = {
   기쁨: '#f5c518', 행복: '#f5c518', 설렘: '#f5a623',
@@ -25,10 +29,14 @@ function weekLabel(startDate, endDate) {
 export default function WeeklyReportPage() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [index, setIndex] = useState(0);
 
   useEffect(() => {
     getWeeklyReports()
-      .then(setReports)
+      .then((data) => {
+        setReports(data);
+        setIndex(data.length - 1);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -41,6 +49,9 @@ export default function WeeklyReportPage() {
       console.error(e);
     }
   };
+
+  const r = reports[index];
+  const actionMeta = r ? (ACTION_META[r.recommendedAction] ?? { icon: '✨', label: r.recommendedAction, colorClass: 'rec-default' }) : null;
 
   return (
     <div className="wr-layout">
@@ -61,44 +72,65 @@ export default function WeeklyReportPage() {
             </p>
           </div>
         ) : (
-          <div className="wr-list">
-            {reports.map((r) => (
-              <div key={r.id} className="wr-card">
-                <div className="wr-card-header">
-                  <span className="wr-week-label">{weekLabel(r.startDate, r.endDate)}</span>
-                  <span
-                    className="wr-emotion-badge"
-                    style={{ background: EMOTION_COLOR[r.dominantEmotion] ?? '#9e8dda' }}
-                  >
-                    {r.dominantEmotion}
-                  </span>
-                </div>
+          <>
+            {/* 주차 내비게이션 */}
+            <div className="wr-nav">
+              <button
+                className="wr-nav-btn"
+                onClick={() => setIndex((i) => i - 1)}
+                disabled={index === 0}
+              >
+                ← 이전 주
+              </button>
+              <span className="wr-nav-info">
+                {index + 1} / {reports.length}주
+              </span>
+              <button
+                className="wr-nav-btn"
+                onClick={() => setIndex((i) => i + 1)}
+                disabled={index === reports.length - 1}
+              >
+                다음 주 →
+              </button>
+            </div>
 
-                <p className="wr-summary">{r.weeklySummary}</p>
-
-                <div className="wr-recommendation">
-                  <div className="wr-rec-header">
-                    <span className="wr-rec-icon">{ACTION_ICON[r.recommendedAction] ?? '✨'}</span>
-                    <span className="wr-rec-label">{ACTION_LABEL[r.recommendedAction] ?? r.recommendedAction}</span>
-                  </div>
-                  <p className="wr-rec-message">{r.recommendationMessage}</p>
-                  {r.searchKeyword && (
-                    <span className="wr-keyword">🔍 {r.searchKeyword}</span>
-                  )}
-                </div>
-
-                <div className="wr-card-footer">
-                  {r.isActionCompleted ? (
-                    <span className="wr-completed">✅ 완료했어요!</span>
-                  ) : (
-                    <button className="wr-complete-btn" onClick={() => handleComplete(r.id)}>
-                      완료했어요
-                    </button>
-                  )}
-                </div>
+            {/* 리포트 카드 */}
+            <div className="wr-card">
+              <div className="wr-card-header">
+                <span className="wr-week-label">{weekLabel(r.startDate, r.endDate)}</span>
+                <span
+                  className="wr-emotion-badge"
+                  style={{ background: EMOTION_COLOR[r.dominantEmotion] ?? '#f26a21' }}
+                >
+                  {r.dominantEmotion}
+                </span>
               </div>
-            ))}
-          </div>
+
+              <p className="wr-summary">{r.weeklySummary}</p>
+
+              {/* 추천 박스 — 유형별 색상 */}
+              <div className={`wr-recommendation ${actionMeta.colorClass}`}>
+                <div className="wr-rec-header">
+                  <span className="wr-rec-icon">{actionMeta.icon}</span>
+                  <span className="wr-rec-label">{actionMeta.label}</span>
+                </div>
+                <p className="wr-rec-message">{r.recommendationMessage}</p>
+                {r.searchKeyword && (
+                  <span className="wr-keyword">🔍 {r.searchKeyword}</span>
+                )}
+              </div>
+
+              <div className="wr-card-footer">
+                {r.isActionCompleted ? (
+                  <span className="wr-completed">✅ 완료했어요!</span>
+                ) : (
+                  <button className="wr-complete-btn" onClick={() => handleComplete(r.id)}>
+                    완료했어요
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
         )}
       </main>
     </div>
