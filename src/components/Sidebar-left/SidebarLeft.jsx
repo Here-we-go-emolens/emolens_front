@@ -9,8 +9,9 @@ const menuItems = [
   { label: '일기 작성',   icon: '✏️', route: '/write'    },
   { label: '대화형 일기', icon: '🤖', route: '/ai-chat'  },
   { label: 'AI 캐릭터',  icon: '🪄', route: '/character' },
-  { label: '편지함',     icon: '💌', route: '/letters'  },
-  { label: '통계',       icon: '📊', route: '/stats'    },
+  { label: '편지함',     icon: '💌', route: '/letters'       },
+  { label: '주간 리포트', icon: '📋', route: '/weekly-report' },
+  { label: '통계',       icon: '📊', route: '/stats'         },
   { label: 'EchoLens',  icon: '🌊', route: '/community' },
   { label: '설정',       icon: '⚙️', route: '/settings'  },
 ];

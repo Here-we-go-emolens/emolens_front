@@ -17,6 +17,7 @@ import CommunityPage from './pages/Community/CommunityPage.jsx';
 import CommunityPostDetailPage from './pages/Community/CommunityPostDetailPage.jsx';
 import { CommunityProvider } from './pages/Community/CommunityContext.jsx';
 import LetterPage from './pages/Letter/LetterPage.jsx';
+import WeeklyReportPage from './pages/WeeklyReport/WeeklyReportPage.jsx';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
         <Route path="/character"      element={<CharacterSetupPage />} />
         <Route path="/diary/:id"      element={<DiaryDetailPage />} />
         <Route path="/letters"         element={<LetterPage />} />
+        <Route path="/weekly-report"   element={<WeeklyReportPage />} />
         <Route path="/stats"          element={<StatsPage />} />
         <Route path="/settings"       element={<SettingsPage />} />
         <Route path="/premium"        element={<PremiumPage />} />

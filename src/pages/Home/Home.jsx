@@ -123,8 +123,8 @@ const Home = () => {
             </div>
           </div>
 
-          {/* 주간 리포트 잠금 배너 */}
-          <div className="home-report-lock card">
+          {/* 주간 리포트 배너 */}
+          <div className="home-report-lock card" onClick={() => navigate('/weekly-report')} style={{ cursor: 'pointer' }}>
             <div className="hrl-icon">📋</div>
             <div className="hrl-body">
               <span className="hrl-label">주간 감정 리포트</span>
@@ -133,8 +133,8 @@ const Home = () => {
                 어떤 순간이 가장 힘들었는지 정리해뒀어요.
               </p>
             </div>
-            <button className="hrl-cta" onClick={() => navigate('/premium')}>
-              🔒 리포트 보기
+            <button className="hrl-cta" onClick={(e) => { e.stopPropagation(); navigate('/weekly-report'); }}>
+              리포트 보기
             </button>
           </div>
 
