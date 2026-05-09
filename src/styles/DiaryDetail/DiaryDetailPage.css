@@ -344,7 +344,6 @@
    공통 카드
    ══════════════════════════════════════════════════════════ */
 .dd-content-card,
-.dd-interp-card,
 .dd-edit-card {
   background: var(--card-bg);
   border-radius: 18px;
@@ -375,17 +374,6 @@
   word-break: break-word;
   margin: 0;
   letter-spacing: 0.15px;
-}
-
-.dd-interp-text {
-  font-size: 14.5px;
-  line-height: 1.85;
-  color: var(--text);
-  background: var(--bg);
-  border-left: 3px solid var(--accent);
-  border-radius: 0 10px 10px 0;
-  padding: 12px 16px;
-  margin: 0;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -669,16 +657,79 @@
 }
 
 @media (max-width: 1024px) {
-  .dd-layout  { flex-wrap: wrap; }
-  .dd-panel   { width: 100%; height: auto; min-width: unset; border-left: none; border-top: 1px solid var(--border); position: static; display: grid; grid-template-columns: 1fr 1fr; padding: 16px; }
+  .dd-layout { flex-wrap: wrap; }
+  .dd-panel {
+    width: 100%;
+    height: auto;
+    min-width: unset;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
   .dd-action-row { flex-direction: column; }
+  .dd-hero-title { font-size: 22px; }
 }
 
+/* ── 태블릿 ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .dd-panel { grid-template-columns: 1fr; }
+  .dd-hero-title { font-size: 20px; }
+  .dd-hero-emoicon { font-size: 36px; }
+  .dd-mascot-img { width: 70px; height: 70px; }
+  .dd-speech-bubble { max-width: 130px; font-size: 11.5px; padding: 7px 11px; }
+  .dd-main-rec-card { padding: 20px; }
+  .dd-content-card, .dd-edit-card { padding: 22px 24px; }
+}
+
+/* ── 모바일 ──────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .dd-main    { padding: 16px 14px 40px; }
-  .dd-hero-card { flex-direction: column; }
-  .dd-mascot-area { flex-direction: row; padding-left: 0; padding-top: 12px; }
-  .dd-content-card, .dd-interp-card, .dd-edit-card { padding: 20px 18px; }
-  .dd-panel   { grid-template-columns: 1fr; }
+  .dd-main { padding: 14px 12px 40px; gap: 12px; }
+  .dd-topbar { flex-wrap: wrap; gap: 8px; }
+  .dd-topbar-actions { width: 100%; justify-content: flex-end; }
+  .dd-back-btn { font-size: 12px; padding: 7px 13px; }
+  .dd-hero-card { flex-direction: column; padding: 18px 16px; gap: 12px; }
+  .dd-hero-top { gap: 12px; }
+  .dd-hero-title { font-size: 18px; }
+  .dd-hero-emoicon { font-size: 32px; }
+  .dd-hero-meta { gap: 5px; }
+  .dd-mascot-area {
+    flex-direction: row;
+    padding: 0;
+    align-self: stretch;
+    justify-content: center;
+    gap: 12px;
+  }
+  .dd-speech-bubble { max-width: 200px; text-align: left; }
+  .dd-content-card, .dd-edit-card { padding: 18px 16px; }
+  .dd-ai-summary-card { padding: 16px 18px; gap: 12px; }
+  .dd-ai-summary-icon { font-size: 22px; }
+  .dd-ai-summary-text { font-size: 14px; }
+  .dd-main-rec-card { padding: 18px 16px; }
+  .dd-main-rec-head { gap: 10px; margin-bottom: 14px; }
+  .dd-main-rec-title { font-size: 16px; }
+  .dd-action-row { gap: 8px; }
+  .dd-action-card { padding: 14px 12px; gap: 10px; }
+  .dd-action-icon { font-size: 22px; }
+  .dd-action-title { font-size: 12.5px; }
+  .dd-panel { grid-template-columns: 1fr; padding: 12px; gap: 10px; }
   .dd-image-item { width: 140px; height: 140px; }
+}
+
+/* ── 소형 모바일 ─────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .dd-hero-title { font-size: 16px; }
+  .dd-hero-emoicon { font-size: 28px; }
+  .dd-hero-card { padding: 14px; }
+  .dd-meta-chip { font-size: 11px; padding: 3px 8px; }
+  .dd-status-chip { font-size: 10px; padding: 3px 8px; }
+  .dd-ai-summary-text { font-size: 13px; }
+  .dd-action-arrow { display: none; }
+  .dd-action-desc { font-size: 11px; }
+  .dd-image-item { width: 120px; height: 120px; }
+  .dd-mascot-img { width: 58px; height: 58px; }
+  .dd-speech-bubble { font-size: 11px; max-width: 170px; }
 }
