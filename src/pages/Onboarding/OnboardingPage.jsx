@@ -6,29 +6,29 @@ import './OnboardingPage.css';
 const FEATURES = [
   {
     num: '01',
-    accent: '#7c6fcd',
-    accentBg: '#f0edf8',
+    accent: '#f26a21',
+    accentBg: '#fef3ec',
     title: '감정 기록',
     desc: '하루를 자유롭게 기록하고\n감정을 남겨보세요',
   },
   {
     num: '02',
-    accent: '#5bb5cc',
-    accentBg: '#eaf6fb',
+    accent: '#f26a21',
+    accentBg: '#fef3ec',
     title: 'AI 감정 분석',
     desc: '일기를 기반으로 감정 상태를\n분석해드립니다',
   },
   {
     num: '03',
-    accent: '#6bbfa0',
-    accentBg: '#eaf7f2',
+    accent: '#f26a21',
+    accentBg: '#fef3ec',
     title: '패턴 분석',
     desc: '나도 몰랐던 감정 흐름을\n발견할 수 있어요',
   },
   {
     num: '04',
-    accent: '#c98fcd',
-    accentBg: '#f7edf8',
+    accent: '#f26a21',
+    accentBg: '#fef3ec',
     title: '맞춤 추천',
     desc: '당신에게 맞는 행동과\n힌트를 제공합니다',
   },
@@ -118,29 +118,29 @@ export default function OnboardingPage() {
                 <div className="ob-diary-emotion-row">
                   <span>행복</span>
                   <div className="ob-bar-track">
-                    <div className="ob-bar-fill" style={{ width: '76%', background: '#7c6fcd' }} />
+                    <div className="ob-bar-fill" style={{ width: '76%', background: '#f26a21' }} />
                   </div>
                   <span className="ob-bar-pct">76%</span>
                 </div>
                 <div className="ob-diary-emotion-row">
                   <span>평온</span>
                   <div className="ob-bar-track">
-                    <div className="ob-bar-fill" style={{ width: '58%', background: '#5bb5cc' }} />
+                    <div className="ob-bar-fill" style={{ width: '58%', background: '#fb923c' }} />
                   </div>
                   <span className="ob-bar-pct">58%</span>
                 </div>
                 <div className="ob-diary-emotion-row">
                   <span>활력</span>
                   <div className="ob-bar-track">
-                    <div className="ob-bar-fill" style={{ width: '42%', background: '#6bbfa0' }} />
+                    <div className="ob-bar-fill" style={{ width: '42%', background: '#f59e0b' }} />
                   </div>
                   <span className="ob-bar-pct">42%</span>
                 </div>
               </div>
               <div className="ob-diary-tag-row">
-                <span className="ob-tag" style={{ background: '#f0edf8', color: '#7c6fcd' }}>긍정적</span>
-                <span className="ob-tag" style={{ background: '#eaf7f2', color: '#6bbfa0' }}>안정적</span>
-                <span className="ob-tag" style={{ background: '#eaf6fb', color: '#5bb5cc' }}>차분함</span>
+                <span className="ob-tag" style={{ background: '#fef3ec', color: '#f26a21' }}>긍정적</span>
+                <span className="ob-tag" style={{ background: '#fef3ec', color: '#fb923c' }}>안정적</span>
+                <span className="ob-tag" style={{ background: '#fef3ec', color: '#f59e0b' }}>차분함</span>
               </div>
             </div>
           </div>
@@ -202,7 +202,7 @@ export default function OnboardingPage() {
                 {i < STEPS.length - 1 && (
                   <div className="ob-step-arrow">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <path d="M4 10h12M12 6l4 4-4 4" stroke="#c5bfdf" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M4 10h12M12 6l4 4-4 4" stroke="#ccc" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
                 )}
