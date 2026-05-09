@@ -1,0 +1,193 @@
+@keyframes cg-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes cg-slide-up {
+  from { opacity: 0; transform: translateY(36px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+@keyframes cg-choices-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cg-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes cg-bounce {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  45%       { transform: translateY(-9px) rotate(2deg); }
+  65%       { transform: translateY(-4px) rotate(0deg); }
+}
+
+/* ── 오버레이 ── */
+.cg-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 6, 0.52);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 36px;
+  animation: cg-fade-in 0.3s ease both;
+  cursor: pointer;
+}
+
+/* ── 대화창 박스 ── */
+.cg-box {
+  width: min(680px, calc(100vw - 48px));
+  background: #FFFDF8;
+  border: 2px solid #F0E4CC;
+  border-radius: 24px;
+  padding: 22px 26px 26px;
+  box-shadow: 0 12px 56px rgba(0, 0, 0, 0.32);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  cursor: default;
+  animation: cg-slide-up 0.38s cubic-bezier(0.34, 1.42, 0.64, 1) both;
+}
+
+/* ── 헤더: 마스코트 + 이름 ── */
+.cg-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cg-mascot {
+  width: 66px;
+  height: 66px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 14px rgba(242, 106, 33, 0.28));
+  animation: cg-bounce 2.3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cg-mascot { animation: none; }
+}
+
+.cg-name-badge {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #f26a21, #ffaa6b);
+  padding: 5px 16px;
+  border-radius: 20px;
+  letter-spacing: -0.2px;
+  flex-shrink: 0;
+}
+
+.cg-skip-hint {
+  margin-left: auto;
+  font-size: 11px;
+  color: #C0B4A4;
+  white-space: nowrap;
+}
+
+/* ── 대화 텍스트 ── */
+.cg-speech {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1A1410;
+  line-height: 1.85;
+  white-space: pre-line;
+  min-height: 58px;
+  letter-spacing: -0.3px;
+}
+
+.cg-cursor {
+  display: inline-block;
+  width: 2.5px;
+  height: 20px;
+  background: #f26a21;
+  margin-left: 3px;
+  vertical-align: middle;
+  border-radius: 2px;
+  animation: cg-blink 0.65s step-end infinite;
+}
+
+/* ── 선택지 ── */
+.cg-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  animation: cg-choices-in 0.22s ease both;
+}
+
+.cg-choice {
+  padding: 11px 22px;
+  border: 2px solid #EDE8E0;
+  border-radius: 14px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3A3028;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.14s, background 0.14s, transform 0.12s, box-shadow 0.14s;
+}
+
+.cg-choice:hover {
+  border-color: #FFD0A8;
+  background: #FFF8F2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(242, 106, 33, 0.12);
+}
+
+/* 일기 쓰기 → 오렌지 */
+.cg-choice.primary {
+  background: linear-gradient(135deg, #f26a21, #ffaa6b);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(242, 106, 33, 0.28);
+}
+.cg-choice.primary:hover {
+  opacity: 0.88;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(242, 106, 33, 0.38);
+  background: linear-gradient(135deg, #f26a21, #ffaa6b);
+  border-color: transparent;
+}
+
+/* AI 대화 → 보라 */
+.cg-choice.chat-primary {
+  background: linear-gradient(135deg, #7C6FCD, #a89fe8);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(124, 111, 205, 0.28);
+}
+.cg-choice.chat-primary:hover {
+  opacity: 0.88;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(124, 111, 205, 0.36);
+  background: linear-gradient(135deg, #7C6FCD, #a89fe8);
+  border-color: transparent;
+}
+
+/* 닫기 → 흐림 */
+.cg-choice.muted {
+  color: #A89880;
+  border-color: #EDE8E0;
+  font-size: 13px;
+  font-weight: 500;
+}
+.cg-choice.muted:hover {
+  border-color: #D4C8B8;
+  background: #F8F4F0;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 540px) {
+  .cg-box { padding: 18px 18px 22px; gap: 14px; }
+  .cg-speech { font-size: 16px; }
+  .cg-choice { padding: 10px 16px; font-size: 13px; }
+}

@@ -11,9 +11,11 @@ import { getStats } from '@/services/statsApi';
 import { getLetters } from '@/services/letterApi';
 import { getMyCharacter } from '@/services/characterApi';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import CharacterGreetingPopup from '@/components/CharacterGreeting/CharacterGreetingPopup';
 import "@/styles/Home/Home.css";
 
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+const WEEK_DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 
 const EMOTION_COLOR = {
   '행복': '#FFD93D', '기쁨': '#FF6B6B', '평온': '#6BCB77',
@@ -30,7 +32,24 @@ const STATUS_LABEL = {
   FAILED:    '⚠ 실패',
 };
 
+const QUICK_EMOTIONS = [
+  { label: '행복', emoji: '😊', color: '#FFD93D' },
+  { label: '평온', emoji: '😌', color: '#6BCB77' },
+  { label: '슬픔', emoji: '😢', color: '#4D96FF' },
+  { label: '불안', emoji: '😰', color: '#F9A826' },
+  { label: '분노', emoji: '😤', color: '#FF4D4D' },
+  { label: '설렘', emoji: '🤩', color: '#FF6B9D' },
+];
+
 const formatDate = (dateStr) => dateStr?.replace(/-/g, '.') ?? '';
+
+function getGreeting(name) {
+  const h = new Date().getHours();
+  if (h < 6)  return { msg: `잘 주무셨나요, ${name}님`, emoji: '🌙' };
+  if (h < 12) return { msg: `좋은 아침이에요, ${name}님`, emoji: '☀️' };
+  if (h < 18) return { msg: `좋은 오후예요, ${name}님`, emoji: '🌤️' };
+  return { msg: `오늘 하루도 수고했어요, ${name}님`, emoji: '🌙' };
+}
 
 function DonutChart({ data }) {
   const r = 52, cx = 70, cy = 70;
@@ -88,6 +107,85 @@ function DonutChart({ data }) {
   );
 }
 
+function WeekTracker({ diaries }) {
+  const today = new Date();
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - 6 + i);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dateStr = `${y}-${m}-${day}`;
+    const hasEntry = diaries.some(diary => diary.diaryDate === dateStr);
+    const isToday = i === 6;
+    const weekDay = WEEK_DAYS[(d.getDay() + 6) % 7];
+    return { dateStr, hasEntry, isToday, weekDay, dayNum: day };
+  });
+
+  return (
+    <div className="week-tracker card">
+      <div className="section-head">
+        <span className="section-title">최근 7일 기록</span>
+        <span className="section-badge">이번 주</span>
+      </div>
+      <div className="week-tracker-dots">
+        {days.map(({ dateStr, hasEntry, isToday, weekDay, dayNum }) => (
+          <div key={dateStr} className={`wt-day ${isToday ? 'wt-today' : ''}`}>
+            <span className="wt-label">{weekDay}</span>
+            <div className={`wt-dot ${hasEntry ? 'wt-dot-filled' : 'wt-dot-empty'} ${isToday ? 'wt-dot-today' : ''}`}>
+              {hasEntry && <span className="wt-check">✓</span>}
+            </div>
+            <span className="wt-num">{parseInt(dayNum)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function QuickCheckIn({ todayHasEntry, navigate }) {
+  return (
+    <div className="quick-checkin card">
+      <div className="section-head">
+        <span className="section-title">오늘 기분이 어때요?</span>
+      </div>
+      {todayHasEntry ? (
+        <div className="checkin-done">
+          <span className="checkin-done-icon">✓</span>
+          <span className="checkin-done-text">오늘 일기를 이미 작성했어요</span>
+        </div>
+      ) : (
+        <>
+          <div className="checkin-emotions">
+            {QUICK_EMOTIONS.map(({ label, emoji, color }) => (
+              <button
+                key={label}
+                className="checkin-btn"
+                style={{ '--checkin-color': color }}
+                onClick={() => navigate(`/write?emotion=${encodeURIComponent(label)}`)}
+              >
+                <span className="checkin-emoji">{emoji}</span>
+                <span className="checkin-label">{label}</span>
+              </button>
+            ))}
+          </div>
+          <div className="checkin-divider">
+            <span>감정이 잘 모르겠다면</span>
+          </div>
+          <button className="checkin-ai-btn" onClick={() => navigate('/ai-chat')}>
+            <span className="checkin-ai-icon">🤖</span>
+            <div className="checkin-ai-text">
+              <span className="checkin-ai-title">AI와 대화하며 감정 찾기</span>
+              <span className="checkin-ai-sub">대화를 통해 오늘의 감정을 파악해드릴게요</span>
+            </div>
+            <span className="checkin-ai-arrow">→</span>
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 const Home = () => {
   const navigate = useNavigate();
   const user = useCurrentUser();
@@ -97,6 +195,7 @@ const Home = () => {
   const day   = String(now.getDate()).padStart(2, '0');
   const dayOfWeek = DAYS[now.getDay()];
   const monthStr = `${year}-${month}`;
+  const todayStr = `${year}-${month}-${day}`;
 
   const [diaries, setDiaries]     = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -105,6 +204,8 @@ const Home = () => {
   const [stats, setStats]         = useState(null);
   const [showTutorial, setShowTutorial]       = useState(false);
   const [showLetterPopup, setShowLetterPopup] = useState(false);
+  const [showGreeting, setShowGreeting]       = useState(false);
+  const [character, setCharacter]             = useState(null);
   const [characterName, setCharacterName]     = useState(null);
   const [unreadLetterId, setUnreadLetterId]   = useState(null);
 
@@ -115,9 +216,18 @@ const Home = () => {
 
   useEffect(() => {
     if (!user?.id || showTutorial) return;
-    getMyCharacter().catch((err) => {
-      if (err.response?.status === 404) navigate('/character?next=/home');
-    });
+    getMyCharacter()
+      .then(c => {
+        setCharacter(c);
+        const greetKey = `emolens_greeting_${user.id}_${year}-${month}-${day}`;
+        if (!localStorage.getItem(greetKey)) {
+          localStorage.setItem(greetKey, '1');
+          setShowGreeting(true);
+        }
+      })
+      .catch((err) => {
+        if (err.response?.status === 404) navigate('/character?next=/home');
+      });
   }, [user?.id, showTutorial]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -125,11 +235,11 @@ const Home = () => {
     const sessionKey = `emolens_letter_popup_${user.id}`;
     if (sessionStorage.getItem(sessionKey)) return;
     Promise.all([getLetters(), getMyCharacter().catch(() => null)])
-      .then(([letters, character]) => {
+      .then(([letters, char]) => {
         const unread = letters.find(l => !l.isRead);
         if (!unread) return;
         setUnreadLetterId(unread.id);
-        setCharacterName(character?.name ?? null);
+        setCharacterName(char?.name ?? null);
         setShowLetterPopup(true);
         sessionStorage.setItem(sessionKey, 'true');
       }).catch(() => {});
@@ -150,16 +260,21 @@ const Home = () => {
     return true;
   });
 
-  const streak     = stats?.summary?.streak ?? 0;
+  const streak      = stats?.summary?.streak ?? 0;
   const emotionDist = stats?.emotionDistribution ?? [];
-  const keywords   = stats?.keywords ?? [];
-  const aiSummary  = stats?.aiInsights?.summary ?? null;
+  const keywords    = stats?.keywords ?? [];
+  const aiSummary   = stats?.aiInsights?.summary ?? null;
+  const todayHasEntry = diaries.some(d => d.diaryDate === todayStr);
+  const greeting = getGreeting(user?.name ?? '');
 
   return (
     <div className="home-layout">
       {showTutorial && <TutorialOverlay userId={user?.id} onDone={() => setShowTutorial(false)} />}
       {showLetterPopup && (
         <LetterPopup characterName={characterName} letterId={unreadLetterId} onClose={() => setShowLetterPopup(false)} />
+      )}
+      {showGreeting && !showLetterPopup && (
+        <CharacterGreetingPopup characterName={character?.name} onClose={() => setShowGreeting(false)} />
       )}
 
       <SidebarLeft />
@@ -169,6 +284,7 @@ const Home = () => {
         {/* ① Hero */}
         <div className="home-hero card">
           <div className="hero-left">
+            <div className="hero-greeting">{greeting.emoji} {greeting.msg}</div>
             <div className="hero-date-wrap">
               <span className="hero-date-num">{parseInt(month)}월 {parseInt(day)}일</span>
               <span className="hero-day-badge">{dayOfWeek}요일</span>
@@ -182,7 +298,13 @@ const Home = () => {
           </div>
         </div>
 
-        {/* ② 인사이트 2열 */}
+        {/* ② 퀵 체크인 + 7일 트래커 */}
+        <div className="home-checkin-row">
+          <QuickCheckIn todayHasEntry={todayHasEntry} navigate={navigate} />
+          <WeekTracker diaries={diaries} />
+        </div>
+
+        {/* ③ 인사이트 2열 */}
         <div className="home-insights-row">
 
           {/* 감정 도넛 차트 */}
@@ -234,7 +356,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* ③ 주간 리포트 배너 */}
+        {/* ④ 주간 리포트 배너 */}
         <div className="home-weekly-banner card" onClick={() => navigate('/weekly-report')}>
           <div className="weekly-left">
             <span className="weekly-label">WEEKLY REPORT</span>
@@ -246,7 +368,7 @@ const Home = () => {
           </button>
         </div>
 
-        {/* ④ 일기 리스트 */}
+        {/* ⑤ 일기 리스트 */}
         <div className="diary-section card">
           <div className="diary-header">
             <h2 className="diary-title">내 일기</h2>
