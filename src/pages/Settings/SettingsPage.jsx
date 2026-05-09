@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { logout } from '@/services/userApi';
+import { useUserContext } from '@/contexts/UserContext';
+import { logout, updateProfile, uploadProfileImage } from '@/services/userApi';
 import '@/styles/Settings/SettingsPage.css';
+
+const DEFAULT_PROFILE_IMAGE = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+const resolveImageUrl = (url) => {
+  if (!url) return DEFAULT_PROFILE_IMAGE;
+  if (url.startsWith('http')) return url;
+  return `${import.meta.env.VITE_API_BASE_URL}${url}`;
+};
 
 /* ── 기본값 ───────────────────────────────────────────── */
 const DEFAULT_SETTINGS = {
@@ -75,7 +82,7 @@ const ToggleRow = ({ label, desc, checked, onChange }) => (
 );
 
 /* ── 오른쪽 패널 ────────────────────────────────────── */
-const RightPanel = ({ settings }) => {
+const RightPanel = ({ settings, profileImageUrl }) => {
   const { profile, notifications, writing, ai } = settings;
   const notifOn = Object.values(notifications).some(Boolean);
   const aiOn    = Object.values(ai).some(Boolean);
@@ -86,10 +93,7 @@ const RightPanel = ({ settings }) => {
       <div className="rp-card rp-profile">
         <div className="rp-card-label">프로필 미리보기</div>
         <div className="rp-avatar">
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-            alt="profile"
-          />
+          <img src={resolveImageUrl(profileImageUrl)} alt="profile" />
         </div>
         <div className="rp-nickname">{profile.nickname || '닉네임 없음'}</div>
         <div className="rp-bio">{profile.bio || '한 줄 소개를 입력해주세요.'}</div>
@@ -149,10 +153,12 @@ const RightPanel = ({ settings }) => {
    메인 컴포넌트
 ═══════════════════════════════════════════════════════ */
 const SettingsPage = () => {
-  const user = useCurrentUser();
+  const { user, setUser } = useUserContext();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [profileDraft, setProfileDraft] = useState({ ...DEFAULT_SETTINGS.profile });
-  const [toast, setToast] = useState(null); // { msg, type }
+  const [profileImageUrl, setProfileImageUrl] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     if (!user) return;
@@ -163,6 +169,7 @@ const SettingsPage = () => {
     };
     setSettings(prev => ({ ...prev, profile }));
     setProfileDraft(profile);
+    setProfileImageUrl(user.profileImageUrl ?? null);
   }, [user]);
 
   const showToast = (msg, type = 'success') => {
@@ -177,10 +184,39 @@ const SettingsPage = () => {
       [section]: { ...prev[section], [key]: value },
     }));
 
+  /* 사진 변경 - 업로드 즉시 저장 */
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageUploading(true);
+    try {
+      const url = await uploadProfileImage(file);
+      setProfileImageUrl(url);
+      await updateProfile({ name: profileDraft.nickname || user?.name, profileImageUrl: url });
+      setUser(prev => ({ ...prev, profileImageUrl: url }));
+      showToast('프로필 사진이 변경됐습니다.');
+    } catch {
+      showToast('사진 업로드에 실패했습니다.', 'error');
+    } finally {
+      setImageUploading(false);
+      e.target.value = '';
+    }
+  };
+
   /* 프로필 저장 */
-  const handleProfileSave = () => {
-    setSettings(prev => ({ ...prev, profile: { ...profileDraft } }));
-    showToast('프로필이 저장되었습니다.');
+  const handleProfileSave = async () => {
+    if (!profileDraft.nickname.trim()) {
+      showToast('닉네임을 입력해주세요.', 'info');
+      return;
+    }
+    try {
+      await updateProfile({ name: profileDraft.nickname.trim(), profileImageUrl: profileImageUrl || null });
+      setSettings(prev => ({ ...prev, profile: { ...profileDraft } }));
+      setUser(prev => ({ ...prev, name: profileDraft.nickname.trim(), profileImageUrl }));
+      showToast('프로필이 저장되었습니다.');
+    } catch {
+      showToast('프로필 저장에 실패했습니다.', 'error');
+    }
   };
 
   /* 전체 저장 */
@@ -226,11 +262,20 @@ const SettingsPage = () => {
           <div className="profile-edit-area">
             <div className="profile-avatar-edit">
               <img
-                src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                src={resolveImageUrl(profileImageUrl)}
                 alt="profile"
                 className="profile-edit-img"
               />
-              <button className="avatar-change-btn">사진 변경</button>
+              <label className={`avatar-change-btn${imageUploading ? ' disabled' : ''}`}>
+                {imageUploading ? '업로드 중...' : '사진 변경'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleAvatarChange}
+                  disabled={imageUploading}
+                />
+              </label>
             </div>
             <div className="profile-fields">
               <div className="field-group">
@@ -257,18 +302,17 @@ const SettingsPage = () => {
                   placeholder="나를 소개해주세요"
                 />
               </div>
-              <div className="field-group">
-                <label className="field-label">이메일</label>
-                <input
-                  className="field-input field-input-readonly"
-                  type="email"
-                  value={profileDraft.email}
-                  onChange={e =>
-                    setProfileDraft(p => ({ ...p, email: e.target.value }))
-                  }
-                  placeholder="이메일을 입력하세요"
-                />
-              </div>
+              {profileDraft.email && (
+                <div className="field-group">
+                  <label className="field-label">이메일</label>
+                  <input
+                    className="field-input field-input-readonly"
+                    type="email"
+                    value={profileDraft.email}
+                    readOnly
+                  />
+                </div>
+              )}
               <button className="btn-primary" onClick={handleProfileSave}>
                 프로필 저장
               </button>
@@ -462,7 +506,7 @@ const SettingsPage = () => {
       </main>
 
       {/* ── 오른쪽 패널 ────────────────────────────── */}
-      <RightPanel settings={settings} />
+      <RightPanel settings={settings} profileImageUrl={profileImageUrl} />
     </div>
   );
 };

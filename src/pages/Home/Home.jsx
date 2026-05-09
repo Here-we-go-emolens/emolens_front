@@ -4,9 +4,23 @@ import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import SidebarRight from '../../components/Sidebar-right/SidebarRight';
 import WeatherCard from '../../components/WeatherCard/WeatherCard';
 import { getDiaryList } from '@/services/diaryApi';
+import { getStats } from '@/services/statsApi';
 import "@/styles/Home/Home.css";
 
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+const EMOTION_EMOJI = {
+  '행복': '😊', '기쁨': '😄', '평온': '😌', '슬픔': '😢',
+  '우울': '😔', '불안': '😰', '분노': '😤', '놀람': '😲',
+  '혐오': '🤢', '두려움': '😨', '수치': '😳',
+};
+
+const EMOTION_CLASS = {
+  '행복': 'chip-happy', '기쁨': 'chip-happy', '평온': 'chip-calm',
+  '슬픔': 'chip-sad', '우울': 'chip-sad', '불안': 'chip-anxious',
+  '분노': 'chip-angry', '놀람': 'chip-happy', '혐오': 'chip-angry',
+  '두려움': 'chip-anxious', '수치': 'chip-sad',
+};
 
 const STATUS_LABEL = {
   COMPLETED: '✦ 분석완료',
@@ -25,10 +39,13 @@ const Home = () => {
   const day   = String(now.getDate()).padStart(2, '0');
   const dayOfWeek = DAYS[now.getDay()];
 
+  const monthStr = `${year}-${month}`;
+
   const [diaries, setDiaries]         = useState([]);
   const [loading, setLoading]         = useState(true);
   const [searchType,  setSearchType]  = useState('제목');
   const [searchQuery, setSearchQuery] = useState('');
+  const [stats, setStats]             = useState(null);
 
   useEffect(() => {
     getDiaryList(0, 50)
@@ -36,6 +53,10 @@ const Home = () => {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    getStats(monthStr).then(setStats).catch(() => {});
+  }, [monthStr]);
 
   const filtered = diaries.filter(d => {
     if (!searchQuery) return true;
@@ -122,34 +143,42 @@ const Home = () => {
         {/* ③ 감정 분석 요약 */}
         <div className="emotion-summary card">
           <div className="summary-item">
-            <span className="summary-label">총 감정 요약</span>
+            <span className="summary-label">이번 달 감정 요약</span>
             <div className="emotion-chips">
-              <span className="chip chip-happy">😊 행복 42%</span>
-              <span className="chip chip-calm">😌 평온 28%</span>
-              <span className="chip chip-sad">😔 우울 18%</span>
-              <span className="chip chip-angry">😤 분노 12%</span>
+              {stats?.emotionDistribution?.length > 0
+                ? stats.emotionDistribution.slice(0, 4).map(e => (
+                    <span key={e.emotion} className={`chip ${EMOTION_CLASS[e.emotion] ?? 'chip-happy'}`}>
+                      {EMOTION_EMOJI[e.emotion] ?? '💭'} {e.emotion} {e.percentage}%
+                    </span>
+                  ))
+                : <span className="summary-analysis">일기를 작성하면 감정 요약이 표시돼요.</span>
+              }
             </div>
           </div>
           <div className="summary-divider" />
           <div className="summary-item">
             <span className="summary-label">연속 기록일</span>
-            <span className="summary-value">🔥 14일 연속</span>
+            <span className="summary-value">
+              🔥 {stats?.summary?.streak != null ? `${stats.summary.streak}일 연속` : '0일 연속'}
+            </span>
           </div>
           <div className="summary-divider" />
           <div className="summary-item">
-            <span className="summary-label">이번 주 키워드</span>
+            <span className="summary-label">이번 달 키워드</span>
             <div className="kw-chips">
-              <span className="kw-chip">#산책</span>
-              <span className="kw-chip">#커피</span>
-              <span className="kw-chip">#피로</span>
-              <span className="kw-chip">#독서</span>
+              {stats?.keywords?.length > 0
+                ? stats.keywords.slice(0, 4).map(k => (
+                    <span key={k.text} className="kw-chip">#{k.text}</span>
+                  ))
+                : <span className="summary-analysis">일기를 작성하면 키워드가 표시돼요.</span>
+              }
             </div>
           </div>
           <div className="summary-divider" />
           <div className="summary-item summary-item-wide">
-            <span className="summary-label">주간 분석</span>
+            <span className="summary-label">AI 분석</span>
             <span className="summary-analysis">
-              이번 주는 전반적으로 안정적인 감정 상태였어요. 중반에 업무 스트레스가 있었지만 주말로 갈수록 회복되는 패턴이 보여요.
+              {stats?.aiInsights?.summary ?? '일기를 3편 이상 작성하면 AI 월간 분석이 생성돼요.'}
             </span>
           </div>
         </div>

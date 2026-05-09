@@ -113,7 +113,6 @@ export default function DiaryDetailPage() {
 
   const [diary, setDiary]     = useState(null);
   const [loading, setLoading] = useState(true);
-  const templateType = localStorage.getItem(`diary_template_${id}`) ?? 'plain';
 
   const [isEditing, setIsEditing]         = useState(false);
   const [editTitle, setEditTitle]         = useState('');
@@ -150,6 +149,7 @@ export default function DiaryDetailPage() {
       await updateDiary(id, {
         title: editTitle.trim(), content: editContent.trim(),
         weather: editWeather || null, isSecret: editIsSecret, imageUrls: editImageUrls,
+        templateType: diary.templateType ?? 'PLAIN',
       });
       setDiary(prev => ({ ...prev, title: editTitle.trim(), content: editContent.trim(), weather: editWeather || null, isSecret: editIsSecret, imageUrls: editImageUrls }));
       setIsEditing(false);
@@ -167,12 +167,13 @@ export default function DiaryDetailPage() {
     <div className="dd-fullcenter"><p>일기를 찾을 수 없습니다.</p><button className="dd-btn btn-ghost" onClick={() => navigate('/home')}>홈으로</button></div>
   );
 
-  const emotions     = diary.emotions ?? [];
-  const mainEmotion  = emotions[0];
-  const emoName      = mainEmotion?.emotionName ?? '';
-  const isCompleted  = diary.status === 'COMPLETED';
-  const heroBg       = EMOTION_CONFIG[emoName]?.bg ?? '#f8f6ff';
-  const mascotSpeech = MASCOT_SPEECH[emoName] ?? '오늘 하루, 정말 의미 있었네요 😊';
+  const templateType  = diary.templateType?.toLowerCase() ?? localStorage.getItem(`diary_template_${id}`) ?? 'plain';
+  const emotions      = diary.emotions ?? [];
+  const mainEmotion   = emotions[0];
+  const emoName       = mainEmotion?.emotionName ?? '';
+  const isCompleted   = diary.status === 'COMPLETED';
+  const heroBg        = EMOTION_CONFIG[emoName]?.bg ?? '#f8f6ff';
+  const mascotSpeech  = MASCOT_SPEECH[emoName] ?? '오늘 하루, 정말 의미 있었네요 😊';
 
   const donutData = {
     labels: emotions.map(e => e.emotionName),
@@ -460,7 +461,37 @@ export default function DiaryDetailPage() {
           )}
         </div>
 
-        {/* 감정 원인 - Premium 잠금 */}
+        {/* 내 감정 vs AI 비교 */}
+        {diary.userEmotions?.length > 0 && (
+          <div className="dd-panel-card">
+            <div className="dd-panel-head"><span>🪞</span><span>내 감정 vs AI 분석</span></div>
+            <div className="dd-cmp-section-label">👤 내가 선택한 감정</div>
+            <div className="dd-donut-legend" style={{ marginBottom: '12px' }}>
+              {diary.userEmotions.map((e, i) => (
+                <div key={e.emotionName} className="dd-legend-row">
+                  <span className="dd-legend-dot" style={{ background: emotionColor(e.emotionName, i) }} />
+                  <span className="dd-legend-label">{e.emotionName}</span>
+                  <span className="dd-legend-pct">{e.score}%</span>
+                </div>
+              ))}
+            </div>
+            <div className="dd-cmp-section-label">✨ AI가 감지한 감정</div>
+            <div className="dd-donut-legend">
+              {isCompleted && emotions.length > 0
+                ? emotions.map((e, i) => (
+                    <div key={e.emotionName} className="dd-legend-row">
+                      <span className="dd-legend-dot" style={{ background: emotionColor(e.emotionName, i) }} />
+                      <span className="dd-legend-label">{e.emotionName}</span>
+                      <span className="dd-legend-pct">{e.score}%</span>
+                    </div>
+                  ))
+                : <span className="dd-muted-msg">AI 분석 완료 후 표시됩니다.</span>
+              }
+            </div>
+          </div>
+        )}
+
+        {/* 이전 일기와 비교 - Premium 잠금 */}
         <div className="dd-panel-card">
           <div className="dd-panel-head"><span>📈</span><span>이전 일기와 비교</span></div>
           <PremiumLockCard title="지난 기록과 비교해 패턴을 발견하세요" />

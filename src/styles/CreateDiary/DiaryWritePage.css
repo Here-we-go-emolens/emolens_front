@@ -53,6 +53,10 @@
   border-radius: 22px;
   padding: 24px 22px 20px;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .dw-emotion-header {
@@ -146,6 +150,333 @@
   font-weight: 600;
   color: var(--text);
   line-height: 1;
+}
+
+/* 순서 배지 ①②③ */
+.chip-order-badge {
+  position: absolute;
+  top: 6px;
+  right: 7px;
+  font-size: 13px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.emotion-chip {
+  position: relative;
+}
+
+/* ════════════════════════════════════════════════════════
+   EmotionCard — 커스텀 이미지 기반 감정 카드
+   ════════════════════════════════════════════════════════ */
+.ec-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 88px;
+  padding: 10px 8px 10px;
+  border-radius: 18px;
+  border: 1.5px solid #e8e8ec;
+  background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: transform 0.2s ease-out,
+              box-shadow 0.2s ease-out,
+              border-color 0.2s ease,
+              background 0.2s ease;
+}
+
+.ec-card:hover {
+  transform: scale(1.02) translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-color: #d0d0d8;
+}
+
+.ec-card:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* 주 감정 (①) */
+.ec-card.selected.order-1 {
+  border: 2px solid #f26a21;
+  background: #FFF4ED;
+  box-shadow: 0 6px 20px rgba(242, 106, 33, 0.22);
+  transform: translateY(-4px);
+  transition: transform 0.3s ease,
+              background 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+/* 부 감정 (②③) */
+.ec-card.selected.order-2,
+.ec-card.selected.order-3 {
+  border: 2px solid #fda87f;
+  background: #FFF9F5;
+  box-shadow: 0 4px 14px rgba(242, 106, 33, 0.13);
+  transform: translateY(-4px);
+  transition: transform 0.3s ease,
+              background 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+/* 순서 배지 */
+.ec-order-badge {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  font-size: 13px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* 이미지 영역 */
+.ec-image-wrap {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ec-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.2s ease-out;
+}
+
+.ec-card:hover .ec-image {
+  transform: scale(1.18);
+}
+
+.ec-image-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #e8e8ec;
+}
+
+.ec-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+}
+
+/* 슬라이더 이미지 */
+.es-slider-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.es-slider-img-fallback {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e8e8ec;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════════════
+   EmotionSelector — 확장/슬라이더/토스트
+   ════════════════════════════════════════════════════════ */
+
+/* 더보기 버튼 */
+.es-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  align-self: flex-start;
+}
+
+.es-expand-btn:hover {
+  border-color: #f26a21;
+  color: #c05010;
+  background: #fff5f0;
+}
+
+.es-expand-arrow {
+  transition: transform 0.3s ease-out;
+  flex-shrink: 0;
+}
+
+.es-expand-btn.expanded .es-expand-arrow {
+  transform: rotate(180deg);
+}
+
+/* 확장 영역 — max-height 트랜지션 */
+.es-extended-wrap {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.es-extended-wrap.open {
+  max-height: 380px;
+}
+
+.es-extended-inner {
+  background: rgba(0, 0, 0, 0.025);
+  border-radius: 16px;
+  padding: 16px 14px;
+  margin-top: 6px;
+}
+
+/* 강도 슬라이더 영역 */
+.es-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 4px 4px;
+  border-top: 1px dashed var(--border);
+  margin-top: 4px;
+}
+
+.es-sliders-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.es-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.es-slider-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.es-slider-emoji { font-size: 16px; }
+
+.es-slider-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.es-slider-value {
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: right;
+}
+
+.es-slider-track-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.es-slider-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* 커스텀 range 슬라이더 */
+.es-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--slider-color, #f26a21);
+}
+
+.es-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--slider-color, #f26a21);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  transition: transform 0.12s ease;
+}
+
+.es-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.es-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--slider-color, #f26a21);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+
+/* 토스트 메시지 */
+.es-toast {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: rgba(30, 30, 30, 0.88);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 20px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+}
+
+.es-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+
+/* ════════════════════════════════════════════════════════
+   접근성 — prefers-reduced-motion
+   ════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .emotion-chip,
+  .ec-card,
+  .dw-mascot,
+  .es-extended-wrap,
+  .es-expand-arrow,
+  .es-toast,
+  .es-slider::-webkit-slider-thumb {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 
 /* ════════════════════════════════════════════════════════
@@ -716,6 +1047,8 @@
   .dw-panel { width: 226px; min-width: 206px; }
   .emotion-chip { width: 82px; height: 82px; border-radius: 18px; }
   .chip-emoji { font-size: 24px; }
+  .ec-card { width: 80px; }
+  .ec-image-wrap { width: 52px; height: 52px; }
 }
 
 @media (max-width: 768px) {
@@ -743,6 +1076,10 @@
 
   .chip-emoji { font-size: 22px; }
   .chip-label { font-size: 11px; }
+
+  .ec-card { width: 72px; padding: 8px 6px 8px; }
+  .ec-image-wrap { width: 46px; height: 46px; }
+  .ec-label { font-size: 11px; }
 
   .tpl-list { flex-direction: row; flex-wrap: wrap; }
   .tpl-item { flex: 1 1 calc(50% - 4px); }
