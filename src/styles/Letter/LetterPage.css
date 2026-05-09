@@ -408,3 +408,26 @@
   transition: opacity 0.15s;
 }
 .ld-diary-link:hover { opacity: 0.75; }
+
+/* ── 주간 리포트 CTA ── */
+.ld-cta-btn {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 13px;
+  background: linear-gradient(135deg, #f26a21, #ffaa6b);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.2px;
+  transition: opacity 0.15s, transform 0.15s;
+  animation: ld-fade-in 0.3s ease both;
+}
+.ld-cta-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}

@@ -47,6 +47,7 @@ function LetterCard({ item, onOpen }) {
 }
 
 function LetterDetail({ letter, onClose, onViewDiary }) {
+  const navigate = useNavigate();
   const [typedContent, setTypedContent] = useState('');
   const [typing, setTyping] = useState(true);
 
@@ -109,6 +110,15 @@ function LetterDetail({ letter, onClose, onViewDiary }) {
               </button>
             )}
           </div>
+
+          {!typing && (
+            <button
+              className="ld-cta-btn"
+              onClick={() => { onClose(); navigate('/weekly-report'); }}
+            >
+              이번 주 감정 흐름 보기 →
+            </button>
+          )}
         </div>
 
       </div>
