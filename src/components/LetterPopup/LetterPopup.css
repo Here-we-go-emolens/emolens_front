@@ -1,0 +1,130 @@
+.lp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 8500;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: lp-fade-in 0.25s ease both;
+}
+
+@keyframes lp-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.lp-card {
+  background: #FFFCF5;
+  border-radius: 28px;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 28px 24px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  border: 1px solid #F0E8D8;
+  text-align: center;
+  animation: lp-card-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes lp-card-in {
+  from { opacity: 0; transform: scale(0.85) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── 마스코트 ── */
+.lp-mascot-wrap {
+  margin-bottom: 12px;
+}
+
+.lp-mascot {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  animation: lp-bounce 2s ease-in-out infinite;
+  filter: drop-shadow(0 6px 14px rgba(242, 106, 33, 0.22));
+}
+
+@keyframes lp-bounce {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  45%       { transform: translateY(-10px) rotate(2deg); }
+  65%       { transform: translateY(-5px) rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-mascot { animation: none; }
+}
+
+/* ── 배지 ── */
+.lp-badge {
+  background: #FFF0E5;
+  color: #f26a21;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  border: 1px solid #FFD8B8;
+  letter-spacing: 0.02em;
+}
+
+/* ── 타이틀 ── */
+.lp-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #2A1F18;
+  line-height: 1.55;
+  margin: 0 0 10px;
+}
+
+.lp-sender {
+  color: #f26a21;
+}
+
+/* ── 힌트 ── */
+.lp-hint {
+  font-size: 13px;
+  color: #A89880;
+  margin: 0 0 24px;
+}
+
+/* ── 버튼 ── */
+.lp-btns {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.lp-btn-later {
+  flex: 0 0 auto;
+  padding: 12px 16px;
+  background: #F4EDE4;
+  color: #8A7A6A;
+  border: none;
+  border-radius: 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.lp-btn-later:hover { background: #EAE0D4; }
+
+.lp-btn-go {
+  flex: 1;
+  padding: 12px;
+  background: #f26a21;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.lp-btn-go:hover { opacity: 0.88; transform: scale(1.02); }

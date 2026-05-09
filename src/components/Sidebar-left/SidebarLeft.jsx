@@ -33,6 +33,12 @@ const SidebarLeft = () => {
     getUnreadCount().then(setUnreadCount).catch(() => {});
   }, [pathname]);
 
+  useEffect(() => {
+    const refresh = () => getUnreadCount().then(setUnreadCount).catch(() => {});
+    window.addEventListener('letter-read', refresh);
+    return () => window.removeEventListener('letter-read', refresh);
+  }, []);
+
   const chatUsed      = user?.chatUsed  ?? 0;
   const chatLimit     = user?.chatLimit ?? 10;
   const chatRemaining = chatLimit - chatUsed;

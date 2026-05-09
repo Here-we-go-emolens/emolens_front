@@ -5,7 +5,27 @@ import { Doughnut } from 'react-chartjs-2';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import { getDiary, deleteDiary, updateDiary } from '@/services/diaryApi';
 import mascotImg from '@/assets/mascot-removebg-preview.png';
+import { findEmotionById } from '@/constants/emotions';
 import '@/styles/DiaryDetail/DiaryDetailPage.css';
+
+const KOREAN_TO_EMOTION_ID = {
+  '행복': 'happy',  '기쁨': 'happy',
+  '설렘': 'excited',
+  '평온': 'calm',
+  '뿌듯': 'proud',
+  '불안': 'anxious', '두려움': 'anxious',
+  '화남': 'angry',  '분노': 'angry',
+  '우울': 'sad',    '슬픔': 'sad',
+  '피곤': 'tired',
+  '감사': 'grateful',
+  '그리움': 'longing',
+  '외로움': 'lonely',
+  '짜증': 'annoyed',
+  '후회': 'regret',
+  '부끄러움': 'shy',
+  '무기력': 'listless',
+  '멍함': 'blank',
+};
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -250,7 +270,28 @@ export default function DiaryDetailPage() {
               {/* 왼쪽: 아이콘 + 제목 */}
               <div className="dd-hero-body">
                 <div className="dd-hero-top">
-                  <span className="dd-hero-emoicon">{EMOTION_CONFIG[emoName]?.icon ?? '📖'}</span>
+                  <div className="dd-hero-emostack">
+                    {/* 1순위: 크게 */}
+                    {(() => {
+                      const img = findEmotionById(KOREAN_TO_EMOTION_ID[emoName])?.image;
+                      return img
+                        ? <img src={img} alt={emoName} className="dd-hero-emoimg main" />
+                        : <span className="dd-hero-emoicon">{EMOTION_CONFIG[emoName]?.icon ?? '📖'}</span>;
+                    })()}
+                    {/* 2~3순위: 작게 겹쳐서 */}
+                    {emotions.slice(1, 3).map((e, i) => {
+                      const img = findEmotionById(KOREAN_TO_EMOTION_ID[e.emotionName])?.image;
+                      return img ? (
+                        <img
+                          key={e.emotionName}
+                          src={img}
+                          alt={e.emotionName}
+                          className="dd-hero-emoimg sub"
+                          style={{ bottom: `${i * 18}px` }}
+                        />
+                      ) : null;
+                    })}
+                  </div>
                   <div className="dd-hero-info">
                     <h1 className="dd-hero-title">{diary.title}</h1>
                     <div className="dd-hero-meta">
@@ -373,7 +414,14 @@ export default function DiaryDetailPage() {
               <div className="dd-donut-wrap">
                 <Doughnut data={donutData} options={donutOptions} />
                 <div className="dd-donut-center">
-                  <div className="dd-donut-emoicon">{EMOTION_CONFIG[emoName]?.icon ?? '💜'}</div>
+                  <div className="dd-donut-emoicon">
+                    {(() => {
+                      const img = findEmotionById(KOREAN_TO_EMOTION_ID[emoName])?.image;
+                      return img
+                        ? <img src={img} alt={emoName} className="dd-donut-emoimg" />
+                        : (EMOTION_CONFIG[emoName]?.icon ?? '💜');
+                    })()}
+                  </div>
                   <div className="dd-donut-emoname">{emoName}</div>
                 </div>
               </div>

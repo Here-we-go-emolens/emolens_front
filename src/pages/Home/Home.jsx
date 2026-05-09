@@ -4,8 +4,11 @@ import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import SidebarRight from '../../components/Sidebar-right/SidebarRight';
 import WeatherCard from '../../components/WeatherCard/WeatherCard';
 import TutorialOverlay from '../../components/Tutorial/TutorialOverlay';
+import LetterPopup from '../../components/LetterPopup/LetterPopup';
 import { getDiaryList } from '@/services/diaryApi';
 import { getStats } from '@/services/statsApi';
+import { getLetters, getUnreadCount } from '@/services/letterApi';
+import { getMyCharacter } from '@/services/characterApi';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import "@/styles/Home/Home.css";
 
@@ -49,13 +52,34 @@ const Home = () => {
   const [searchType,  setSearchType]  = useState('제목');
   const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats]             = useState(null);
-  const [showTutorial, setShowTutorial] = useState(false);
+  const [showTutorial, setShowTutorial]     = useState(false);
+  const [showLetterPopup, setShowLetterPopup] = useState(false);
+  const [characterName, setCharacterName]     = useState(null);
+  const [unreadLetterId, setUnreadLetterId]   = useState(null);
 
   useEffect(() => {
     if (!user?.id) return;
     const key = `emolens_tutorial_done_${user.id}`;
     if (!localStorage.getItem(key)) setShowTutorial(true);
   }, [user?.id]);
+
+  // 로그인 후 읽지 않은 편지 있으면 알림 팝업 (튜토리얼이 끝난 후에만)
+  useEffect(() => {
+    if (!user?.id || showTutorial) return;
+    const sessionKey = `emolens_letter_popup_${user.id}`;
+    if (sessionStorage.getItem(sessionKey)) return;
+
+    Promise.all([getLetters(), getMyCharacter().catch(() => null)])
+      .then(([letters, character]) => {
+        const unread = letters.find((l) => !l.isRead);
+        if (!unread) return;
+        setUnreadLetterId(unread.id);
+        setCharacterName(character?.name ?? null);
+        setShowLetterPopup(true);
+        sessionStorage.setItem(sessionKey, 'true');
+      })
+      .catch(() => {});
+  }, [user?.id, showTutorial]);
 
   useEffect(() => {
     getDiaryList(0, 50)
@@ -81,6 +105,14 @@ const Home = () => {
         <TutorialOverlay
           userId={user?.id}
           onDone={() => setShowTutorial(false)}
+        />
+      )}
+
+      {showLetterPopup && (
+        <LetterPopup
+          characterName={characterName}
+          letterId={unreadLetterId}
+          onClose={() => setShowLetterPopup(false)}
         />
       )}
 

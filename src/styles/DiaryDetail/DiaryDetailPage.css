@@ -122,6 +122,49 @@
   filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));
 }
 
+/* 감정 이미지 스택 래퍼 */
+.dd-hero-emostack {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.dd-hero-emoimg {
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.12));
+}
+
+/* 1순위: 크게 */
+.dd-hero-emoimg.main {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+}
+
+/* 2~3순위: 작게, 오른쪽 아래에 겹쳐서 */
+.dd-hero-emoimg.sub {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  right: -14px;
+  z-index: 2;
+  background: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  padding: 2px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.dd-donut-emoimg {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1));
+}
+
 .dd-hero-info { flex: 1; min-width: 0; }
 
 .dd-hero-title {
@@ -181,13 +224,14 @@
   background: #fff;
   border: 1.5px solid var(--border);
   border-radius: 16px 16px 16px 4px;
-  padding: 9px 14px;
-  font-size: 12.5px;
+  padding: 10px 16px;
+  font-size: 13px;
   color: var(--text);
-  line-height: 1.55;
+  line-height: 1.65;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
-  max-width: 160px;
+  max-width: 200px;
   text-align: center;
+  word-break: keep-all;
   position: relative;
 }
 
