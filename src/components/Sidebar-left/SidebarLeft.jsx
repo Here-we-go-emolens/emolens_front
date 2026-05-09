@@ -43,7 +43,7 @@ const SidebarLeft = () => {
   const chatLimit     = user?.chatLimit ?? 10;
   const chatRemaining = chatLimit - chatUsed;
   const chatWarning   = chatRemaining <= 3;
-  const isPremium     = user?.plan === 'premium';
+  const isPremium     = user?.plan === 'PREMIUM';
 
   return (
     <div className="sidebar-left">

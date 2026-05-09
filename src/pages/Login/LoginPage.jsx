@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '@/styles/Login/LoginPage.css';
+import { saveTokens } from '@/services/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -17,6 +21,30 @@ export default function LoginPage() {
 
   const handleSocialLogin = (provider) => {
     window.location.href = `${API_BASE_URL}/oauth2/authorization/${provider}`;
+  };
+
+  const handleEmailLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        setErrorMsg('이메일 또는 비밀번호가 올바르지 않습니다.');
+        return;
+      }
+      const { accessToken, refreshToken } = await res.json();
+      saveTokens(accessToken, refreshToken);
+      navigate('/home');
+    } catch {
+      setErrorMsg('로그인 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,8 +69,32 @@ export default function LoginPage() {
           기록하고 이해해보세요
         </p>
 
-        {/* 에러 메시지 */}
-        {errorMsg && <p className="login-error">{errorMsg}</p>}
+        {/* 이메일 로그인 폼 */}
+        <form className="login-email-form" onSubmit={handleEmailLogin}>
+          <input
+            type="email"
+            className="login-email-input"
+            placeholder="이메일"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            className="login-email-input"
+            placeholder="비밀번호"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          {errorMsg && <p className="login-error">{errorMsg}</p>}
+          <button type="submit" className="login-email-btn" disabled={loading}>
+            {loading ? '로그인 중...' : '이메일로 로그인'}
+          </button>
+        </form>
+
+        {/* 구분선 */}
+        <div className="login-divider"><span>또는 소셜 로그인</span></div>
 
         {/* 소셜 로그인 버튼 */}
         <div className="login-buttons">
@@ -101,6 +153,7 @@ export default function LoginPage() {
         <div className="login-divider">
           <span>처음이신가요?</span>
         </div>
+
 
         {/* 랜딩 페이지로 */}
         <button className="login-back-btn" onClick={() => navigate('/')}>

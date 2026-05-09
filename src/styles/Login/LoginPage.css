@@ -239,3 +239,48 @@
   text-align: center;
   margin: -8px 0 8px;
 }
+
+/* ── 이메일 로그인 폼 ────────────────────────────────────── */
+.login-email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.login-email-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #e0daea;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #3a3446;
+  background: #faf9fd;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.login-email-input:focus {
+  border-color: #f26a21;
+}
+
+.login-email-btn {
+  width: 100%;
+  padding: 13px;
+  background: #f26a21;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-top: 2px;
+}
+
+.login-email-btn:hover:not(:disabled) { opacity: 0.88; }
+.login-email-btn:disabled { opacity: 0.6; cursor: not-allowed; }
