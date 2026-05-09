@@ -6,12 +6,12 @@ import "@/styles/Sidebar-left/SidebarLeft.css";
 
 const menuItems = [
   { label: '홈',         icon: '🏠', route: '/home'      },
-  { label: '일기 작성',   icon: '✏️', route: '/write'    },
-  { label: '대화형 일기', icon: '🤖', route: '/ai-chat'  },
-  { label: 'AI 캐릭터',  icon: '🪄', route: '/character' },
+  { label: '일기 작성',   icon: '✏️', route: '/write',         tutId: 'tut-write'     },
+  { label: '대화형 일기', icon: '🤖', route: '/ai-chat',       tutId: 'tut-ai-chat'   },
+  { label: 'AI 캐릭터',  icon: '🪄', route: '/character',     tutId: 'tut-character' },
   { label: '편지함',     icon: '💌', route: '/letters'       },
-  { label: '주간 리포트', icon: '📋', route: '/weekly-report' },
-  { label: '통계',       icon: '📊', route: '/stats'         },
+  { label: '주간 리포트', icon: '📋', route: '/weekly-report', tutId: 'tut-weekly'    },
+  { label: '통계',       icon: '📊', route: '/stats',         tutId: 'tut-stats'     },
   { label: 'EchoLens',  icon: '🌊', route: '/community' },
   { label: '설정',       icon: '⚙️', route: '/settings'  },
 ];
@@ -66,6 +66,7 @@ const SidebarLeft = () => {
         {menuItems.map(item => (
           <button
             key={item.label}
+            id={item.tutId}
             className={`nav-item ${isActive(item.route) ? 'active' : ''}`}
             onClick={() => item.route && navigate(item.route)}
           >

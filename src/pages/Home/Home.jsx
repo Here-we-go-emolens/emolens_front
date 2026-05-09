@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import SidebarRight from '../../components/Sidebar-right/SidebarRight';
 import WeatherCard from '../../components/WeatherCard/WeatherCard';
+import TutorialOverlay from '../../components/Tutorial/TutorialOverlay';
 import { getDiaryList } from '@/services/diaryApi';
 import { getStats } from '@/services/statsApi';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import "@/styles/Home/Home.css";
 
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -33,6 +35,7 @@ const formatDate = (dateStr) => dateStr?.replace(/-/g, '.') ?? '';
 
 const Home = () => {
   const navigate = useNavigate();
+  const user = useCurrentUser();
   const now = new Date();
   const year  = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -46,6 +49,13 @@ const Home = () => {
   const [searchType,  setSearchType]  = useState('제목');
   const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats]             = useState(null);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const key = `emolens_tutorial_done_${user.id}`;
+    if (!localStorage.getItem(key)) setShowTutorial(true);
+  }, [user?.id]);
 
   useEffect(() => {
     getDiaryList(0, 50)
@@ -67,6 +77,13 @@ const Home = () => {
 
   return (
     <div className="home-layout">
+      {showTutorial && (
+        <TutorialOverlay
+          userId={user?.id}
+          onDone={() => setShowTutorial(false)}
+        />
+      )}
+
       <SidebarLeft />
 
       <main className="main-content">

@@ -1,0 +1,197 @@
+/* ── Root – click blocker ─────────────── */
+.tut-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: all;
+}
+
+/* Full dark backdrop (steps without a spotlight target) */
+.tut-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+}
+
+/* Spotlight – box-shadow creates surrounding darkness */
+.tut-spotlight {
+  position: fixed;
+  z-index: 9001;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+  transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+
+/* ── Tutorial card ────────────────────── */
+.tut-card {
+  position: fixed;
+  z-index: 9002;
+  width: 300px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 26px 24px 16px;
+  box-shadow: 0 16px 56px rgba(0, 0, 0, 0.22);
+  pointer-events: all;
+  animation: tut-card-in 0.28s ease both;
+}
+
+@keyframes tut-card-in {
+  from { opacity: 0; transform: scale(0.93) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Directional arrows ───────────────── */
+.tut-arrow-l,
+.tut-arrow-r,
+.tut-arrow-t,
+.tut-arrow-b {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* card to the RIGHT of target → arrow points left */
+.tut-arrow-l {
+  left: -9px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-right: 9px solid #fff;
+}
+
+/* card to the LEFT of target → arrow points right */
+.tut-arrow-r {
+  right: -9px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-left: 9px solid #fff;
+}
+
+/* card BELOW target → arrow points up */
+.tut-arrow-t {
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 9px solid #fff;
+}
+
+/* card ABOVE target → arrow points down */
+.tut-arrow-b {
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 9px solid #fff;
+}
+
+/* ── Content ──────────────────────────── */
+.tut-emoji {
+  font-size: 42px;
+  line-height: 1;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.tut-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 10px;
+}
+
+.tut-desc {
+  font-size: 13.5px;
+  color: #555;
+  line-height: 1.75;
+  white-space: pre-line;
+  margin: 0 0 18px;
+}
+
+/* ── Progress dots ────────────────────── */
+.tut-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.tut-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background: #e0e0e0;
+  transition: width 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.tut-dot.active {
+  width: 22px;
+  background: #f26a21;
+}
+
+.tut-dot.past {
+  background: rgba(242, 106, 33, 0.35);
+}
+
+/* ── Buttons ──────────────────────────── */
+.tut-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.tut-btn-next {
+  flex: 1;
+  padding: 11px;
+  background: #f26a21;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+
+.tut-btn-next:hover { opacity: 0.87; }
+
+.tut-btn-prev {
+  padding: 11px 16px;
+  background: #f4f4f4;
+  color: #555;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.tut-btn-prev:hover { background: #e8e8e8; }
+
+.tut-btn-skip {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 7px;
+  background: none;
+  border: none;
+  color: #bbb;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  transition: color 0.15s;
+}
+
+.tut-btn-skip:hover { color: #777; }
