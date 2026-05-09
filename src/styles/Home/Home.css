@@ -1,4 +1,4 @@
-/* ── 전체 레이아웃 ─────────────────────────────────── */
+/* ── 전체 레이아웃 ── */
 .home-layout {
   display: flex;
   flex-direction: row;
@@ -9,15 +9,15 @@
 
 .main-content {
   flex: 1;
-  padding: 28px 24px;
+  padding: 24px 22px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   min-width: 0;
 }
 
-/* ── 공용 카드 ─────────────────────────────────────── */
+/* ── 공용 카드 ── */
 .card {
   background: var(--card-bg);
   border-radius: 16px;
@@ -25,249 +25,231 @@
   box-shadow: var(--shadow);
 }
 
-/* ── ① 상단 정보 바 ────────────────────────────────── */
-.info-bar {
+/* ── 섹션 헤더 ── */
+.section-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 28px;
+  margin-bottom: 14px;
 }
 
-.info-date {
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.section-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* ── ① Hero ── */
+.home-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  background: linear-gradient(135deg, #fff8f4 0%, #fff 100%);
+  border-color: #FFE4CC;
+}
+
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hero-date-wrap {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 10px;
 }
 
-.date-text {
-  font-size: 22px;
-  font-weight: 700;
+.hero-date-num {
+  font-size: 28px;
+  font-weight: 800;
   color: var(--text);
   letter-spacing: -0.5px;
 }
 
-.date-sep {
-  color: var(--text-muted);
-  font-weight: 400;
-}
-
-.date-day {
+.hero-day-badge {
   font-size: 13px;
+  font-weight: 600;
   color: var(--accent);
   background: var(--accent-light);
   padding: 3px 12px;
   border-radius: 20px;
-  font-weight: 600;
 }
 
-.info-weather {
+.hero-streak {
+  font-size: 13px;
+  font-weight: 600;
+  color: #D97706;
+}
+
+.hero-write-btn {
+  align-self: flex-start;
+  padding: 11px 22px;
+  background: linear-gradient(135deg, #f26a21, #ffaa6b);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 4px;
+  transition: opacity 0.15s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(242, 106, 33, 0.3);
+}
+
+.hero-write-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.hero-right {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .weather-city {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
-/* ── ② Premium 잠금 행 ─────────────────────────────── */
-.home-premium-row {
+/* ── ② 인사이트 2열 ── */
+.home-insights-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
 
-/* 주간 그래프 잠금 카드 */
-.home-graph-lock {
-  padding: 18px 20px;
+/* 도넛 카드 */
+.home-donut-card {
+  padding: 20px 20px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
-.hgl-head {
+.donut-body {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-}
-
-.hgl-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.hgl-period {
-  font-size: 11px;
-  background: var(--accent-light);
-  color: var(--accent);
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-weight: 600;
-}
-
-.hgl-chart-preview {
-  position: relative;
-  height: 90px;
-}
-
-.hgl-svg {
-  width: 100%;
-  height: 70px;
-  filter: blur(3px);
-  opacity: 0.4;
-}
-
-.hgl-blur-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.hgl-lock-icon {
-  font-size: 18px;
-}
-
-.hgl-lock-msg {
-  font-size: 12px;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-.hgl-cta {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--accent);
-  background: var(--accent-light);
-  border: none;
-  border-radius: 10px;
-  padding: 5px 14px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: opacity 0.15s;
-}
-
-.hgl-cta:hover { opacity: 0.8; }
-
-/* 주간 리포트 잠금 배너 */
-.home-report-lock {
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: linear-gradient(135deg, #f5f0ff 0%, #edf5ff 100%);
-  border-color: #d8d0f0;
-}
-
-.hrl-icon {
-  font-size: 24px;
-}
-
-.hrl-body {
+  gap: 16px;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
-.hrl-label {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-}
-
-.hrl-msg {
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.6;
-}
-
-.hrl-cta {
-  align-self: flex-start;
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-  background: var(--accent);
-  border: none;
-  border-radius: 10px;
-  padding: 7px 16px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: opacity 0.15s;
-}
-
-.hrl-cta:hover { opacity: 0.85; }
-
-/* ── ③ 감정 분석 요약 ──────────────────────────────── */
-.emotion-summary {
-  display: flex;
-  align-items: stretch;
-  padding: 20px 0;
-}
-
-.summary-item {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 0 28px;
-  flex: 1;
-  min-width: 0;
-}
-
-.summary-item-wide {
-  flex: 1.6;
-}
-
-.summary-divider {
-  width: 1px;
-  background: var(--border);
+.donut-svg {
+  width: 130px;
+  height: 130px;
   flex-shrink: 0;
 }
 
-.summary-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text-muted);
-  font-weight: 700;
+.donut-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
 }
 
-.summary-value {
-  font-size: 15px;
-  font-weight: 700;
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  font-size: 12px;
   color: var(--text);
+  flex: 1;
 }
 
-.summary-analysis {
-  font-size: 13px;
+.legend-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.donut-empty-msg {
+  font-size: 12px;
   color: var(--text-muted);
   line-height: 1.7;
 }
 
-.emotion-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.chip {
+.donut-detail-btn {
+  margin-top: 12px;
+  align-self: flex-end;
   font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: 500;
+  font-weight: 700;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  transition: opacity 0.15s;
 }
 
-.chip-happy { background: #fef3c7; color: #d97706; }
-.chip-calm  { background: #d1fae5; color: #059669; }
-.chip-sad   { background: #e0e7ff; color: #4338ca; }
-.chip-angry { background: #fee2e2; color: #dc2626; }
+.donut-detail-btn:hover { opacity: 0.7; }
+
+/* AI 인사이트 카드 */
+.home-insight-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.insight-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.insight-mascot {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(242, 106, 33, 0.2));
+}
+
+.insight-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.insight-keywords {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kw-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
 
 .kw-chips {
   display: flex;
@@ -284,13 +266,72 @@
   font-weight: 500;
 }
 
-/* ── ③ 일기 리스트 ─────────────────────────────────── */
-.diary-section {
-  flex: 1;
-  padding: 24px 28px;
+/* ── ③ 주간 리포트 배너 ── */
+.home-weekly-banner {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(135deg, #f5f0ff 0%, #edf5ff 100%);
+  border-color: #D8D0F0;
+  cursor: pointer;
+  transition: transform 0.14s, box-shadow 0.14s;
+}
+
+.home-weekly-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 111, 205, 0.15);
+}
+
+.weekly-left {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 4px;
+}
+
+.weekly-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #7C6FCD;
+  letter-spacing: 1.2px;
+}
+
+.weekly-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.weekly-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.weekly-cta {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  background: #7C6FCD;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.weekly-cta:hover { opacity: 0.85; }
+
+/* ── ④ 일기 리스트 ── */
+.diary-section {
+  flex: 1;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .diary-header {
@@ -302,7 +343,7 @@
 }
 
 .diary-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
 }
@@ -341,15 +382,13 @@
   outline: none;
   font-size: 13px;
   padding: 8px 12px;
-  width: 190px;
+  width: 180px;
   font-family: inherit;
   color: var(--text);
   background: transparent;
 }
 
-.search-input::placeholder {
-  color: var(--text-muted);
-}
+.search-input::placeholder { color: var(--text-muted); }
 
 .write-btn {
   padding: 9px 18px;
@@ -365,20 +404,15 @@
   white-space: nowrap;
 }
 
-.write-btn:hover {
-  opacity: 0.85;
-}
+.write-btn:hover { opacity: 0.85; }
 
 /* 테이블 */
-.diary-table {
-  display: flex;
-  flex-direction: column;
-}
+.diary-table { display: flex; flex-direction: column; }
 
 .diary-table-head {
   display: grid;
-  grid-template-columns: 2.5fr 1.2fr 1.2fr 2fr;
-  padding: 10px 16px;
+  grid-template-columns: 2.5fr 1.2fr 1.2fr 1fr;
+  padding: 10px 14px;
   background: var(--bg);
   border-radius: 10px;
   font-size: 11px;
@@ -386,13 +420,13 @@
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.7px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .diary-row {
   display: grid;
-  grid-template-columns: 2.5fr 1.2fr 1.2fr 2fr;
-  padding: 14px 16px;
+  grid-template-columns: 2.5fr 1.2fr 1.2fr 1fr;
+  padding: 13px 14px;
   border-bottom: 1px solid var(--border);
   align-items: center;
   border-radius: 8px;
@@ -400,13 +434,8 @@
   transition: background 0.12s;
 }
 
-.diary-row:hover {
-  background: var(--bg);
-}
-
-.diary-row:last-child {
-  border-bottom: none;
-}
+.diary-row:hover { background: var(--bg); }
+.diary-row:last-child { border-bottom: none; }
 
 .dr-title {
   font-size: 14px;
@@ -418,29 +447,9 @@
   padding-right: 8px;
 }
 
-.dr-date {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.dr-emotion {
-  font-size: 13px;
-  color: var(--text);
-}
-
-.dr-keywords {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.kw-small {
-  font-size: 11px;
-  background: var(--accent-light);
-  color: var(--accent);
-  padding: 2px 8px;
-  border-radius: 10px;
-}
+.dr-date  { font-size: 13px; color: var(--text-muted); }
+.dr-emotion { font-size: 13px; color: var(--text); }
+.dr-pub   { font-size: 12px; color: var(--text-muted); }
 
 .diary-empty {
   text-align: center;
@@ -449,55 +458,17 @@
   color: var(--text-muted);
 }
 
-/* ── 반응형 ────────────────────────────────────────── */
+/* ── 반응형 ── */
 @media (max-width: 1100px) {
-  .home-premium-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 1100px) {
-  .emotion-summary {
-    flex-wrap: wrap;
-    gap: 0;
-    padding: 0;
-  }
-
-  .summary-divider {
-    display: none;
-  }
-
-  .summary-item {
-    padding: 16px 20px;
-    min-width: 45%;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .summary-item:last-child {
-    border-bottom: none;
-  }
+  .home-insights-row { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-  .home-layout {
-    flex-direction: column;
-  }
-
-  .main-content {
-    padding: 16px;
-  }
-
+  .home-layout { flex-direction: column; }
+  .main-content { padding: 16px; }
   .diary-table-head,
-  .diary-row {
-    grid-template-columns: 2fr 1fr 1fr;
-  }
-
+  .diary-row { grid-template-columns: 2fr 1fr 1fr; }
   .diary-table-head span:last-child,
-  .dr-keywords {
-    display: none;
-  }
-
-  .search-input {
-    width: 130px;
-  }
+  .dr-pub { display: none; }
+  .search-input { width: 120px; }
 }

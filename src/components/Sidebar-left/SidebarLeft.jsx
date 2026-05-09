@@ -8,7 +8,6 @@ const menuItems = [
   { label: '홈',         icon: '🏠', route: '/home'      },
   { label: '일기 작성',   icon: '✏️', route: '/write',         tutId: 'tut-write'     },
   { label: '대화형 일기', icon: '🤖', route: '/ai-chat',       tutId: 'tut-ai-chat'   },
-  { label: 'AI 캐릭터',  icon: '🪄', route: '/character',     tutId: 'tut-character' },
   { label: '편지함',     icon: '💌', route: '/letters'       },
   { label: '주간 리포트', icon: '📋', route: '/weekly-report', tutId: 'tut-weekly'    },
   { label: '통계',       icon: '📊', route: '/stats',         tutId: 'tut-stats'     },

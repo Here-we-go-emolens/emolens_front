@@ -700,6 +700,50 @@
   }
 }
 
+/* ── AI 캐릭터 설정 ── */
+.character-setting-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #FFF8F4;
+  border: 1.5px solid #FFE4CC;
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+.character-setting-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.character-setting-orb {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f26a21, #ffaa6b);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.character-setting-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text, #1A1410);
+}
+
+.character-setting-meta {
+  font-size: 12px;
+  color: var(--text-muted, #A89880);
+  margin-top: 3px;
+}
+
 @media (max-width: 480px) {
   .page-title {
     font-size: 20px;

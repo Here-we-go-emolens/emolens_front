@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import { useUserContext } from '@/contexts/UserContext';
 import { logout, updateProfile, uploadProfileImage } from '@/services/userApi';
+import { getMyCharacter } from '@/services/characterApi';
 import '@/styles/Settings/SettingsPage.css';
 
 const DEFAULT_PROFILE_IMAGE = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
@@ -153,12 +155,18 @@ const RightPanel = ({ settings, profileImageUrl }) => {
    메인 컴포넌트
 ═══════════════════════════════════════════════════════ */
 const SettingsPage = () => {
+  const navigate = useNavigate();
   const { user, setUser } = useUserContext();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [character, setCharacter] = useState(null);
   const [profileDraft, setProfileDraft] = useState({ ...DEFAULT_SETTINGS.profile });
   const [profileImageUrl, setProfileImageUrl] = useState(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    getMyCharacter().then(setCharacter).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -320,22 +328,33 @@ const SettingsPage = () => {
           </div>
         </SettingSection>
 
-        {/* ② 계정 설정 */}
+        {/* ② AI 캐릭터 설정 */}
         <SettingSection
-          icon="🔑"
-          title="계정 설정"
-          subtitle="보안 및 계정 관련 설정을 관리하세요"
+          icon="🪄"
+          title="AI 캐릭터 설정"
+          subtitle="나의 감정 일기를 함께할 AI 캐릭터를 관리해요"
         >
-          <div className="account-actions">
-            <button className="btn-secondary">비밀번호 변경</button>
-            <button className="btn-secondary" onClick={logout}>로그아웃</button>
-          </div>
-          <div className="account-danger-zone">
-            <div className="danger-zone-label">위험 구역</div>
-            <div className="danger-zone-desc">
-              회원탈퇴 시 모든 일기와 분석 데이터가 영구적으로 삭제됩니다.
+          <div className="character-setting-card">
+            <div className="character-setting-left">
+              <div className="character-setting-orb">
+                {character?.name?.[0] ?? '?'}
+              </div>
+              <div>
+                <div className="character-setting-name">
+                  {character ? character.name : '아직 캐릭터가 없어요'}
+                </div>
+                {character && (
+                  <div className="character-setting-meta">
+                    {character.tone === 'FRIENDLY_INFORMAL' || character.tone === 'PLAYFUL' ? '반말' : '존댓말'}
+                    {' · '}
+                    {{ EMPATHETIC: '공감형', POSITIVE: '긍정형', DIRECT: '직설형', PHILOSOPHICAL: '철학형' }[character.personality] ?? character.personality}
+                  </div>
+                )}
+              </div>
             </div>
-            <button className="btn-danger">회원탈퇴</button>
+            <button className="btn-secondary" onClick={() => navigate('/character')}>
+              {character ? '수정하기' : '만들기'}
+            </button>
           </div>
         </SettingSection>
 
@@ -494,7 +513,26 @@ const SettingsPage = () => {
           />
         </SettingSection>
 
-        {/* ⑦ 하단 저장/초기화 */}
+        {/* ⑦ 계정 설정 */}
+        <SettingSection
+          icon="🔑"
+          title="계정 설정"
+          subtitle="보안 및 계정 관련 설정을 관리하세요"
+        >
+          <div className="account-actions">
+            <button className="btn-secondary">비밀번호 변경</button>
+            <button className="btn-secondary" onClick={logout}>로그아웃</button>
+          </div>
+          <div className="account-danger-zone">
+            <div className="danger-zone-label">위험 구역</div>
+            <div className="danger-zone-desc">
+              회원탈퇴 시 모든 일기와 분석 데이터가 영구적으로 삭제됩니다.
+            </div>
+            <button className="btn-danger">회원탈퇴</button>
+          </div>
+        </SettingSection>
+
+        {/* ⑧ 하단 저장/초기화 */}
         <div className="settings-footer">
           <button className="btn-primary btn-save-all" onClick={handleSaveAll}>
             모든 설정 저장
