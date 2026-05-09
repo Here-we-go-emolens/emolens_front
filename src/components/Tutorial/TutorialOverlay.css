@@ -32,7 +32,7 @@
   width: 300px;
   background: #fff;
   border-radius: 20px;
-  padding: 26px 24px 16px;
+  padding: 20px 22px 16px;
   box-shadow: 0 16px 56px rgba(0, 0, 0, 0.22);
   pointer-events: all;
   animation: tut-card-in 0.28s ease both;
@@ -41,6 +41,32 @@
 @keyframes tut-card-in {
   from { opacity: 0; transform: scale(0.93) translateY(6px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Mascot ───────────────────────────── */
+.tut-mascot-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+
+.tut-mascot {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  animation: tut-mascot-bounce 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 10px rgba(242, 106, 33, 0.18));
+}
+
+@keyframes tut-mascot-bounce {
+  0%, 100% { transform: translateY(0); }
+  45%       { transform: translateY(-7px); }
+  65%       { transform: translateY(-4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tut-mascot { animation: none; }
 }
 
 /* ── Directional arrows ───────────────── */
@@ -53,7 +79,6 @@
   height: 0;
 }
 
-/* card to the RIGHT of target → arrow points left */
 .tut-arrow-l {
   left: -9px;
   top: 50%;
@@ -63,7 +88,6 @@
   border-right: 9px solid #fff;
 }
 
-/* card to the LEFT of target → arrow points right */
 .tut-arrow-r {
   right: -9px;
   top: 50%;
@@ -73,7 +97,6 @@
   border-left: 9px solid #fff;
 }
 
-/* card BELOW target → arrow points up */
 .tut-arrow-t {
   top: -9px;
   left: 50%;
@@ -83,7 +106,6 @@
   border-bottom: 9px solid #fff;
 }
 
-/* card ABOVE target → arrow points down */
 .tut-arrow-b {
   bottom: -9px;
   left: 50%;
@@ -94,32 +116,46 @@
 }
 
 /* ── Content ──────────────────────────── */
-.tut-emoji {
-  font-size: 42px;
-  line-height: 1;
-  margin-bottom: 14px;
-  display: block;
-}
-
 .tut-title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: #111;
-  margin: 0 0 10px;
+  margin: 0 0 8px;
+  text-align: center;
 }
 
 .tut-desc {
   font-size: 13.5px;
   color: #555;
-  line-height: 1.75;
+  line-height: 1.8;
   white-space: pre-line;
   margin: 0 0 18px;
+  min-height: 52px;
+  text-align: center;
+}
+
+/* 타이핑 커서 */
+.tut-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  background: #f26a21;
+  margin-left: 2px;
+  vertical-align: middle;
+  border-radius: 1px;
+  animation: tut-blink 0.6s step-end infinite;
+}
+
+@keyframes tut-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
 
 /* ── Progress dots ────────────────────── */
 .tut-dots {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   margin-bottom: 16px;
 }

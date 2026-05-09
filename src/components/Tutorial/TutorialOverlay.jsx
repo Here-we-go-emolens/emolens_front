@@ -1,55 +1,49 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
+import mascotImg from '../../assets/mascot-removebg-preview.png';
 import './TutorialOverlay.css';
 
 const STEPS = [
   {
-    title: 'EmoLens에 오신 것을 환영해요!',
-    desc: 'AI 기반 감정 일기 서비스, EmoLens입니다.\n주요 기능을 간단히 소개해 드릴게요.',
-    emoji: '👋',
+    title: '안녕, 나는 EmoLens 친구야!',
+    desc: '처음 만났네! 나랑 같이 네 감정을 기록하고\n탐색해볼 거야. 주요 기능을 소개해줄게!',
     targetId: null,
   },
   {
-    title: '일기 작성',
-    desc: '오늘 하루를 자유롭게 기록하세요.\nAI가 감정을 자동으로 분석해 드립니다.',
-    emoji: '✏️',
+    title: '일기를 써봐!',
+    desc: '이 버튼으로 오늘 하루를 기록할 수 있어.\n내가 네 감정을 자동으로 분석해줄게.',
     targetId: 'tut-write',
   },
   {
-    title: '대화형 일기',
-    desc: 'AI와 대화하면서 일기를 작성할 수 있어요.\n더 깊이 감정을 탐색해보세요.',
-    emoji: '🤖',
+    title: '나랑 대화하면서 일기 써봐!',
+    desc: '나랑 이야기하면서 일기를 쓸 수도 있어.\n네 감정을 더 깊이 탐색해볼 수 있거든.',
     targetId: 'tut-ai-chat',
   },
   {
-    title: 'AI 캐릭터',
-    desc: '나만의 AI 캐릭터를 설정하세요.\n감정에 맞는 위로와 조언을 건네드려요.',
-    emoji: '🪄',
+    title: '내 모습을 바꿀 수 있어!',
+    desc: '나를 나만의 캐릭터로 꾸며줘.\n네 감정에 맞는 위로와 조언을 건넬게.',
     targetId: 'tut-character',
   },
   {
-    title: '주간 감정 리포트',
-    desc: '매주 감정 패턴 분석 리포트를 받아보세요.\n나도 몰랐던 감정 흐름을 발견할 수 있어요.',
-    emoji: '📋',
+    title: '주간 리포트도 있어!',
+    desc: '매주 네 감정 패턴을 분석해줄게.\n나도 몰랐던 감정 흐름을 함께 발견해봐.',
     targetId: 'tut-weekly',
   },
   {
-    title: '감정 통계',
-    desc: '월별 감정 분포와 AI 인사이트로\n감정 패턴을 깊이 분석해보세요.',
-    emoji: '📊',
+    title: '감정 통계도 볼 수 있어!',
+    desc: '월별 감정 분포와 AI 인사이트로\n네 감정 패턴을 깊이 알아볼 수 있어.',
     targetId: 'tut-stats',
   },
   {
-    title: '준비 완료!',
-    desc: '이제 EmoLens를 사용할 준비가 됐어요.\n오늘 첫 번째 일기를 작성해볼까요?',
-    emoji: '🎉',
+    title: '이제 시작해볼까?',
+    desc: '준비 완료! 오늘 첫 번째 일기를 써봐.\n나 여기서 항상 기다리고 있을게!',
     targetId: null,
   },
 ];
 
 const CARD_W = 300;
-const CARD_H = 295; // 카드 높이 추정값 (패딩 + 내용)
-const GAP   = 16;  // 스포트라이트와 카드 사이 간격
-const EDGE  = 12;  // 화면 가장자리 최소 여백
+const CARD_H = 360;
+const GAP    = 16;
+const EDGE   = 12;
 
 function computeCardLayout(rect) {
   if (!rect) {
@@ -65,40 +59,21 @@ function computeCardLayout(rect) {
   const clampTop  = (t) => Math.min(Math.max(t, EDGE), vh - CARD_H - EDGE);
   const clampLeft = (l) => Math.min(Math.max(l, EDGE), vw - CARD_W - EDGE);
 
-  // 타겟 중심에 카드 세로 정렬했을 때의 이상적인 top
   const idealTop  = rect.top  + rect.height / 2 - CARD_H / 2;
-  // 타겟 중심에 카드 가로 정렬했을 때의 이상적인 left
   const idealLeft = rect.left + rect.width  / 2 - CARD_W / 2;
 
-  // 1순위: 오른쪽
   if (vw - rect.right >= CARD_W + GAP + EDGE) {
-    return {
-      style: { top: `${clampTop(idealTop)}px`, left: `${rect.right + GAP}px` },
-      arrow: 'left',
-    };
+    return { style: { top: `${clampTop(idealTop)}px`, left: `${rect.right + GAP}px` }, arrow: 'left' };
   }
-  // 2순위: 왼쪽
   if (rect.left >= CARD_W + GAP + EDGE) {
-    return {
-      style: { top: `${clampTop(idealTop)}px`, left: `${rect.left - CARD_W - GAP}px` },
-      arrow: 'right',
-    };
+    return { style: { top: `${clampTop(idealTop)}px`, left: `${rect.left - CARD_W - GAP}px` }, arrow: 'right' };
   }
-  // 3순위: 아래
   if (vh - rect.bottom >= CARD_H + GAP + EDGE) {
-    return {
-      style: { top: `${rect.bottom + GAP}px`, left: `${clampLeft(idealLeft)}px` },
-      arrow: 'top',
-    };
+    return { style: { top: `${rect.bottom + GAP}px`, left: `${clampLeft(idealLeft)}px` }, arrow: 'top' };
   }
-  // 4순위: 위
   if (rect.top >= CARD_H + GAP + EDGE) {
-    return {
-      style: { top: `${rect.top - CARD_H - GAP}px`, left: `${clampLeft(idealLeft)}px` },
-      arrow: 'bottom',
-    };
+    return { style: { top: `${rect.top - CARD_H - GAP}px`, left: `${clampLeft(idealLeft)}px` }, arrow: 'bottom' };
   }
-  // 폴백: 화면 중앙
   return {
     style: { top: `${clampTop(vh / 2 - CARD_H / 2)}px`, left: `${clampLeft(vw / 2 - CARD_W / 2)}px` },
     arrow: null,
@@ -106,11 +81,30 @@ function computeCardLayout(rect) {
 }
 
 export default function TutorialOverlay({ userId, onDone }) {
-  const [step, setStep] = useState(0);
+  const [step, setStep]         = useState(0);
   const [targetRect, setTargetRect] = useState(null);
+  const [typedText, setTypedText]   = useState('');
+  const [typing, setTyping]         = useState(false);
 
   const current = STEPS[step];
-  const total = STEPS.length;
+  const total   = STEPS.length;
+
+  // 타이핑 애니메이션
+  useEffect(() => {
+    setTypedText('');
+    setTyping(true);
+    let i = 0;
+    const full = current.desc;
+    const timer = setInterval(() => {
+      i++;
+      setTypedText(full.slice(0, i));
+      if (i >= full.length) {
+        clearInterval(timer);
+        setTyping(false);
+      }
+    }, 22);
+    return () => clearInterval(timer);
+  }, [step, current.desc]);
 
   useLayoutEffect(() => {
     if (!current.targetId) { setTargetRect(null); return; }
@@ -156,9 +150,15 @@ export default function TutorialOverlay({ userId, onDone }) {
         {arrow === 'top'    && <div className="tut-arrow-t" />}
         {arrow === 'bottom' && <div className="tut-arrow-b" />}
 
-        <div className="tut-emoji">{current.emoji}</div>
+        <div className="tut-mascot-wrap">
+          <img src={mascotImg} alt="EmoLens 마스코트" className="tut-mascot" />
+        </div>
+
         <h3 className="tut-title">{current.title}</h3>
-        <p className="tut-desc">{current.desc}</p>
+        <p className="tut-desc">
+          {typedText}
+          {typing && <span className="tut-cursor" />}
+        </p>
 
         <div className="tut-dots">
           {STEPS.map((_, i) => (
