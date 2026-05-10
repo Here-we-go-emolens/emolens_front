@@ -483,9 +483,16 @@
 }
 
 .reaction-btn.reacted {
-  border-color: rgba(242, 106, 33, 0.22);
-  background: #fff3ea;
-  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(242, 106, 33, 0.28);
+}
+
+.reaction-btn.reacted:hover {
+  background: #d95a18;
+  border-color: #d95a18;
+  color: #fff;
 }
 
 .comment-btn.reacted {
@@ -1438,3 +1445,66 @@
     justify-content: center;
   }
 }
+
+/* ── 게시글 수정/삭제 버튼 ─────────────────────────────── */
+.community-detail-action-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.community-detail-action-btn:hover { background: var(--bg); color: var(--text); }
+.community-detail-action-btn.danger { color: #dc2626; border-color: #fca5a5; }
+.community-detail-action-btn.danger:hover { background: #fff0f0; }
+
+/* ── 게시글 수정 폼 ───────────────────────────────────── */
+.community-detail-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0;
+}
+.community-detail-edit-title {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  box-sizing: border-box;
+}
+.community-detail-edit-content {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  resize: vertical;
+  line-height: 1.8;
+  box-sizing: border-box;
+}
+
+/* ── 댓글 삭제 버튼 ───────────────────────────────────── */
+.comment-delete-btn {
+  font-size: 11px;
+  color: #dc2626;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  margin-left: auto;
+}
+.comment-delete-btn:hover { text-decoration: underline; }

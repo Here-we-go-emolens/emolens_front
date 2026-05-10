@@ -7,7 +7,7 @@ function formatTime(isoString) {
   return `${Math.floor(diff / 86400)}일 전`;
 }
 
-export default function CommentItem({ comment }) {
+export default function CommentItem({ comment, onDelete }) {
   if (comment.isHidden) {
     return (
       <div className="comment-item hidden">
@@ -21,6 +21,9 @@ export default function CommentItem({ comment }) {
       <div className="comment-meta">
         <span className="comment-author">{comment.authorName}</span>
         <span className="comment-time">{formatTime(comment.createdAt)}</span>
+        {comment.isMine && onDelete && (
+          <button className="comment-delete-btn" onClick={() => onDelete(comment.id)}>삭제</button>
+        )}
       </div>
       <p className="comment-content">{comment.content}</p>
     </div>

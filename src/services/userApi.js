@@ -23,3 +23,15 @@ export const uploadProfileImage = (file) => {
     headers: { 'Content-Type': 'multipart/form-data' },
   }).then((r) => r.data.url);
 };
+
+export const changePassword = ({ currentPassword, newPassword }) =>
+  apiClient.patch('/api/users/password', { currentPassword, newPassword });
+
+export const withdraw = async () => {
+  await apiClient.delete('/api/users/me');
+  clearTokens();
+  window.location.href = '/login';
+};
+
+export const upgradePlan = () =>
+  apiClient.post('/api/users/plan/upgrade');

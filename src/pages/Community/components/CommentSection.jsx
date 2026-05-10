@@ -1,7 +1,7 @@
 import CommentInput from './CommentInput';
 import CommentList from './CommentList';
 
-export default function CommentSection({ comments, onSubmit, sectionRef }) {
+export default function CommentSection({ comments, onSubmit, onDelete, sectionRef }) {
   return (
     <section className="card comment-section" ref={sectionRef} id="comments">
       <div className="comment-section-head">
@@ -12,7 +12,7 @@ export default function CommentSection({ comments, onSubmit, sectionRef }) {
         <span className="comment-count-badge">{comments.length}개</span>
       </div>
 
-      <CommentList comments={comments} />
+      <CommentList comments={comments} onDelete={onDelete} />
       <CommentInput onSubmit={onSubmit} />
     </section>
   );

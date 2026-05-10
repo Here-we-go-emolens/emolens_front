@@ -1,6 +1,6 @@
 import CommentItem from './CommentItem';
 
-export default function CommentList({ comments }) {
+export default function CommentList({ comments, onDelete }) {
   if (!comments.length) {
     return <p className="comment-empty">첫 댓글로 마음을 나눠보세요.</p>;
   }
@@ -8,7 +8,7 @@ export default function CommentList({ comments }) {
   return (
     <div className="comment-list">
       {comments.map((comment) => (
-        <CommentItem key={comment.id} comment={comment} />
+        <CommentItem key={comment.id} comment={comment} onDelete={onDelete} />
       ))}
     </div>
   );

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import { useUserContext } from '@/contexts/UserContext';
-import { logout, updateProfile, uploadProfileImage } from '@/services/userApi';
+import { logout, updateProfile, uploadProfileImage, changePassword, withdraw } from '@/services/userApi';
 import { getMyCharacter } from '@/services/characterApi';
 import '@/styles/Settings/SettingsPage.css';
 
@@ -224,6 +224,36 @@ const SettingsPage = () => {
       showToast('프로필이 저장되었습니다.');
     } catch {
       showToast('프로필 저장에 실패했습니다.', 'error');
+    }
+  };
+
+  /* 비밀번호 변경 */
+  const [showPwForm, setShowPwForm] = useState(false);
+  const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
+  const [pwError, setPwError] = useState('');
+
+  const handleChangePassword = async () => {
+    setPwError('');
+    if (pwForm.next.length < 8) { setPwError('새 비밀번호는 8자 이상이어야 해요.'); return; }
+    if (pwForm.next !== pwForm.confirm) { setPwError('새 비밀번호가 일치하지 않아요.'); return; }
+    try {
+      await changePassword({ currentPassword: pwForm.current, newPassword: pwForm.next });
+      showToast('비밀번호가 변경되었습니다.');
+      setShowPwForm(false);
+      setPwForm({ current: '', next: '', confirm: '' });
+    } catch (e) {
+      setPwError(e?.response?.status === 401 ? '현재 비밀번호가 올바르지 않아요.' : '비밀번호 변경에 실패했습니다.');
+    }
+  };
+
+  /* 회원탈퇴 */
+  const handleWithdraw = async () => {
+    if (!window.confirm('정말 탈퇴하시겠어요?\n모든 일기와 분석 데이터가 영구적으로 삭제됩니다.')) return;
+    if (!window.confirm('다시 한번 확인합니다. 탈퇴하면 복구할 수 없어요.')) return;
+    try {
+      await withdraw();
+    } catch {
+      showToast('탈퇴 처리 중 오류가 발생했습니다.', 'error');
     }
   };
 
@@ -520,15 +550,46 @@ const SettingsPage = () => {
           subtitle="보안 및 계정 관련 설정을 관리하세요"
         >
           <div className="account-actions">
-            <button className="btn-secondary">비밀번호 변경</button>
+            <button className="btn-secondary" onClick={() => { setShowPwForm(v => !v); setPwError(''); }}>
+              {showPwForm ? '취소' : '비밀번호 변경'}
+            </button>
             <button className="btn-secondary" onClick={logout}>로그아웃</button>
           </div>
+
+          {showPwForm && (
+            <div className="pw-change-form">
+              <input
+                className="pw-input"
+                type="password"
+                placeholder="현재 비밀번호"
+                value={pwForm.current}
+                onChange={e => setPwForm(p => ({ ...p, current: e.target.value }))}
+              />
+              <input
+                className="pw-input"
+                type="password"
+                placeholder="새 비밀번호 (8자 이상)"
+                value={pwForm.next}
+                onChange={e => setPwForm(p => ({ ...p, next: e.target.value }))}
+              />
+              <input
+                className="pw-input"
+                type="password"
+                placeholder="새 비밀번호 확인"
+                value={pwForm.confirm}
+                onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
+              />
+              {pwError && <p className="pw-error">{pwError}</p>}
+              <button className="btn-primary" onClick={handleChangePassword}>변경하기</button>
+            </div>
+          )}
+
           <div className="account-danger-zone">
             <div className="danger-zone-label">위험 구역</div>
             <div className="danger-zone-desc">
               회원탈퇴 시 모든 일기와 분석 데이터가 영구적으로 삭제됩니다.
             </div>
-            <button className="btn-danger">회원탈퇴</button>
+            <button className="btn-danger" onClick={handleWithdraw}>회원탈퇴</button>
           </div>
         </SettingSection>
 

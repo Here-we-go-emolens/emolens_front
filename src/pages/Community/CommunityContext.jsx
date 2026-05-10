@@ -22,7 +22,15 @@ export function CommunityProvider({ children }) {
         page: 0,
         size: 50,
       });
-      setPosts(data.content ?? []);
+      const fetched = data.content ?? [];
+      setPosts(fetched);
+      const initialReactions = {};
+      fetched.forEach((post) => {
+        (post.myReactions ?? []).forEach((type) => {
+          initialReactions[`${post.id}-${type}`] = true;
+        });
+      });
+      setReactionState((prev) => ({ ...prev, ...initialReactions }));
     } catch (e) {
       console.error('게시글 로딩 실패', e);
     } finally {
@@ -80,6 +88,14 @@ export function CommunityProvider({ children }) {
 
   const isReacted = (postId, type) => Boolean(reactionState[`${postId}-${type}`]);
 
+  const setReactionStateFromPost = (post) => {
+    const patch = {};
+    (post.myReactions ?? []).forEach((type) => {
+      patch[`${post.id}-${type}`] = true;
+    });
+    setReactionState((prev) => ({ ...prev, ...patch }));
+  };
+
   const getReactionCount = (post, type) => {
     if (type === 'comment') return post.commentCount ?? 0;
     return post.reactions?.[type] ?? 0;
@@ -132,6 +148,7 @@ export function CommunityProvider({ children }) {
     toggleReaction,
     isReacted,
     getReactionCount,
+    setReactionStateFromPost,
     refreshPosts: () => fetchPosts(selectedEmotionLabel),
   };
 
