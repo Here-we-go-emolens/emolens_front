@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import '@/styles/Premium/PremiumPage.css';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const FEATURES = [
   {
@@ -83,6 +84,8 @@ function CellValue({ value }) {
 
 export default function PremiumPage() {
   const navigate = useNavigate();
+  const user = useCurrentUser();
+  const isPremium = user?.plan === 'PREMIUM';
 
   return (
     <div className="pm-layout">
@@ -103,10 +106,16 @@ export default function PremiumPage() {
             EmoLens Premium은 그 지도를 함께 읽어드려요.
           </p>
           <div className="pm-hero-btns">
-            <button className="pm-btn-primary" onClick={() => navigate('/write')}>
-              14일 무료 체험 시작하기
-            </button>
-            <p className="pm-hero-fine">약정 없이, 언제든 취소 가능해요 🤍</p>
+            {isPremium ? (
+              <button className="pm-btn-primary" onClick={() => navigate('/home')}>
+                Premium 이용 중 ✨
+              </button>
+            ) : (
+              <button className="pm-btn-primary" onClick={() => navigate('/write')}>
+                14일 무료 체험 시작하기
+              </button>
+            )}
+            <p className="pm-hero-fine">{isPremium ? '언제든 설정에서 관리할 수 있어요' : '약정 없이, 언제든 취소 가능해요 🤍'}</p>
           </div>
         </section>
 
@@ -145,7 +154,7 @@ export default function PremiumPage() {
                 <li>✓ AI 채팅 월 10회</li>
                 <li>✓ 최근 7일 히스토리</li>
               </ul>
-              <button className="pm-plan-btn-ghost" onClick={() => navigate('/home')}>현재 이용 중</button>
+              <button className="pm-plan-btn-ghost" onClick={() => navigate('/home')}>{isPremium ? '다운그레이드' : '현재 이용 중'}</button>
             </div>
 
             <div className="pm-plan pm-plan-premium">
@@ -168,10 +177,14 @@ export default function PremiumPage() {
                 <li>✓ 전체 기간 히스토리</li>
                 <li>✓ PDF 다운로드</li>
               </ul>
-              <button className="pm-plan-btn-primary" onClick={() => navigate('/write')}>
-                14일 무료 체험 시작하기
-              </button>
-              <p className="pm-plan-fine">언제든 취소 가능, 약정 없음</p>
+              {isPremium ? (
+                <button className="pm-plan-btn-ghost" onClick={() => navigate('/home')}>현재 이용 중</button>
+              ) : (
+                <button className="pm-plan-btn-primary" onClick={() => navigate('/write')}>
+                  14일 무료 체험 시작하기
+                </button>
+              )}
+              <p className="pm-plan-fine">{isPremium ? 'Premium 플랜 이용 중이에요 ✨' : '언제든 취소 가능, 약정 없음'}</p>
             </div>
 
           </div>
@@ -218,10 +231,16 @@ export default function PremiumPage() {
               압박 없이, 조용히, 당신 곁에서.<br />
               준비됐을 때 시작하세요. 14일은 무료예요.
             </p>
-            <button className="pm-btn-primary pm-btn-xl" onClick={() => navigate('/write')}>
-              지금 시작하기 →
-            </button>
-            <p className="pm-final-fine">신용카드 없이 시작 가능 · 언제든 취소</p>
+            {isPremium ? (
+              <button className="pm-btn-primary pm-btn-xl" onClick={() => navigate('/home')}>
+                홈으로 돌아가기 →
+              </button>
+            ) : (
+              <button className="pm-btn-primary pm-btn-xl" onClick={() => navigate('/write')}>
+                지금 시작하기 →
+              </button>
+            )}
+            <p className="pm-final-fine">{isPremium ? 'Premium 플랜 이용 중이에요 ✨' : '신용카드 없이 시작 가능 · 언제든 취소'}</p>
           </div>
         </section>
 

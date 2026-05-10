@@ -1,3 +1,12 @@
+function formatTime(isoString) {
+  if (!isoString) return '';
+  const diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
+  if (diff < 60) return '방금 전';
+  if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+  return `${Math.floor(diff / 86400)}일 전`;
+}
+
 export default function CommentItem({ comment }) {
   if (comment.isHidden) {
     return (
@@ -10,8 +19,8 @@ export default function CommentItem({ comment }) {
   return (
     <div className="comment-item">
       <div className="comment-meta">
-        <span className="comment-author">{comment.author}</span>
-        <span className="comment-time">{comment.createdAt}</span>
+        <span className="comment-author">{comment.authorName}</span>
+        <span className="comment-time">{formatTime(comment.createdAt)}</span>
       </div>
       <p className="comment-content">{comment.content}</p>
     </div>

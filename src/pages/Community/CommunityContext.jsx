@@ -1,91 +1,129 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import {
   AI_INSIGHT_BY_EMOTION,
-  INITIAL_COMMENTS_BY_POST,
-  INITIAL_POSTS,
   getEmotionByLabel,
   getFilterFromEmotion,
-  hydratePost,
 } from './communityData';
-import { detectToxicity } from '@/utils/moderation';
+import * as communityApi from '@/services/communityApi';
 
 const CommunityContext = createContext(null);
 
 export function CommunityProvider({ children }) {
-  const [selectedEmotionLabel, setSelectedEmotionLabel] = useState('부담감');
-  const [posts, setPosts] = useState(INITIAL_POSTS);
+  const [selectedEmotionLabel, setSelectedEmotionLabel] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [reactionState, setReactionState] = useState({});
-  const [commentsByPost, setCommentsByPost] = useState(INITIAL_COMMENTS_BY_POST);
 
-  const toggleReaction = (postId, type) => {
+  const fetchPosts = async (emotionLabel) => {
+    setLoading(true);
+    try {
+      const data = await communityApi.getPosts({
+        emotionLabel: emotionLabel || undefined,
+        page: 0,
+        size: 50,
+      });
+      setPosts(data.content ?? []);
+    } catch (e) {
+      console.error('게시글 로딩 실패', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts(selectedEmotionLabel);
+  }, [selectedEmotionLabel]);
+
+  const toggleReaction = async (postId, type) => {
     const key = `${postId}-${type}`;
-    setReactionState((prev) => ({ ...prev, [key]: !prev[key] }));
+    const wasReacted = Boolean(reactionState[key]);
+    const nowReacted = !wasReacted;
+
+    // 낙관적 업데이트
+    setReactionState((prev) => ({ ...prev, [key]: nowReacted }));
+    setPosts((prev) =>
+      prev.map((p) => {
+        if (p.id !== postId) return p;
+        const delta = nowReacted ? 1 : -1;
+        return {
+          ...p,
+          reactions: { ...p.reactions, [type]: Math.max(0, (p.reactions?.[type] ?? 0) + delta) },
+        };
+      }),
+    );
+
+    try {
+      const result = await communityApi.toggleReaction(postId, type);
+      setReactionState((prev) => ({ ...prev, [key]: result.reacted }));
+      setPosts((prev) =>
+        prev.map((p) => {
+          if (p.id !== postId) return p;
+          return { ...p, reactions: { ...p.reactions, [type]: result.count } };
+        }),
+      );
+      return result;
+    } catch {
+      // 롤백
+      setReactionState((prev) => ({ ...prev, [key]: wasReacted }));
+      setPosts((prev) =>
+        prev.map((p) => {
+          if (p.id !== postId) return p;
+          const delta = wasReacted ? 1 : -1;
+          return {
+            ...p,
+            reactions: { ...p.reactions, [type]: Math.max(0, (p.reactions?.[type] ?? 0) + delta) },
+          };
+        }),
+      );
+    }
   };
 
   const isReacted = (postId, type) => Boolean(reactionState[`${postId}-${type}`]);
 
   const getReactionCount = (post, type) => {
-    if (type === 'comment') {
-      return commentsByPost[post.id]?.length ?? 0;
-    }
-    const base = post.reactions[type] ?? 0;
-    return base + (isReacted(post.id, type) ? 1 : 0);
+    if (type === 'comment') return post.commentCount ?? 0;
+    return post.reactions?.[type] ?? 0;
   };
 
-  const createPost = ({ emotion, title, content }) => {
-    const nextPost = {
-      id: Date.now(),
+  const createPost = async ({ emotion, title, content }) => {
+    const tags = [emotion.label, '지금기록', '감정공유'];
+    const id = await communityApi.createPost({
       emotionLabel: emotion.label,
-      similarity: emotion.label === selectedEmotionLabel ? 92 : 64,
       title,
       content,
-      tags: [emotion.label, '지금기록', '감정공유'],
-      author: '나',
-      time: '방금 전',
-      matchReason: '방금 기록한 감정을 기준으로 AI 연결 피드에 바로 반영됐어요.',
-      reactions: { empathy: 0, comfort: 0, understand: 0, comment: 0 },
-    };
-
-    setPosts((prev) => [nextPost, ...prev]);
-    setCommentsByPost((prev) => ({ ...prev, [nextPost.id]: [] }));
+      tags,
+    });
     setSelectedEmotionLabel(emotion.label);
-    return nextPost.id;
+    await fetchPosts(emotion.label);
+    return id;
   };
 
-  const getComments = (postId) => commentsByPost[postId] ?? [];
-
-  const addComment = (postId, content) => {
-    const moderation = detectToxicity(content);
-
-    if (moderation.status === 'warning' || moderation.status === 'blocked') {
-      return { ok: false, moderation };
-    }
-
-    const nextComment = {
-      id: Date.now(),
-      author: '나',
-      content: content.trim(),
-      createdAt: '방금 전',
-      isHidden: moderation.status === 'hidden',
-    };
-
-    setCommentsByPost((prev) => ({
-      ...prev,
-      [postId]: [...(prev[postId] ?? []), nextComment],
-    }));
-
-    return { ok: true, moderation, comment: nextComment };
+  const getComments = async (postId) => {
+    return communityApi.getComments(postId);
   };
+
+  const addComment = async (postId, content, isHidden = false) => {
+    await communityApi.createComment(postId, content, isHidden);
+  };
+
+  const hydratedPosts = posts.map((post) => ({
+    ...post,
+    emotion: getEmotionByLabel(post.emotionLabel),
+    similarity: post.similarity ?? 0,
+    author: post.authorName,
+    content: post.contentPreview ?? post.content ?? '',
+    time: formatTime(post.createdAt),
+  }));
 
   const selectedEmotion = getEmotionByLabel(selectedEmotionLabel);
-  const hydratedPosts = useMemo(() => posts.map(hydratePost), [posts]);
-  const aiInsight = AI_INSIGHT_BY_EMOTION[selectedEmotionLabel] ?? AI_INSIGHT_BY_EMOTION.부담감;
+  const aiInsight = AI_INSIGHT_BY_EMOTION[selectedEmotionLabel] ?? AI_INSIGHT_BY_EMOTION['부담감'];
 
   const value = {
     posts: hydratedPosts,
+    loading,
     selectedEmotion,
     selectedEmotionLabel,
-    selectedFilter: getFilterFromEmotion(selectedEmotionLabel),
+    selectedFilter: selectedEmotionLabel ? getFilterFromEmotion(selectedEmotionLabel) : 'all',
     aiInsight,
     setSelectedEmotionLabel,
     createPost,
@@ -94,9 +132,19 @@ export function CommunityProvider({ children }) {
     toggleReaction,
     isReacted,
     getReactionCount,
+    refreshPosts: () => fetchPosts(selectedEmotionLabel),
   };
 
   return <CommunityContext.Provider value={value}>{children}</CommunityContext.Provider>;
+}
+
+function formatTime(isoString) {
+  if (!isoString) return '';
+  const diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
+  if (diff < 60) return '방금 전';
+  if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+  return `${Math.floor(diff / 86400)}일 전`;
 }
 
 export function useCommunity() {

@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Outlet, Route, Routes } from 'react-router-dom';
 import { UserProvider } from '@/contexts/UserContext';
 import Home from './pages/Home/Home.jsx';
 import DiaryWritePage from './pages/CreateDiary/DiaryWritePage.jsx';
@@ -19,30 +19,38 @@ import { CommunityProvider } from './pages/Community/CommunityContext.jsx';
 import LetterPage from './pages/Letter/LetterPage.jsx';
 import WeeklyReportPage from './pages/WeeklyReport/WeeklyReportPage.jsx';
 
+function CommunityLayout() {
+  return (
+    <CommunityProvider>
+      <Outlet />
+    </CommunityProvider>
+  );
+}
+
 function App() {
   return (
     <UserProvider>
-    <CommunityProvider>
       <Routes>
         <Route path="/"               element={<OnboardingPage />} />
         <Route path="/login"          element={<LoginPage />} />
         <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
         <Route path="/home"           element={<Home />} />
-        <Route path="/community"      element={<CommunityPage />} />
-        <Route path="/community/:id"  element={<CommunityPostDetailPage />} />
+        <Route element={<CommunityLayout />}>
+          <Route path="/community"     element={<CommunityPage />} />
+          <Route path="/community/:id" element={<CommunityPostDetailPage />} />
+        </Route>
         <Route path="/write"          element={<DiaryWritePage />} />
         <Route path="/ai-chat"        element={<AiDiaryChatPage />} />
         <Route path="/character"      element={<CharacterSetupPage />} />
         <Route path="/diary/:id"      element={<DiaryDetailPage />} />
-        <Route path="/letters"         element={<LetterPage />} />
-        <Route path="/weekly-report"   element={<WeeklyReportPage />} />
+        <Route path="/letters"        element={<LetterPage />} />
+        <Route path="/weekly-report"  element={<WeeklyReportPage />} />
         <Route path="/stats"          element={<StatsPage />} />
         <Route path="/settings"       element={<SettingsPage />} />
         <Route path="/premium"        element={<PremiumPage />} />
         <Route path="/signup"         element={<SignupPage />} />
       </Routes>
-    </CommunityProvider>
     </UserProvider>
   )
 }

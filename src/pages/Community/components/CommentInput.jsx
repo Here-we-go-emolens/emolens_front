@@ -7,24 +7,17 @@ export default function CommentInput({ onSubmit }) {
 
   const moderation = useMemo(() => detectToxicity(value), [value]);
 
-  const handleSubmit = () => {
-    if (!value.trim()) return;
+  const handleSubmit = async () => {
+    if (!value.trim() || moderation.status === 'blocked') return;
 
-    const result = onSubmit(value.trim());
-    if (!result.ok) {
-      setFeedback(result.moderation);
-      return;
-    }
+    const isHidden = moderation.status === 'hidden';
+    await onSubmit(value.trim(), isHidden);
 
-    if (result.moderation.status === 'hidden') {
-      setFeedback({
-        status: 'hidden',
-        message: '공격적 표현이 감지되어 댓글이 숨김 처리되었어요.',
-      });
-    } else {
-      setFeedback(null);
-    }
-
+    setFeedback(
+      isHidden
+        ? { status: 'hidden', message: '공격적 표현이 감지되어 댓글이 숨김 처리되었어요.' }
+        : null,
+    );
     setValue('');
   };
 
@@ -49,7 +42,11 @@ export default function CommentInput({ onSubmit }) {
           )}
         </div>
 
-        <button className="comment-submit-btn" onClick={handleSubmit}>
+        <button
+          className="comment-submit-btn"
+          onClick={handleSubmit}
+          disabled={moderation.status === 'blocked'}
+        >
           등록하기
         </button>
       </div>

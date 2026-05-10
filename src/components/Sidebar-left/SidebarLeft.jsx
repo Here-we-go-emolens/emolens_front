@@ -89,14 +89,24 @@ const SidebarLeft = () => {
         ))}
       </nav>
 
-      {/* Premium 업그레이드 배너 */}
-      <div className="sidebar-premium-cta" onClick={() => navigate('/premium')}>
-        <span className="sidebar-premium-icon">✨</span>
-        <div className="sidebar-premium-text">
-          <span className="sidebar-premium-title">Premium 업그레이드</span>
-          <span className="sidebar-premium-desc">감정 그래프·리포트 해제</span>
+      {/* Premium 배너 */}
+      {isPremium ? (
+        <div className="sidebar-premium-cta sidebar-premium-active">
+          <span className="sidebar-premium-icon">✨</span>
+          <div className="sidebar-premium-text">
+            <span className="sidebar-premium-title">Premium 이용 중</span>
+            <span className="sidebar-premium-desc">모든 기능이 열려있어요</span>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="sidebar-premium-cta" onClick={() => navigate('/premium')}>
+          <span className="sidebar-premium-icon">✨</span>
+          <div className="sidebar-premium-text">
+            <span className="sidebar-premium-title">Premium 업그레이드</span>
+            <span className="sidebar-premium-desc">감정 그래프·리포트 해제</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

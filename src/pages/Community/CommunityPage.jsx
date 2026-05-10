@@ -55,7 +55,7 @@ export default function CommunityPage() {
     getReactionCount,
   } = useCommunity();
 
-  const [activeFilter, setActiveFilter] = useState(selectedFilter);
+  const [activeFilter, setActiveFilter] = useState('all');
   const [activeSort, setActiveSort] = useState('latest');
   const [showPicks, setShowPicks] = useState(false);
   const [pickIndex, setPickIndex] = useState(0);

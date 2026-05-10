@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
@@ -130,6 +131,8 @@ function PremiumLockCard({ title }) {
 export default function DiaryDetailPage() {
   const navigate = useNavigate();
   const { id }   = useParams();
+  const user = useCurrentUser();
+  const isPremium = user?.plan === 'PREMIUM';
 
   const [diary, setDiary]     = useState(null);
   const [loading, setLoading] = useState(true);
@@ -498,10 +501,19 @@ export default function DiaryDetailPage() {
                 <span className="dd-rec-text">{diary.recommendations[0].content}</span>
               </div>
               {diary.recommendations.length > 1 && (
-                <div className="dd-rec-more">
-                  <span>🔒 {diary.recommendations.length - 1}개 더 보기</span>
-                  <button className="dd-rec-more-btn" onClick={() => navigate('/premium')}>Premium</button>
-                </div>
+                isPremium ? (
+                  diary.recommendations.slice(1).map((rec, i) => (
+                    <div key={i + 1} className="dd-rec-item">
+                      <span className="dd-rec-icon">🌱</span>
+                      <span className="dd-rec-text">{rec.content}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="dd-rec-more">
+                    <span>🔒 {diary.recommendations.length - 1}개 더 보기</span>
+                    <button className="dd-rec-more-btn" onClick={() => navigate('/premium')}>Premium</button>
+                  </div>
+                )
               )}
             </>
           ) : (
@@ -539,11 +551,13 @@ export default function DiaryDetailPage() {
           </div>
         )}
 
-        {/* 이전 일기와 비교 - Premium 잠금 */}
-        <div className="dd-panel-card">
-          <div className="dd-panel-head"><span>📈</span><span>이전 일기와 비교</span></div>
-          <PremiumLockCard title="지난 기록과 비교해 패턴을 발견하세요" />
-        </div>
+        {/* 이전 일기와 비교 */}
+        {!isPremium && (
+          <div className="dd-panel-card">
+            <div className="dd-panel-head"><span>📈</span><span>이전 일기와 비교</span></div>
+            <PremiumLockCard title="지난 기록과 비교해 패턴을 발견하세요" />
+          </div>
+        )}
 
       </aside>
     </div>

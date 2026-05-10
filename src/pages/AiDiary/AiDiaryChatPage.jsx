@@ -183,7 +183,8 @@ export default function AiDiaryChatPage() {
   const user = useCurrentUser();
   const { character, loading: characterLoading, notFound } = useCharacter();
 
-  const chatLimit = user?.chatLimit ?? 10;
+  const isPremium = user?.plan === 'PREMIUM';
+  const chatLimit = isPremium ? Infinity : (user?.chatLimit ?? 10);
   const [chatAdded, setChatAdded] = useState(0);
   const chatUsed = (user?.chatUsed ?? 0) + chatAdded;
 
@@ -375,8 +376,8 @@ export default function AiDiaryChatPage() {
           </div>
           <div className="chat-header-right">
             <span className="chat-date">{formatDate(new Date())}</span>
-            <span className={`chat-usage-badge ${chatLimit - chatUsed <= 3 ? 'warn' : ''}`}>
-              이번 달 {chatUsed}/{chatLimit}회
+            <span className="chat-usage-badge">
+              {isPremium ? '무제한 이용 중 ✨' : `이번 달 ${chatUsed}/${chatLimit}회`}
             </span>
           </div>
         </div>

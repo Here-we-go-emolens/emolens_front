@@ -141,6 +141,24 @@
   box-shadow: 0 4px 16px rgba(242, 106, 33, 0.18);
 }
 
+.sidebar-premium-active {
+  cursor: default;
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  border-color: #86efac;
+}
+
+.sidebar-premium-active:hover {
+  box-shadow: none;
+}
+
+.sidebar-premium-active .sidebar-premium-title {
+  color: #15803d;
+}
+
+.sidebar-premium-active .sidebar-premium-desc {
+  color: #4ade80;
+}
+
 .sidebar-premium-icon {
   font-size: 20px;
   flex-shrink: 0;

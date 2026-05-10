@@ -438,8 +438,7 @@
   border: 1px solid var(--border);
   padding: 28px 32px;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 16px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
 }
@@ -1111,3 +1110,388 @@
   .dd-mascot-img { width: 58px; height: 58px; }
   .dd-speech-bubble { font-size: 11px; max-width: 170px; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   카드 레이블
+   ══════════════════════════════════════════════════════════ */
+.dd-card-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   오른쪽 패널 카드
+   ══════════════════════════════════════════════════════════ */
+.dd-panel-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dd-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--text-muted);
+}
+
+/* ── 도넛 차트 ─────────────────────────────────────────── */
+.dd-donut-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto;
+}
+
+.dd-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.dd-donut-emoicon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.dd-donut-emoname {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── 도넛 범례 ─────────────────────────────────────────── */
+.dd-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.dd-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.dd-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dd-legend-label {
+  flex: 1;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.dd-legend-pct {
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* ── 깊은 AI 분석 ──────────────────────────────────────── */
+.dd-deep-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dd-deep-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.dd-deep-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.dd-deep-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.dd-deep-text {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+/* ── 추천 행동 (패널) ──────────────────────────────────── */
+.dd-rec-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.dd-rec-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.dd-rec-text {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.dd-rec-more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: var(--bg);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.dd-rec-more-btn {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: none;
+  border-radius: 8px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── 하단 액션 카드 ────────────────────────────────────── */
+.dd-action-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: box-shadow 0.15s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.dd-action-card:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+
+.dd-action-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.dd-action-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dd-action-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.dd-action-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.dd-action-arrow {
+  font-size: 20px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── 로딩 / 없음 ───────────────────────────────────────── */
+.dd-fullcenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 16px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.dd-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── 수정 폼 ────────────────────────────────────────────── */
+.dd-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dd-edit-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.dd-edit-input:focus { border-color: var(--accent); }
+
+.dd-edit-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  resize: vertical;
+  line-height: 1.8;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.dd-edit-textarea:focus { border-color: var(--accent); }
+
+.dd-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dd-edit-row-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+
+.dd-weather-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.dd-weather-btn.active {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.dd-edit-secret {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── Premium 잠금 카드 (패널용) ─────────────────────────── */
+.plc-wrap {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 80px;
+}
+
+.plc-blur-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0;
+  filter: blur(4px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.plc-blur-row {
+  height: 10px;
+  background: var(--accent-light);
+  border-radius: 6px;
+}
+
+.plc-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.plc-btn {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  padding: 5px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+
+.plc-btn:hover { opacity: 0.85; }

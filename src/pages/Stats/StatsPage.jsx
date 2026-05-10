@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import {
   Chart as ChartJS,
   CategoryScale, LinearScale, PointElement, LineElement,
@@ -55,6 +56,8 @@ function PanelCard({ icon, title, children }) {
 // ══════════════════════════════════════════════════════════
 export default function StatsPage() {
   const navigate = useNavigate();
+  const user = useCurrentUser();
+  const isPremium = user?.plan === 'PREMIUM';
   const [graphPeriod, setGraphPeriod]         = useState('7일');
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [stats, setStats]   = useState(null);
@@ -68,7 +71,7 @@ export default function StatsPage() {
   }, []);
 
   const handlePeriodClick = (period) => {
-    if (period !== '7일') setShowPremiumModal(true);
+    if (period !== '7일' && !isPremium) setShowPremiumModal(true);
     else setGraphPeriod(period);
   };
 
@@ -219,10 +222,10 @@ export default function StatsPage() {
                 {['7일', '30일', '90일'].map(p => (
                   <button
                     key={p}
-                    className={`period-tab ${graphPeriod === p ? 'active' : ''} ${p !== '7일' ? 'locked' : ''}`}
+                    className={`period-tab ${graphPeriod === p ? 'active' : ''} ${p !== '7일' && !isPremium ? 'locked' : ''}`}
                     onClick={() => handlePeriodClick(p)}
                   >
-                    {p !== '7일' && <span className="tab-lock">🔒</span>}
+                    {p !== '7일' && !isPremium && <span className="tab-lock">🔒</span>}
                     {p}
                   </button>
                 ))}
@@ -234,50 +237,54 @@ export default function StatsPage() {
                 : <p style={{ textAlign: 'center', color: '#999', paddingTop: 80 }}>이번 달 기록된 일기가 없어요.</p>
               }
             </div>
-            <div className="chart-free-notice">
-              <span>무료 플랜: 최근 7일만 표시</span>
-              <button className="chart-upgrade-btn" onClick={() => navigate('/premium')}>
-                30일·90일 보기 →
-              </button>
-            </div>
+            {!isPremium && (
+              <div className="chart-free-notice">
+                <span>무료 플랜: 최근 7일만 표시</span>
+                <button className="chart-upgrade-btn" onClick={() => navigate('/premium')}>
+                  30일·90일 보기 →
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
-        {/* ②-b 주간/월간 리포트 잠금 배너 */}
-        <section className="section">
-          <div className="report-lock-grid">
-            <div className="report-lock-card">
-              <div className="rlc-left">
-                <span className="rlc-icon">📋</span>
-                <div>
-                  <span className="rlc-title">주간 감정 리포트</span>
-                  <p className="rlc-desc">이번 주 감정 패턴과 반복 고민 키워드를 정리해드려요</p>
+        {/* ②-b 주간/월간 리포트 배너 */}
+        {!isPremium && (
+          <section className="section">
+            <div className="report-lock-grid">
+              <div className="report-lock-card">
+                <div className="rlc-left">
+                  <span className="rlc-icon">📋</span>
+                  <div>
+                    <span className="rlc-title">주간 감정 리포트</span>
+                    <p className="rlc-desc">이번 주 감정 패턴과 반복 고민 키워드를 정리해드려요</p>
+                  </div>
                 </div>
-              </div>
-              <div className="rlc-preview">
-                <div className="rlc-blur-line w80" />
-                <div className="rlc-blur-line w60" />
-                <div className="rlc-blur-line w70" />
-              </div>
-              <button className="rlc-cta" onClick={() => navigate('/premium')}>🔒 리포트 보기</button>
-            </div>
-            <div className="report-lock-card">
-              <div className="rlc-left">
-                <span className="rlc-icon">📅</span>
-                <div>
-                  <span className="rlc-title">월간 감정 리포트</span>
-                  <p className="rlc-desc">한 달간의 감정 여정과 성장 포인트를 돌아봐요</p>
+                <div className="rlc-preview">
+                  <div className="rlc-blur-line w80" />
+                  <div className="rlc-blur-line w60" />
+                  <div className="rlc-blur-line w70" />
                 </div>
+                <button className="rlc-cta" onClick={() => navigate('/premium')}>🔒 리포트 보기</button>
               </div>
-              <div className="rlc-preview">
-                <div className="rlc-blur-line w90" />
-                <div className="rlc-blur-line w55" />
-                <div className="rlc-blur-line w75" />
+              <div className="report-lock-card">
+                <div className="rlc-left">
+                  <span className="rlc-icon">📅</span>
+                  <div>
+                    <span className="rlc-title">월간 감정 리포트</span>
+                    <p className="rlc-desc">한 달간의 감정 여정과 성장 포인트를 돌아봐요</p>
+                  </div>
+                </div>
+                <div className="rlc-preview">
+                  <div className="rlc-blur-line w90" />
+                  <div className="rlc-blur-line w55" />
+                  <div className="rlc-blur-line w75" />
+                </div>
+                <button className="rlc-cta" onClick={() => navigate('/premium')}>🔒 리포트 보기</button>
               </div>
-              <button className="rlc-cta" onClick={() => navigate('/premium')}>🔒 리포트 보기</button>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* ③ 감정 분포 + 키워드 */}
         <section className="section two-col">

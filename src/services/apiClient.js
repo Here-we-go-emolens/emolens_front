@@ -44,6 +44,11 @@ apiClient.interceptors.response.use(
 
     try {
       const refreshToken = getRefreshToken();
+      if (!refreshToken) {
+        clearTokens();
+        window.location.href = '/login';
+        return Promise.reject(new Error('No refresh token'));
+      }
       const { data } = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh`,
         { refreshToken },
