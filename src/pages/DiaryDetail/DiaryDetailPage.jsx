@@ -4,7 +4,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
-import { getDiary, deleteDiary, updateDiary } from '@/services/diaryApi';
+import { getDiary, deleteDiary } from '@/services/diaryApi';
 import mascotImg from '@/assets/mascot-removebg-preview.png';
 import { findEmotionById } from '@/constants/emotions';
 import '@/styles/DiaryDetail/DiaryDetailPage.css';
@@ -137,14 +137,6 @@ export default function DiaryDetailPage() {
   const [diary, setDiary]     = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [isEditing, setIsEditing]         = useState(false);
-  const [editTitle, setEditTitle]         = useState('');
-  const [editContent, setEditContent]     = useState('');
-  const [editWeather, setEditWeather]     = useState('');
-  const [editIsSecret, setEditIsSecret]   = useState(false);
-  const [editImageUrls, setEditImageUrls] = useState([]);
-  const [submitting, setSubmitting]       = useState(false);
-
   useEffect(() => {
     getDiary(id).then(setDiary).catch(() => {}).finally(() => setLoading(false));
   }, [id]);
@@ -153,34 +145,6 @@ export default function DiaryDetailPage() {
     if (!confirm('일기를 삭제하시겠습니까?')) return;
     await deleteDiary(id);
     navigate('/home');
-  };
-
-  const handleEditStart = () => {
-    setEditTitle(diary.title);
-    setEditContent(diary.content);
-    setEditWeather(diary.weather ?? '');
-    setEditIsSecret(diary.isSecret ?? false);
-    setEditImageUrls(diary.imageUrls ?? []);
-    setIsEditing(true);
-  };
-
-  const handleUpdate = async () => {
-    if (!editTitle.trim())   { alert('제목을 입력해주세요.'); return; }
-    if (!editContent.trim()) { alert('내용을 입력해주세요.'); return; }
-    setSubmitting(true);
-    try {
-      await updateDiary(id, {
-        title: editTitle.trim(), content: editContent.trim(),
-        weather: editWeather || null, isSecret: editIsSecret, imageUrls: editImageUrls,
-        templateType: diary.templateType ?? 'PLAIN',
-      });
-      setDiary(prev => ({ ...prev, title: editTitle.trim(), content: editContent.trim(), weather: editWeather || null, isSecret: editIsSecret, imageUrls: editImageUrls }));
-      setIsEditing(false);
-    } catch {
-      alert('일기 수정에 실패했습니다. 다시 시도해주세요.');
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   if (loading) return (
@@ -228,45 +192,11 @@ export default function DiaryDetailPage() {
         <div className="dd-topbar">
           <button className="dd-back-btn" onClick={() => navigate('/home')}>← 목록으로</button>
           <div className="dd-topbar-actions">
-            {isEditing ? (
-              <>
-                <button className="dd-btn btn-ghost" onClick={() => setIsEditing(false)} disabled={submitting}>취소</button>
-                <button className="dd-btn btn-primary" onClick={handleUpdate} disabled={submitting}>
-                  {submitting ? '저장 중…' : '저장'}
-                </button>
-              </>
-            ) : (
-              <>
-                <button className="dd-btn btn-ghost" onClick={handleEditStart}>✏️ 수정</button>
-                <button className="dd-btn btn-danger" onClick={handleDelete}>🗑 삭제</button>
-              </>
-            )}
+            <button className="dd-btn btn-danger" onClick={handleDelete}>🗑 삭제</button>
           </div>
         </div>
 
-        {isEditing ? (
-          /* ── 수정 모드 ── */
-          <div className="dd-edit-card">
-            <div className="dd-card-label">✏️ 일기 수정</div>
-            <div className="dd-edit-form">
-              <input className="dd-edit-input" type="text" value={editTitle} onChange={e => setEditTitle(e.target.value)} maxLength={100} placeholder="제목" />
-              <textarea className="dd-edit-textarea" value={editContent} onChange={e => setEditContent(e.target.value)} placeholder="내용을 입력하세요" rows={12} />
-              <div className="dd-edit-row">
-                <span className="dd-edit-row-label">날씨</span>
-                {['SUNNY', 'CLOUDY', 'RAINY', 'SNOWY'].map(w => (
-                  <button key={w} className={`dd-weather-btn ${editWeather === w ? 'active' : ''}`} onClick={() => setEditWeather(w)}>
-                    {WEATHER_ICON[w]} {w}
-                  </button>
-                ))}
-              </div>
-              <label className="dd-edit-secret">
-                <input type="checkbox" checked={editIsSecret} onChange={e => setEditIsSecret(e.target.checked)} />
-                🔒 비공개
-              </label>
-            </div>
-          </div>
-        ) : (
-          <>
+        <>
             {/* ── 1. 상단 요약 카드 ── */}
             <div className="dd-hero-card" style={{ background: heroBg }}>
 
@@ -402,8 +332,7 @@ export default function DiaryDetailPage() {
                 <span className="dd-action-arrow">›</span>
               </button>
             </div>
-          </>
-        )}
+        </>
       </main>
 
       {/* ── 오른쪽 패널 ──────────────────────── */}
