@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getCurrentWeather } from '@/api/Weather/Weather';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import useSpeechRecognition from '@/hooks/useSpeechRecognition';
@@ -336,6 +336,18 @@ const EMOTION_QUESTIONS = {
   ],
 };
 
+// ── 감정별 오프닝 질문 ─────────────────────────────────────
+const OPENING_QUESTIONS = {
+  '행복': ['행복한 기분이구나! 오늘 어떤 일이 있었어? ✨', '오늘 뭐가 이렇게 기분 좋게 했어? 😊', '그 행복한 순간, 자세히 들려줘! 🌟'],
+  '평온': ['마음이 차분한 하루였구나~ 어떤 순간이 특별했어? 😌', '평온한 오늘, 무슨 일이 있었어?'],
+  '슬픔': ['많이 힘들었구나... 어떤 일이 있었어? 💙', '혼자 안고 있지 말고 여기다 털어놔 😢', '지금 어떤 마음인지 천천히 얘기해봐.'],
+  '불안': ['무슨 걱정이 있어? 같이 들여다볼게 😰', '불안한 마음, 어디서 왔는지 얘기해줄 수 있어?'],
+  '분노': ['오늘 많이 화났구나 😤 뭐가 그렇게 속상했어?', '다 말해봐, 여기서 털어놔도 돼.'],
+  '설렘': ['오늘 설레는 일이 있었구나! 뭐야, 궁금한데? 🌸', '그 설레는 마음, 자세히 들려줘! ✨'],
+};
+
+const OPENING_SPEED = 30;
+
 // ── 마스코트 cross-fade 컴포넌트 ───────────────────────────
 function MascotImage({ emotionId }) {
   const [displaySrc, setDisplaySrc] = useState(mascotFallback);
@@ -370,6 +382,32 @@ const today = new Date().toISOString().split('T')[0];
 
 export default function DiaryWritePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const urlEmotion = searchParams.get('emotion'); // 한국어 감정명
+
+  // 오프닝 질문 상태
+  const openingQuestion = urlEmotion
+    ? (OPENING_QUESTIONS[urlEmotion] ?? [])[Math.floor(Math.random() * (OPENING_QUESTIONS[urlEmotion]?.length ?? 1))] ?? null
+    : null;
+  const [showOpening, setShowOpening]   = useState(!!openingQuestion);
+  const [openingText, setOpeningText]   = useState('');
+  const [openingDone, setOpeningDone]   = useState(false);
+
+  useEffect(() => {
+    if (!openingQuestion) return;
+    let i = 0;
+    const timer = setInterval(() => {
+      i++;
+      setOpeningText(openingQuestion.slice(0, i));
+      if (i >= openingQuestion.length) { clearInterval(timer); setOpeningDone(true); }
+    }, OPENING_SPEED);
+    return () => clearInterval(timer);
+  }, [openingQuestion]);
+
+  const skipOpening = useCallback(() => {
+    if (!openingDone) { setOpeningText(openingQuestion ?? ''); setOpeningDone(true); }
+  }, [openingDone, openingQuestion]);
+
   const [title, setTitle]                         = useState('');
   const [date]                                    = useState(today);
   const [content, setContent]                     = useState('');
@@ -510,6 +548,23 @@ export default function DiaryWritePage() {
       <SidebarLeft />
 
       <main className="dw-main">
+        {showOpening && openingQuestion && (
+          <div className="dw-opening-banner" onClick={skipOpening}>
+            <img src={mascotFallback} alt="" className="dw-opening-mascot" />
+            <div className="dw-opening-body">
+              <div className="dw-opening-text">
+                {openingText}
+                {!openingDone && <span className="dw-opening-cursor" />}
+              </div>
+              {openingDone && (
+                <button className="dw-opening-start-btn" onClick={e => { e.stopPropagation(); setShowOpening(false); }}>
+                  기록 시작하기 →
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="dw-page-header">
           <h1 className="dw-page-title">오늘의 일기 ✍️</h1>
           <p className="dw-page-sub">감정을 먼저 고르고, 마음을 천천히 기록해보세요</p>

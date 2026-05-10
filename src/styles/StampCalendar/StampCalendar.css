@@ -1,0 +1,127 @@
+.stamp-calendar {
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── 헤더 ── */
+.stamp-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stamp-cal-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+.stamp-cal-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 18px;
+}
+
+.stamp-cal-badge span {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+
+/* ── 요일 헤더 ── */
+.stamp-grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.stamp-grid-header span {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ── 달력 그리드 ── */
+.stamp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.stamp-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stamp-cell.empty { visibility: hidden; }
+.stamp-cell.is-future { opacity: 0.35; }
+
+/* ── 스탬프 마크 ── */
+.stamp-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #EDE8E0;
+  background: transparent;
+  transition: transform 0.15s;
+  position: relative;
+}
+
+.stamp-mark.stamped {
+  background: linear-gradient(135deg, #f26a21, #ffaa6b);
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(242, 106, 33, 0.35);
+  animation: stamp-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.stamp-mark.today-stamped {
+  box-shadow: 0 0 0 3px rgba(242, 106, 33, 0.25), 0 2px 8px rgba(242, 106, 33, 0.35);
+}
+
+.stamp-symbol {
+  font-size: 11px;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stamp-today-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.stamp-missed {
+  font-size: 14px;
+  color: #D4C8B8;
+  line-height: 1;
+}
+
+.stamp-day-num {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.stamp-cell.is-today .stamp-day-num {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+@keyframes stamp-pop {
+  0%   { transform: scale(0) rotate(-15deg); }
+  70%  { transform: scale(1.2) rotate(4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}

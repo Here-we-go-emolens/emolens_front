@@ -12,6 +12,8 @@ import { getLetters } from '@/services/letterApi';
 import { getMyCharacter } from '@/services/characterApi';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import CharacterGreetingPopup from '@/components/CharacterGreeting/CharacterGreetingPopup';
+import StampCalendar from '@/components/StampCalendar/StampCalendar';
+import StampCelebration from '@/components/StampCalendar/StampCelebration';
 import "@/styles/Home/Home.css";
 
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -204,10 +206,12 @@ const Home = () => {
   const [stats, setStats]         = useState(null);
   const [showTutorial, setShowTutorial]       = useState(false);
   const [showLetterPopup, setShowLetterPopup] = useState(false);
-  const [showGreeting, setShowGreeting]       = useState(false);
-  const [character, setCharacter]             = useState(null);
-  const [characterName, setCharacterName]     = useState(null);
-  const [unreadLetterId, setUnreadLetterId]   = useState(null);
+  const [showGreeting, setShowGreeting]         = useState(false);
+  const [showStampCelebration, setShowStampCelebration] = useState(false);
+  const [greetingDaysSince, setGreetingDaysSince] = useState(0);
+  const [character, setCharacter]               = useState(null);
+  const [characterName, setCharacterName]       = useState(null);
+  const [unreadLetterId, setUnreadLetterId]     = useState(null);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -217,18 +221,42 @@ const Home = () => {
   useEffect(() => {
     if (!user?.id || showTutorial) return;
     getMyCharacter()
-      .then(c => {
-        setCharacter(c);
-        const greetKey = `emolens_greeting_${user.id}_${year}-${month}-${day}`;
-        if (!localStorage.getItem(greetKey)) {
-          localStorage.setItem(greetKey, '1');
-          setShowGreeting(true);
-        }
-      })
-      .catch((err) => {
+      .then(c => setCharacter(c))
+      .catch(err => {
         if (err.response?.status === 404) navigate('/character?next=/home');
       });
   }, [user?.id, showTutorial]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 팝업 조건: (저녁 6~11시 OR 3일+ 미작성) + 오늘 미작성 + 하루 1회
+  useEffect(() => {
+    if (loading || !user?.id || showTutorial || !character) return;
+
+    const checkGreeting = () => {
+      const greetKey = `emolens_greeting_${user.id}_${year}-${month}-${day}`;
+      if (localStorage.getItem(greetKey)) return;
+      if (diaries.some(d => d.diaryDate === todayStr)) return;
+
+      const hour = new Date().getHours();
+      const sorted = [...diaries].sort((a, b) => b.diaryDate.localeCompare(a.diaryDate));
+      const daysSince = sorted[0]
+        ? Math.floor((Date.now() - new Date(sorted[0].diaryDate).getTime()) / 86400000)
+        : 999;
+
+      if (hour >= 18 && hour <= 23 || daysSince >= 3) {
+        localStorage.setItem(greetKey, '1');
+        setGreetingDaysSince(daysSince);
+        setShowGreeting(true);
+      }
+    };
+
+    // 최초 실행
+    checkGreeting();
+
+    // 노트북 열거나 탭 복귀 시 재체크
+    const onVisible = () => { if (document.visibilityState === 'visible') checkGreeting(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [loading, user?.id, diaries, showTutorial, character]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!user?.id || showTutorial) return;
@@ -246,8 +274,21 @@ const Home = () => {
   }, [user?.id, showTutorial]);
 
   useEffect(() => {
-    getDiaryList(0, 50).then(data => setDiaries(data.content ?? [])).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+    getDiaryList(0, 50)
+      .then(data => {
+        const list = data.content ?? [];
+        setDiaries(list);
+        if (!user?.id) return;
+        const celebKey = `emolens_stamp_celebrated_${user.id}_${todayStr}`;
+        const hasTodayEntry = list.some(d => d.diaryDate === todayStr);
+        if (hasTodayEntry && !localStorage.getItem(celebKey)) {
+          localStorage.setItem(celebKey, '1');
+          setTimeout(() => setShowStampCelebration(true), 700);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     getStats(monthStr).then(setStats).catch(() => {});
@@ -274,7 +315,14 @@ const Home = () => {
         <LetterPopup characterName={characterName} letterId={unreadLetterId} onClose={() => setShowLetterPopup(false)} />
       )}
       {showGreeting && !showLetterPopup && (
-        <CharacterGreetingPopup characterName={character?.name} onClose={() => setShowGreeting(false)} />
+        <CharacterGreetingPopup
+          characterName={character?.name}
+          daysSinceLast={greetingDaysSince}
+          onClose={() => setShowGreeting(false)}
+        />
+      )}
+      {showStampCelebration && (
+        <StampCelebration onDone={() => setShowStampCelebration(false)} />
       )}
 
       <SidebarLeft />
@@ -298,10 +346,10 @@ const Home = () => {
           </div>
         </div>
 
-        {/* ② 퀵 체크인 + 7일 트래커 */}
+        {/* ② 퀵 체크인 + 스탬프 달력 */}
         <div className="home-checkin-row">
           <QuickCheckIn todayHasEntry={todayHasEntry} navigate={navigate} />
-          <WeekTracker diaries={diaries} />
+          <StampCalendar diaries={diaries} year={year} month={month} />
         </div>
 
         {/* ③ 인사이트 2열 */}

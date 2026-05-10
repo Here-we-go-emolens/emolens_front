@@ -3,9 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import mascotImg from '@/assets/mascot-removebg-preview.png';
 import "@/styles/CharacterGreeting/CharacterGreetingPopup.css";
 
-const DIALOGUE_TREE = {
+function buildDialogueTree(daysSinceLast) {
+  const startText = daysSinceLast >= 3
+    ? `${daysSinceLast}일 만이야! 보고 싶었어 😊\n그동안 어떻게 지냈어?`
+    : '안녕! 오늘 기분이 어때? 😊';
+
+  return {
   start: {
-    text: '안녕! 오늘 기분이 어때? 😊',
+    text: startText,
     choices: [
       { label: '😊 행복해!',     next: 'happy' },
       { label: '😌 평온해',      next: 'calm' },
@@ -52,7 +57,8 @@ const DIALOGUE_TREE = {
       { label: '아니, 그냥 둘러볼게', action: 'close' },
     ],
   },
-};
+  };
+}
 
 const SPEED = 32;
 
@@ -63,12 +69,13 @@ function getChoiceClass(choice) {
   return '';
 }
 
-const CharacterGreetingPopup = ({ characterName, onClose }) => {
+const CharacterGreetingPopup = ({ characterName, daysSinceLast = 0, onClose }) => {
   const navigate = useNavigate();
-  const [nodeKey, setNodeKey]       = useState('start');
+  const [nodeKey, setNodeKey]         = useState('start');
   const [displayText, setDisplayText] = useState('');
-  const [typingDone, setTypingDone]  = useState(false);
+  const [typingDone, setTypingDone]   = useState(false);
 
+  const DIALOGUE_TREE = buildDialogueTree(daysSinceLast);
   const node = DIALOGUE_TREE[nodeKey];
 
   useEffect(() => {
