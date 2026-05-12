@@ -11,6 +11,7 @@ import PremiumPage from './pages/Premium/PremiumPage.jsx';
 import LoginPage from './pages/Login/LoginPage.jsx';
 import OAuthCallbackPage from './pages/OAuthCallback/OAuthCallbackPage.jsx';
 import SignupPage from './pages/SignUp/SignupPage.jsx';
+import RegisterPage from './pages/Register/RegisterPage.jsx';
 import CharacterSetupPage from './pages/Character/CharacterSetupPage.jsx';
 import './App.css'
 import CommunityPage from './pages/Community/CommunityPage.jsx';
@@ -50,6 +51,7 @@ function App() {
         <Route path="/settings"       element={<SettingsPage />} />
         <Route path="/premium"        element={<PremiumPage />} />
         <Route path="/signup"         element={<SignupPage />} />
+        <Route path="/register"       element={<RegisterPage />} />
       </Routes>
     </UserProvider>
   )

@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f0edf7 0%, #e8f4fc 100%);
+  background: linear-gradient(135deg, #fff5f0 0%, #fff1e6 100%);
   position: relative;
   overflow: hidden;
   padding: 24px;
@@ -22,7 +22,7 @@
 .signup-glow-a {
   width: 480px;
   height: 480px;
-  background: radial-gradient(circle, rgba(124, 111, 205, 0.14) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(242, 106, 33, 0.12) 0%, transparent 70%);
   top: -120px;
   left: -80px;
 }
@@ -44,7 +44,7 @@
   padding: 48px 44px;
   width: 100%;
   max-width: 440px;
-  box-shadow: 0 8px 48px rgba(100, 90, 140, 0.12);
+  box-shadow: 0 8px 48px rgba(140, 80, 30, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -63,7 +63,7 @@
 .signup-logo-text {
   font-size: 22px;
   font-weight: 900;
-  color: #3d3552;
+  color: #2a2a2a;
   letter-spacing: -0.5px;
 }
 
@@ -71,10 +71,10 @@
 .signup-step-badge {
   font-size: 11px;
   font-weight: 700;
-  color: #7c6fcd;
+  color: #f26a21;
   letter-spacing: 0.8px;
   text-transform: uppercase;
-  background: #f0edf7;
+  background: #fff1e6;
   padding: 4px 12px;
   border-radius: 20px;
   margin-bottom: 14px;
@@ -83,7 +83,7 @@
 .signup-title {
   font-size: 22px;
   font-weight: 800;
-  color: #3d3552;
+  color: #2a2a2a;
   margin: 0 0 8px;
   text-align: center;
   line-height: 1.3;
@@ -91,7 +91,7 @@
 
 .signup-desc {
   font-size: 14px;
-  color: #9088a8;
+  color: #888;
   text-align: center;
   line-height: 1.7;
   margin: 0 0 32px;
@@ -114,36 +114,36 @@
 .signup-label {
   font-size: 13px;
   font-weight: 600;
-  color: #5c5272;
+  color: #555;
 }
 
 .signup-input {
   width: 100%;
   padding: 13px 16px;
-  border: 1.5px solid #e8e4f0;
+  border: 1.5px solid #ffe0cc;
   border-radius: 12px;
   font-size: 15px;
   font-family: inherit;
-  color: #3d3552;
-  background: #faf9fc;
+  color: #2a2a2a;
+  background: #fffaf7;
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .signup-input:focus {
-  border-color: #7c6fcd;
-  box-shadow: 0 0 0 3px rgba(124, 111, 205, 0.1);
+  border-color: #f26a21;
+  box-shadow: 0 0 0 3px rgba(242, 106, 33, 0.1);
   background: #fff;
 }
 
 .signup-input::placeholder {
-  color: #c0b8d4;
+  color: #bbb;
 }
 
 .signup-input-hint {
   font-size: 11px;
-  color: #b0a8c4;
+  color: #aaa;
   margin: 0;
 }
 
@@ -151,7 +151,7 @@
 .signup-submit-btn {
   width: 100%;
   padding: 15px;
-  background: linear-gradient(135deg, #7c6fcd 0%, #5b9fcc 100%);
+  background: linear-gradient(135deg, #f26a21 0%, #e05a10 100%);
   color: #fff;
   border: none;
   border-radius: 14px;
@@ -185,14 +185,14 @@
   border: none;
   font-size: 13px;
   font-weight: 500;
-  color: #b0a8c4;
+  color: #aaa;
   cursor: pointer;
   font-family: inherit;
   transition: color 0.15s;
 }
 
 .signup-skip-btn:hover {
-  color: #7c6fcd;
+  color: #f26a21;
 }
 
 /* ── 에러 ──────────────────────────────────────────────── */

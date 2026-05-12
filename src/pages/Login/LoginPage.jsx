@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '@/styles/Login/LoginPage.css';
 import { saveTokens } from '@/services/auth';
 
@@ -7,7 +7,9 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,6 +18,9 @@ export default function LoginPage() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('error')) {
       setErrorMsg('로그인에 실패했습니다. 다시 시도해주세요.');
+    }
+    if (location.state?.registered) {
+      setSuccessMsg('회원가입이 완료됐어요! 로그인해주세요.');
     }
   }, []);
 
@@ -87,6 +92,7 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          {successMsg && <p className="login-success">{successMsg}</p>}
           {errorMsg && <p className="login-error">{errorMsg}</p>}
           <button type="submit" className="login-email-btn" disabled={loading}>
             {loading ? '로그인 중...' : '이메일로 로그인'}
@@ -154,6 +160,11 @@ export default function LoginPage() {
           <span>처음이신가요?</span>
         </div>
 
+
+        {/* 이메일 회원가입 */}
+        <button className="login-back-btn login-register-btn" onClick={() => navigate('/register')}>
+          이메일로 회원가입
+        </button>
 
         {/* 랜딩 페이지로 */}
         <button className="login-back-btn" onClick={() => navigate('/')}>

@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f0edf7 0%, #e8f4fc 100%);
+  background: linear-gradient(135deg, #fff5f0 0%, #fff1e6 100%);
   position: relative;
   overflow: hidden;
   padding: 24px;
@@ -22,7 +22,7 @@
 .glow-a {
   width: 480px;
   height: 480px;
-  background: radial-gradient(circle, rgba(124, 111, 205, 0.14) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(242, 106, 33, 0.12) 0%, transparent 70%);
   top: -120px;
   left: -80px;
 }
@@ -44,7 +44,7 @@
   padding: 48px 44px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 8px 48px rgba(100, 90, 140, 0.12);
+  box-shadow: 0 8px 48px rgba(140, 80, 30, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -66,7 +66,7 @@
 .login-logo-text {
   font-size: 22px;
   font-weight: 900;
-  color: #3d3552;
+  color: #2a2a2a;
   letter-spacing: -0.5px;
 }
 
@@ -74,7 +74,7 @@
 .login-title {
   font-size: 22px;
   font-weight: 800;
-  color: #3d3552;
+  color: #2a2a2a;
   margin: 0 0 10px;
   text-align: center;
   line-height: 1.3;
@@ -82,7 +82,7 @@
 
 .login-desc {
   font-size: 14px;
-  color: #9088a8;
+  color: #888;
   text-align: center;
   line-height: 1.7;
   margin: 0 0 32px;
@@ -137,8 +137,8 @@
 /* 구글 */
 .social-btn.google {
   background: #fff;
-  color: #3d3552;
-  border: 1.5px solid #e8e4f0;
+  color: #2a2a2a;
+  border: 1.5px solid #ffe0cc;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
 }
 
@@ -176,12 +176,12 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: #e8e4f0;
+  background: #ffe0cc;
 }
 
 .login-divider span {
   font-size: 12px;
-  color: #9088a8;
+  color: #888;
   white-space: nowrap;
   font-weight: 500;
 }
@@ -191,11 +191,11 @@
   width: 100%;
   padding: 12px 0;
   background: transparent;
-  border: 1.5px solid #e8e4f0;
+  border: 1.5px solid #ffe0cc;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
-  color: #9088a8;
+  color: #888;
   cursor: pointer;
   font-family: inherit;
   transition: border-color 0.15s, color 0.15s;
@@ -203,14 +203,14 @@
 }
 
 .login-back-btn:hover {
-  border-color: #7c6fcd;
-  color: #7c6fcd;
+  border-color: #f26a21;
+  color: #f26a21;
 }
 
 /* ── 약관 안내 ─────────────────────────────────────────── */
 .login-fine {
   font-size: 11px;
-  color: #b0a8c4;
+  color: #aaa;
   text-align: center;
   line-height: 1.7;
   margin: 0;
@@ -219,7 +219,7 @@
 .login-fine span {
   text-decoration: underline;
   cursor: pointer;
-  color: #9088a8;
+  color: #888;
 }
 
 /* ── 반응형 ────────────────────────────────────────────── */
@@ -238,6 +238,17 @@
   font-size: 13px;
   text-align: center;
   margin: -8px 0 8px;
+}
+
+.login-success {
+  color: #3aab6e;
+  font-size: 13px;
+  text-align: center;
+  margin: -8px 0 8px;
+}
+
+.login-register-btn {
+  margin-bottom: 10px;
 }
 
 /* ── 이메일 로그인 폼 ────────────────────────────────────── */
