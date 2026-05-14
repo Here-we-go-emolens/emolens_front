@@ -110,7 +110,6 @@ export function CommunityProvider({ children }) {
       tags,
     });
     setSelectedEmotionLabel(emotion.label);
-    await fetchPosts(emotion.label);
     return id;
   };
 
