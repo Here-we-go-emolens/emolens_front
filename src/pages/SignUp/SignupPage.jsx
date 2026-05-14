@@ -39,7 +39,7 @@ export default function SignupPage() {
       if (userId) localStorage.setItem(`emolens_signup_done_${userId}`, 'true');
       navigate('/home', { replace: true });
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message ?? '닉네임 저장에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setLoading(false);
     }
