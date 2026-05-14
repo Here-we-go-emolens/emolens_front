@@ -36,7 +36,7 @@ export default function PostCard({
       <p className="post-content">{post.content}</p>
 
       <div className="post-tag-row">
-        {post.tags.map((tag) => (
+        {(post.tags ?? []).map((tag) => (
           <span key={tag} className="post-hashtag">#{tag}</span>
         ))}
       </div>
