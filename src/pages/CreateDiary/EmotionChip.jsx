@@ -6,6 +6,8 @@ export default function EmotionChip({ id, order, onClick }) {
   const e = EMOTION_MAP[id];
   const selected = order > 0;
 
+  if (!e) return null;
+
   return (
     <button
       className={`emotion-chip${selected ? ' selected' : ''}`}

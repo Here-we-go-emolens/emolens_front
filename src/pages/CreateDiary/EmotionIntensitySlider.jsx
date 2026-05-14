@@ -4,7 +4,9 @@ import { findEmotionById, SLIDER_COLOR } from '@/constants/emotions';
 export default function EmotionIntensitySlider({ id, score, onChange }) {
   const [imgError, setImgError] = useState(false);
   const e = findEmotionById(id);
-  const color = SLIDER_COLOR[e.category];
+  const color = SLIDER_COLOR[e?.category] ?? SLIDER_COLOR.neutral;
+
+  if (!e) return null;
 
   return (
     <div className="es-slider-row">

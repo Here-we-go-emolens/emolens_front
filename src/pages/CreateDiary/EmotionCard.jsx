@@ -8,6 +8,8 @@ export default function EmotionCard({ id, order, onClick }) {
   const e = findEmotionById(id);
   const selected = order > 0;
 
+  if (!e) return null;
+
   return (
     <button
       className={`ec-card${selected ? ` selected order-${order}` : ''}`}
