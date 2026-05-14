@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import "@/styles/StampCalendar/StampCelebration.css";
 
-const SPARKS = Array.from({ length: 10 }, (_, i) => {
+const makeSparks = () => Array.from({ length: 10 }, (_, i) => {
   const angle = (i / 10) * 360;
   const dist = 60 + Math.random() * 40;
   return {
@@ -12,6 +12,7 @@ const SPARKS = Array.from({ length: 10 }, (_, i) => {
 });
 
 const StampCelebration = ({ onDone }) => {
+  const sparks = makeSparks();
   useEffect(() => {
     const t = setTimeout(onDone, 2800);
     return () => clearTimeout(t);
@@ -25,7 +26,7 @@ const StampCelebration = ({ onDone }) => {
           <div className="sc-stamp">
             <span className="sc-stamp-symbol">✦</span>
           </div>
-          {SPARKS.map((s, i) => (
+          {sparks.map((s, i) => (
             <div
               key={i}
               className="sc-spark"
