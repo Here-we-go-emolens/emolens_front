@@ -19,6 +19,7 @@ import CommunityPostDetailPage from './pages/Community/CommunityPostDetailPage.j
 import { CommunityProvider } from './pages/Community/CommunityContext.jsx';
 import LetterPage from './pages/Letter/LetterPage.jsx';
 import WeeklyReportPage from './pages/WeeklyReport/WeeklyReportPage.jsx';
+import NotificationsPage from './pages/Notifications/NotificationsPage.jsx';
 
 function CommunityLayout() {
   return (
@@ -47,6 +48,7 @@ function App() {
         <Route path="/diary/:id"      element={<DiaryDetailPage />} />
         <Route path="/letters"        element={<LetterPage />} />
         <Route path="/weekly-report"  element={<WeeklyReportPage />} />
+        <Route path="/notifications"   element={<NotificationsPage />} />
         <Route path="/stats"          element={<StatsPage />} />
         <Route path="/settings"       element={<SettingsPage />} />
         <Route path="/premium"        element={<PremiumPage />} />

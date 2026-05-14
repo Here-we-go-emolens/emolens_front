@@ -1,0 +1,328 @@
+.noti-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f7f8fa;
+}
+
+.noti-main {
+  flex: 1;
+  max-width: 680px;
+  padding: 40px 32px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── 헤더 ── */
+.noti-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.noti-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111;
+  margin: 0 0 4px;
+  letter-spacing: -0.8px;
+}
+
+.noti-subtitle {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+  font-weight: 500;
+}
+
+.noti-read-all-btn {
+  display: none; /* 배너에서 처리 */
+}
+
+/* ── 배너 ── */
+.noti-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #f26a21 0%, #ff9a5c 100%);
+  border-radius: 20px;
+  padding: 18px 20px;
+  box-shadow: 0 8px 24px rgba(242, 106, 33, 0.25);
+}
+
+.noti-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.noti-banner-icon {
+  font-size: 28px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+
+.noti-banner-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 2px;
+}
+
+.noti-banner-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
+  margin: 0;
+  font-weight: 500;
+}
+
+.noti-banner-btn {
+  background: rgba(255,255,255,0.22);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 100px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 16px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.noti-banner-btn:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+/* ── 탭 ── */
+.noti-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.noti-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #777;
+  background: #fff;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 100px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.noti-tab:hover {
+  border-color: #f26a21;
+  color: #f26a21;
+}
+
+.noti-tab.active {
+  background: #f26a21;
+  border-color: #f26a21;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(242, 106, 33, 0.3);
+}
+
+.noti-tab-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.noti-tab-badge {
+  background: rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 100px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.noti-tab:not(.active) .noti-tab-badge {
+  background: #f26a21;
+  color: #fff;
+}
+
+/* ── 그룹 ── */
+.noti-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.noti-group-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.noti-group-label span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #aaa;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.noti-group-line {
+  flex: 1;
+  height: 1px;
+  background: #e8e8e8;
+}
+
+/* ── 아이템 ── */
+.noti-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: #fff;
+  border-radius: 18px;
+  border: 1.5px solid #f0f0f0;
+  cursor: pointer;
+  transition: all 0.18s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.noti-item:hover {
+  border-color: var(--accent, #f26a21);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+.noti-item.unread {
+  border-left: 3px solid var(--accent, #f26a21);
+  background: #fffdfb;
+}
+
+.noti-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.noti-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.noti-item-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.noti-type-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.noti-item-time {
+  font-size: 11px;
+  color: #bbb;
+  margin-left: auto;
+}
+
+.noti-item-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.noti-item:not(.unread) .noti-item-title {
+  color: #555;
+  font-weight: 600;
+}
+
+.noti-item-body {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noti-item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.noti-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f26a21;
+}
+
+.noti-arrow {
+  font-size: 20px;
+  color: #ddd;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.noti-item:hover .noti-arrow {
+  color: var(--accent, #f26a21);
+}
+
+/* ── 빈 상태 ── */
+.noti-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 0;
+  text-align: center;
+}
+
+.noti-empty-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+}
+
+.noti-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.noti-empty-sub {
+  font-size: 13px;
+  color: #aaa;
+  margin: 0;
+}
