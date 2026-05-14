@@ -143,8 +143,12 @@ export default function DiaryDetailPage() {
 
   const handleDelete = async () => {
     if (!confirm('일기를 삭제하시겠습니까?')) return;
-    await deleteDiary(id);
-    navigate('/home');
+    try {
+      await deleteDiary(id);
+      navigate('/home');
+    } catch {
+      alert('일기 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   if (loading) return (
