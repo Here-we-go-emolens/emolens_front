@@ -60,6 +60,187 @@
 /* ── 섹션 ─────────────────────────────────────────────── */
 .section { display: flex; flex-direction: column; gap: 0; }
 
+/* ── 주간 3열 섹션 ───────────────────────────────────── */
+.three-col-week {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* 주간 미니 바 차트 */
+.week-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+  height: 120px;
+  padding-top: 20px;
+}
+
+.week-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.week-bar-col.today .week-bar-day {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.week-bar-col.today .week-bar-fill {
+  opacity: 1;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.week-bar-score {
+  font-size: 9px;
+  color: var(--text-muted);
+  height: 12px;
+  line-height: 12px;
+}
+
+.week-bar-track {
+  flex: 1;
+  width: 100%;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  min-height: 60px;
+}
+
+.week-bar-fill {
+  width: 100%;
+  border-radius: 6px;
+  transition: height 0.4s ease;
+  opacity: 0.85;
+}
+
+.week-bar-day {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* 전주 대비 변화 */
+.delta-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.delta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 22px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 12px;
+  align-self: flex-start;
+}
+
+.delta-badge.pos {
+  color: #2a9d5c;
+  background: #edfaf4;
+}
+
+.delta-badge.neg {
+  color: #e57373;
+  background: #fff0f0;
+}
+
+.delta-desc {
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.delta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.delta-row:last-child { border-bottom: none; }
+
+.delta-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.delta-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.delta-val.accent { color: var(--accent); }
+
+.delta-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.7;
+  padding: 20px 0;
+  margin: 0;
+}
+
+/* 이번 주 하이라이트 */
+.highlight-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.highlight-emotions {
+  display: flex;
+  gap: 4px;
+}
+
+.highlight-emotion-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.highlight-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.highlight-date {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.highlight-cta {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+  margin: 4px 0 0;
+}
+
+@media (max-width: 900px) {
+  .three-col-week {
+    grid-template-columns: 1fr;
+  }
+}
+
 .section-title {
   font-size: 15px;
   font-weight: 700;

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { isLoggedIn } from '@/services/auth';
 import './OnboardingPage.css';
 
 /* ── 더미 데이터 ─────────────────────────────────────── */
@@ -45,6 +46,13 @@ const STEPS = [
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const fadeRefs = useRef([]);
+
+  useEffect(() => {
+    if (isLoggedIn()) {
+      navigate('/home', { replace: true });
+      return;
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const io = new IntersectionObserver(

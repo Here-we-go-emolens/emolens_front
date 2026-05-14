@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import {
@@ -9,6 +9,8 @@ import {
 import { Line, Doughnut } from 'react-chartjs-2';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import { getStats } from '@/services/statsApi';
+import { getDiaryList } from '@/services/diaryApi';
+import { EMOTION_MAP } from '@/constants/emotions';
 import '@/styles/Stats/StatsPage.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler);
@@ -60,14 +62,18 @@ export default function StatsPage() {
   const isPremium = user?.plan === 'PREMIUM';
   const [graphPeriod, setGraphPeriod]         = useState('7일');
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [stats, setStats]   = useState(null);
+  const [stats, setStats]     = useState(null);
   const [loading, setLoading] = useState(true);
+  const [diaries, setDiaries] = useState([]);
 
   useEffect(() => {
     getStats()
       .then(setStats)
       .catch(console.error)
       .finally(() => setLoading(false));
+    getDiaryList(0, 20)
+      .then(data => setDiaries(data.content ?? []))
+      .catch(() => {});
   }, []);
 
   const handlePeriodClick = (period) => {
@@ -92,6 +98,49 @@ export default function StatsPage() {
 
   // 무료 플랜: 최근 7일만 차트에 표시
   const recentTrend = trend.slice(-7);
+
+  // ── 주간 미니 바 차트 ────────────────────────────────────
+  const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
+  const last7Days = useMemo(() => {
+    const today = new Date();
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() - 6 + i);
+      const dateStr = d.toISOString().slice(0, 10);
+      const entry   = trend.find(t => t.date === dateStr);
+      return { day: DAY_NAMES[d.getDay()], date: dateStr, score: entry?.score ?? null, isToday: i === 6 };
+    });
+  }, [trend]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const prev7Days = useMemo(() => {
+    const today = new Date();
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() - 13 + i);
+      const dateStr = d.toISOString().slice(0, 10);
+      return trend.find(t => t.date === dateStr)?.score ?? null;
+    });
+  }, [trend]);
+
+  // ── 전주 대비 변화 ────────────────────────────────────────
+  const thisWeekScores = last7Days.map(d => d.score).filter(s => s !== null);
+  const prevWeekScores = prev7Days.filter(s => s !== null);
+  const thisWeekAvg = thisWeekScores.length ? thisWeekScores.reduce((a, b) => a + b, 0) / thisWeekScores.length : null;
+  const prevWeekAvg = prevWeekScores.length ? prevWeekScores.reduce((a, b) => a + b, 0) / prevWeekScores.length : null;
+  const scoreDelta  = thisWeekAvg !== null && prevWeekAvg !== null
+    ? (thisWeekAvg - prevWeekAvg).toFixed(1)
+    : null;
+
+  // ── 이번 주 하이라이트 일기 ──────────────────────────────
+  const highlightDiary = useMemo(() => {
+    const today      = new Date();
+    const weekAgo    = new Date(today);
+    weekAgo.setDate(today.getDate() - 6);
+    const weekAgoStr = weekAgo.toISOString().slice(0, 10);
+    const todayStr   = today.toISOString().slice(0, 10);
+    const thisWeek   = diaries.filter(d => d.diaryDate >= weekAgoStr && d.diaryDate <= todayStr);
+    return thisWeek.find(d => d.status === 'COMPLETED') ?? thisWeek[0] ?? null;
+  }, [diaries]);
 
   const lineData = {
     labels: recentTrend.map(t => t.date?.slice(5)),
@@ -208,6 +257,109 @@ export default function StatsPage() {
               </div>
             </div>
           </div>
+        </section>
+
+        {/* ①-b 주간 미니 차트 + 전주 대비 변화 + 하이라이트 */}
+        <section className="section three-col-week">
+
+          {/* 월~일 감정 점수 미니 바 차트 */}
+          <div className="card week-mini-card">
+            <div className="card-head">
+              <div>
+                <h3 className="card-title">이번 주 감정</h3>
+                <p className="card-desc">일별 감정 점수 (1~10)</p>
+              </div>
+            </div>
+            <div className="week-bar-chart">
+              {last7Days.map(({ day, score, isToday }) => (
+                <div key={day + isToday} className={`week-bar-col${isToday ? ' today' : ''}`}>
+                  <span className="week-bar-score">{score !== null ? score.toFixed(1) : ''}</span>
+                  <div className="week-bar-track">
+                    <div
+                      className="week-bar-fill"
+                      style={{
+                        height: score !== null ? `${(score / 10) * 100}%` : '0%',
+                        background: score === null ? 'transparent'
+                          : score >= 7 ? '#6bba7c'
+                          : score >= 5 ? '#f9a06e'
+                          : '#e57373',
+                      }}
+                    />
+                  </div>
+                  <span className="week-bar-day">{day}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 전주 대비 변화 */}
+          <div className="card week-delta-card">
+            <div className="card-head">
+              <div>
+                <h3 className="card-title">전주 대비 변화</h3>
+                <p className="card-desc">지난주 평균과 비교</p>
+              </div>
+            </div>
+            {scoreDelta !== null ? (
+              <div className="delta-body">
+                <div className={`delta-badge ${Number(scoreDelta) >= 0 ? 'pos' : 'neg'}`}>
+                  {Number(scoreDelta) >= 0 ? '▲' : '▼'} {Math.abs(scoreDelta)}점
+                </div>
+                <p className="delta-desc">
+                  {Number(scoreDelta) >= 0
+                    ? `지난주보다 감정 점수가 ${Math.abs(scoreDelta)}점 올랐어요`
+                    : `지난주보다 감정 점수가 ${Math.abs(scoreDelta)}점 내려갔어요`}
+                </p>
+                <div className="delta-row">
+                  <span className="delta-label">이번 주 평균</span>
+                  <span className="delta-val">{Number(thisWeekAvg).toFixed(1)}점</span>
+                </div>
+                <div className="delta-row">
+                  <span className="delta-label">지난 주 평균</span>
+                  <span className="delta-val">{Number(prevWeekAvg).toFixed(1)}점</span>
+                </div>
+                {summary?.stabilityScore > 0 && (
+                  <div className="delta-row">
+                    <span className="delta-label">이번 달 안정도</span>
+                    <span className="delta-val accent">{summary.stabilityScore}%</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="delta-empty">지난주 데이터가 쌓이면<br />비교 결과를 보여드릴게요</p>
+            )}
+          </div>
+
+          {/* 이번 주 하이라이트 일기 */}
+          <div className="card week-highlight-card">
+            <div className="card-head">
+              <div>
+                <h3 className="card-title">이번 주 하이라이트</h3>
+                <p className="card-desc">AI가 선정한 대표 일기</p>
+              </div>
+              {highlightDiary?.status === 'COMPLETED' && (
+                <span className="period-badge">AI 분석완료</span>
+              )}
+            </div>
+            {highlightDiary ? (
+              <div className="highlight-body" onClick={() => navigate(`/diary/${highlightDiary.id}`)} style={{ cursor: 'pointer' }}>
+                <div className="highlight-emotions">
+                  {(highlightDiary.userEmotions ?? []).slice(0, 3).map(e => {
+                    const em = EMOTION_MAP[e.emotion];
+                    return em
+                      ? <img key={e.emotion} src={em.image} alt={em.label} className="highlight-emotion-img" title={em.label} />
+                      : null;
+                  })}
+                </div>
+                <p className="highlight-title">{highlightDiary.title}</p>
+                <span className="highlight-date">{highlightDiary.diaryDate?.replace(/-/g, '.')}</span>
+                <p className="highlight-cta">일기 전체 보기 →</p>
+              </div>
+            ) : (
+              <p className="delta-empty">이번 주 작성된<br />일기가 없어요</p>
+            )}
+          </div>
+
         </section>
 
         {/* ② 감정 변화 그래프 */}
