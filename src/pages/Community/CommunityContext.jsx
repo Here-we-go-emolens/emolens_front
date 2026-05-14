@@ -109,7 +109,12 @@ export function CommunityProvider({ children }) {
       content,
       tags,
     });
-    setSelectedEmotionLabel(emotion.label);
+    if (emotion.label === selectedEmotionLabel) {
+      // 같은 필터 상태에서 글 작성 시 useEffect가 트리거되지 않으므로 직접 갱신
+      await fetchPosts(emotion.label);
+    } else {
+      setSelectedEmotionLabel(emotion.label);
+    }
     return id;
   };
 
