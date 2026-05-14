@@ -41,8 +41,8 @@ function groupByDate(list) {
   list.forEach(n => {
     const d = Math.floor((Date.now() - new Date(n.createdAt).getTime()) / 86400000);
     const key = d === 0 ? '오늘' : d === 1 ? '어제' : `${d}일 전`;
-    if (!seen[key]) { seen[key] = true; groups.push({ label: key, items: [] }); }
-    groups[groups.length - 1].items.push(n);
+    if (!seen[key]) { seen[key] = groups.length; groups.push({ label: key, items: [] }); }
+    groups[seen[key]].items.push(n);
   });
   return groups;
 }
