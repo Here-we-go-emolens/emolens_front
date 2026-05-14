@@ -40,12 +40,18 @@ export function useCharacter() {
   }, [fetchCharacter]);
 
   const saveCharacter = useCallback(async (payload, mode) => {
-    const saved = mode === 'edit'
-      ? await updateCharacter(payload)
-      : await createCharacter(payload);
-    setCharacter(saved);
-    setNotFound(false);
-    return saved;
+    setError(null);
+    try {
+      const saved = mode === 'edit'
+        ? await updateCharacter(payload)
+        : await createCharacter(payload);
+      setCharacter(saved);
+      setNotFound(false);
+      return saved;
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
   }, []);
 
   return {
