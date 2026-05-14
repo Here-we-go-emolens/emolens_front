@@ -212,6 +212,7 @@ const Home = () => {
   const [character, setCharacter]               = useState(null);
   const [characterName, setCharacterName]       = useState(null);
   const [unreadLetterId, setUnreadLetterId]     = useState(null);
+  const [letters, setLetters]                   = useState([]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -272,6 +273,10 @@ const Home = () => {
         sessionStorage.setItem(sessionKey, 'true');
       }).catch(() => {});
   }, [user?.id, showTutorial]);
+
+  useEffect(() => {
+    getLetters().then(setLetters).catch(() => {});
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     getDiaryList(0, 50)
@@ -416,7 +421,38 @@ const Home = () => {
           </button>
         </div>
 
-        {/* ⑤ 일기 리스트 */}
+        {/* ⑤ 편지 카드 */}
+        {(() => {
+          const unread = letters.filter(l => !l.isRead);
+          const latest = unread[0] ?? letters[0] ?? null;
+          const hasUnread = unread.length > 0;
+          return (
+            <div
+              className={`home-letter-card card${hasUnread ? ' home-letter-unread' : ''}`}
+              onClick={() => navigate('/letters')}
+            >
+              <img src={mascotImg} alt="" className="hlc-mascot" />
+              <div className="hlc-body">
+                <div className="hlc-top">
+                  <span className="hlc-title">
+                    {hasUnread ? `${characterName ?? 'AI 친구'}의 편지가 도착했어요` : '편지함'}
+                  </span>
+                  {hasUnread && <span className="hlc-badge">{unread.length}</span>}
+                </div>
+                <p className="hlc-preview">
+                  {latest
+                    ? latest.title ?? '새 편지를 확인해보세요'
+                    : '아직 편지가 없어요. 일기를 쓰면 편지가 와요 💌'}
+                </p>
+              </div>
+              <button className="hlc-cta" onClick={e => { e.stopPropagation(); navigate('/letters'); }}>
+                {hasUnread ? '읽기 →' : '편지함 →'}
+              </button>
+            </div>
+          );
+        })()}
+
+        {/* ⑥ 일기 리스트 */}
         <div className="diary-section card">
           <div className="diary-header">
             <h2 className="diary-title">내 일기</h2>

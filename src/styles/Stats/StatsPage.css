@@ -828,3 +828,224 @@
 @media (max-width: 900px) {
   .report-lock-grid { grid-template-columns: 1fr; }
 }
+
+/* ── 이번 달 vs 지난 달 비교 ─────────────────────────────── */
+.month-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.month-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.month-card-current {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 2px 12px rgba(242,106,33,0.1);
+}
+
+.month-card-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.month-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.month-stat-row:last-child { border-bottom: none; }
+
+.month-stat-icon { font-size: 14px; flex-shrink: 0; }
+
+.month-stat-key {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.month-stat-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── 날씨-감정 상관관계 ──────────────────────────────────── */
+.weather-emotion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.weather-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.weather-icon-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 40px;
+}
+
+.weather-icon { font-size: 22px; }
+
+.weather-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.weather-emotions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+}
+
+.weather-emotion-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid;
+  font-size: 12px;
+}
+
+.wec-img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.wec-label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.wec-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── 감정 전환 흐름 ──────────────────────────────────────── */
+.transition-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.transition-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.transition-chips {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 160px;
+}
+
+.tr-chip {
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.tr-arrow {
+  font-size: 13px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.tr-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tr-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 10px;
+  opacity: 0.7;
+  transition: width 0.4s ease;
+}
+
+.tr-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ── 장기 안정도 추이 ────────────────────────────────────── */
+.long-term-blur-wrap {
+  position: relative;
+  height: 200px;
+}
+
+.long-term-blur-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 100%;
+  padding: 0 8px;
+  gap: 8px;
+  filter: blur(4px);
+  opacity: 0.4;
+}
+
+.lt-dummy-bar {
+  flex: 1;
+  background: linear-gradient(to top, var(--accent), #fbbf90);
+  border-radius: 6px 6px 0 0;
+}
+
+.long-term-lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 12px;
+}
+
+.lt-lock-icon { font-size: 28px; }
+
+.lt-lock-text {
+  font-size: 13px;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .month-compare-grid { grid-template-columns: 1fr; }
+  .transition-chips { min-width: 130px; }
+}

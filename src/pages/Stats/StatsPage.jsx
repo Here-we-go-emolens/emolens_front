@@ -7,6 +7,7 @@ import {
   ArcElement, Tooltip, Legend, Filler,
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
+import { ResponsiveSankey } from '@nivo/sankey';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import { getStats } from '@/services/statsApi';
 import { getDiaryList } from '@/services/diaryApi';
@@ -18,6 +19,8 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcEleme
 const DIST_COLORS    = ['#f26a21', '#f9a06e', '#fbbf90', '#fcd3b0', '#fde8d0', '#74B9FF', '#A29BFE', '#6BCB77'];
 const TRIGGER_COLORS = ['#f26a21', '#f9a06e', '#6bba7c', '#74B9FF', '#A29BFE'];
 const REC_ICONS      = ['📋', '🚶', '📝'];
+const WEATHER_ICON   = { SUNNY: '☀️', CLOUDY: '⛅', RAINY: '🌧️', SNOWY: '❄️' };
+const WEATHER_LABEL  = { SUNNY: '맑음', CLOUDY: '흐림', RAINY: '비', SNOWY: '눈' };
 
 function kwSize(count, max) {
   const ratio = max > 0 ? count / max : 0;
@@ -62,18 +65,37 @@ export default function StatsPage() {
   const isPremium = user?.plan === 'PREMIUM';
   const [graphPeriod, setGraphPeriod]         = useState('7일');
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [stats, setStats]     = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [diaries, setDiaries] = useState([]);
+  const [stats, setStats]           = useState(null);
+  const [loading, setLoading]       = useState(true);
+  const [diaries, setDiaries]       = useState([]);
+  const [prevStats, setPrevStats]   = useState(null);
+  const [longTermStats, setLongTermStats] = useState([]);
 
   useEffect(() => {
     getStats()
       .then(setStats)
       .catch(console.error)
       .finally(() => setLoading(false));
-    getDiaryList(0, 20)
+    getDiaryList(0, 50)
       .then(data => setDiaries(data.content ?? []))
       .catch(() => {});
+
+    const today = new Date();
+    const pm = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const prevMonthStr = `${pm.getFullYear()}-${String(pm.getMonth() + 1).padStart(2, '0')}`;
+    getStats(prevMonthStr).then(setPrevStats).catch(() => {});
+
+    const months = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date(today.getFullYear(), today.getMonth() - 5 + i, 1);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    });
+    Promise.all(
+      months.map(m =>
+        getStats(m)
+          .then(data => ({ month: `${parseInt(m.slice(5))}월`, stabilityScore: data?.summary?.stabilityScore ?? 0 }))
+          .catch(() => ({ month: `${parseInt(m.slice(5))}월`, stabilityScore: 0 }))
+      )
+    ).then(setLongTermStats).catch(() => {});
   }, []);
 
   const handlePeriodClick = (period) => {
@@ -98,6 +120,102 @@ export default function StatsPage() {
 
   // 무료 플랜: 최근 7일만 차트에 표시
   const recentTrend = trend.slice(-7);
+
+  // ── 날씨-감정 상관관계 ──────────────────────────────────
+  const weatherEmotionMap = useMemo(() => {
+    const groups = {};
+    diaries.forEach(d => {
+      if (!d.weather) return;
+      if (!groups[d.weather]) groups[d.weather] = {};
+      (d.userEmotions ?? []).forEach(e => {
+        groups[d.weather][e.emotion] = (groups[d.weather][e.emotion] ?? 0) + 1;
+      });
+    });
+    return Object.entries(groups).map(([weather, emotions]) => {
+      const sorted = Object.entries(emotions).sort((a, b) => b[1] - a[1]);
+      return {
+        weather,
+        topEmotions: sorted.slice(0, 3).map(([id, cnt]) => ({ id, cnt, ...( EMOTION_MAP[id] ?? { label: id }) })),
+      };
+    });
+  }, [diaries]);
+
+  // ── 감정 전환 흐름 (Sankey) ─────────────────────────────
+  const sankeyData = useMemo(() => {
+    const sorted = [...diaries].sort((a, b) => a.diaryDate.localeCompare(b.diaryDate));
+    const counts = {};
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const from = sorted[i].userEmotions?.[0]?.emotion;
+      const to   = sorted[i + 1].userEmotions?.[0]?.emotion;
+      if (!from || !to || from === to) continue;
+      const key = `${from}||${to}`;
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    const topLinks = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8);
+
+    const nodeIds = new Set();
+    topLinks.forEach(([key]) => {
+      const [from, to] = key.split('||');
+      nodeIds.add(`${from}_from`);
+      nodeIds.add(`${to}_to`);
+    });
+
+    const nodes = [...nodeIds].map(nid => {
+      const [id] = nid.split('_');
+      const em = EMOTION_MAP[id];
+      return { id: nid, label: em?.label ?? id, color: em?.border ?? '#ccc' };
+    });
+
+    const links = topLinks.map(([key, value]) => {
+      const [from, to] = key.split('||');
+      return { source: `${from}_from`, target: `${to}_to`, value };
+    });
+
+    return { nodes, links };
+  }, [diaries]);
+
+  // ── 이번 달 vs 지난 달 ──────────────────────────────────
+  const currentMonthAvg = trend.length
+    ? (trend.reduce((s, t) => s + t.score, 0) / trend.length).toFixed(1) : '-';
+  const prevMonthAvg = prevStats?.emotionTrend?.length
+    ? (prevStats.emotionTrend.reduce((s, t) => s + t.score, 0) / prevStats.emotionTrend.length).toFixed(1) : '-';
+
+  // ── 장기 안정도 차트 ────────────────────────────────────
+  const longTermLineData = {
+    labels: longTermStats.map(m => m.month),
+    datasets: [{
+      label: '감정 안정도',
+      data: longTermStats.map(m => m.stabilityScore),
+      fill: true,
+      backgroundColor: 'rgba(242, 106, 33, 0.07)',
+      borderColor: '#f26a21',
+      borderWidth: 2,
+      pointBackgroundColor: '#f26a21',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+      pointRadius: 4,
+      tension: 0.4,
+    }],
+  };
+  const longTermLineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#fff', borderColor: '#e0e0e0', borderWidth: 1,
+        titleColor: '#111', bodyColor: '#f26a21', padding: 12, cornerRadius: 10,
+        callbacks: { label: ctx => ` 안정도 ${ctx.parsed.y}%` },
+      },
+    },
+    scales: {
+      x: { grid: { display: false }, border: { display: false }, ticks: { color: '#555', font: { size: 11 } } },
+      y: { min: 0, max: 100, grid: { color: '#f0f0f0' }, border: { display: false },
+           ticks: { color: '#9a9080', font: { size: 11 }, stepSize: 25, callback: v => `${v}%` } },
+    },
+  };
 
   // ── 주간 미니 바 차트 ────────────────────────────────────
   const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
@@ -554,6 +672,171 @@ export default function StatsPage() {
               </div>
             </div>
 
+          </div>
+        </section>
+
+        {/* ⑤ 이번 달 vs 지난 달 비교 */}
+        <section className="section">
+          <h3 className="section-title">이번 달 vs 지난 달</h3>
+          <div className="month-compare-grid">
+            {[
+              {
+                label: '이번 달',
+                diaryCount:     summary?.diaryCount      ?? 0,
+                avgScore:       currentMonthAvg,
+                stabilityScore: summary?.stabilityScore   ?? 0,
+                mainEmotion:    summary?.mainEmotion       ?? '-',
+                highlight: true,
+              },
+              {
+                label: '지난 달',
+                diaryCount:     prevStats?.summary?.diaryCount      ?? 0,
+                avgScore:       prevMonthAvg,
+                stabilityScore: prevStats?.summary?.stabilityScore   ?? 0,
+                mainEmotion:    prevStats?.summary?.mainEmotion       ?? '-',
+                highlight: false,
+              },
+            ].map(m => (
+              <div key={m.label} className={`month-card card${m.highlight ? ' month-card-current' : ''}`}>
+                <div className="month-card-label">{m.label}</div>
+                <div className="month-stat-row">
+                  <span className="month-stat-icon">📅</span>
+                  <span className="month-stat-key">작성 수</span>
+                  <span className="month-stat-val">{m.diaryCount}일</span>
+                </div>
+                <div className="month-stat-row">
+                  <span className="month-stat-icon">📈</span>
+                  <span className="month-stat-key">평균 감정 점수</span>
+                  <span className="month-stat-val">{m.avgScore}점</span>
+                </div>
+                <div className="month-stat-row">
+                  <span className="month-stat-icon">🌿</span>
+                  <span className="month-stat-key">감정 안정도</span>
+                  <span className="month-stat-val">{m.stabilityScore}%</span>
+                </div>
+                <div className="month-stat-row">
+                  <span className="month-stat-icon">💜</span>
+                  <span className="month-stat-key">대표 감정</span>
+                  <span className="month-stat-val">{m.mainEmotion}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ⑥ 날씨-감정 상관관계 + 감정 전환 흐름도 */}
+        <section className="section two-col">
+
+          {/* 날씨-감정 상관관계 */}
+          <div className="card">
+            <div className="card-head">
+              <div>
+                <h3 className="card-title">날씨-감정 상관관계</h3>
+                <p className="card-desc">날씨별 주요 감정 패턴</p>
+              </div>
+            </div>
+            {weatherEmotionMap.length === 0 ? (
+              <p style={{ color: '#999', fontSize: 14 }}>날씨가 기록된 일기가 없어요.</p>
+            ) : (
+              <div className="weather-emotion-list">
+                {weatherEmotionMap.map(({ weather, topEmotions }) => (
+                  <div key={weather} className="weather-row">
+                    <div className="weather-icon-wrap">
+                      <span className="weather-icon">{WEATHER_ICON[weather] ?? '🌤️'}</span>
+                      <span className="weather-label">{WEATHER_LABEL[weather] ?? weather}</span>
+                    </div>
+                    <div className="weather-emotions">
+                      {topEmotions.map(em => (
+                        <div key={em.id} className="weather-emotion-chip" style={{ background: em.bg ?? '#f5f5f5', borderColor: em.border ?? '#ddd' }}>
+                          {em.image && <img src={em.image} alt={em.label} className="wec-img" />}
+                          <span className="wec-label">{em.label}</span>
+                          <span className="wec-count">{em.cnt}회</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 감정 전환 흐름도 (Sankey) */}
+          <div className="card">
+            <div className="card-head">
+              <div>
+                <h3 className="card-title">감정 전환 흐름도</h3>
+                <p className="card-desc">일기 간 감정 변화 패턴</p>
+              </div>
+            </div>
+            {sankeyData.links.length === 0 ? (
+              <p style={{ color: '#999', fontSize: 14 }}>일기가 2편 이상 있어야 분석돼요.</p>
+            ) : (
+              <div style={{ height: 260 }}>
+                <ResponsiveSankey
+                  data={sankeyData}
+                  margin={{ top: 8, right: 80, bottom: 8, left: 80 }}
+                  align="justify"
+                  colors={node => node.color}
+                  nodeOpacity={1}
+                  nodeThickness={14}
+                  nodeInnerPadding={4}
+                  nodeSpacing={18}
+                  nodeBorderWidth={0}
+                  nodeBorderRadius={4}
+                  linkOpacity={0.35}
+                  linkHoverOpacity={0.65}
+                  linkContract={2}
+                  enableLinkGradient
+                  labelPosition="outside"
+                  labelOrientation="horizontal"
+                  labelPadding={10}
+                  label={node => node.label}
+                  labelTextColor={{ from: 'color', modifiers: [['darker', 1.4]] }}
+                  animate
+                  motionConfig="gentle"
+                  tooltip={({ node }) => (
+                    <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: '6px 12px', fontSize: 12 }}>
+                      {node.label}
+                    </div>
+                  )}
+                />
+              </div>
+            )}
+          </div>
+
+        </section>
+
+        {/* ⑦ 장기 안정도 추이 */}
+        <section className="section">
+          <div className={`card long-term-card${!isPremium ? ' locked-card' : ''}`}>
+            <div className="card-head">
+              <div>
+                <h3 className="card-title">장기 감정 안정도 추이</h3>
+                <p className="card-desc">최근 6개월 안정도 변화 (0~100%)</p>
+              </div>
+              {!isPremium && <span className="period-badge">🔒 Premium</span>}
+            </div>
+            {isPremium ? (
+              <div className="chart-wrap" style={{ height: 200 }}>
+                {longTermStats.some(m => m.stabilityScore > 0)
+                  ? <Line data={longTermLineData} options={longTermLineOptions} />
+                  : <p style={{ textAlign: 'center', color: '#999', paddingTop: 70 }}>6개월치 데이터가 쌓이면 표시돼요.</p>
+                }
+              </div>
+            ) : (
+              <div className="long-term-blur-wrap">
+                <div className="long-term-blur-chart">
+                  {[60, 45, 72, 58, 80, 65].map((h, i) => (
+                    <div key={i} className="lt-dummy-bar" style={{ height: `${h}%` }} />
+                  ))}
+                </div>
+                <div className="long-term-lock-overlay">
+                  <span className="lt-lock-icon">📈</span>
+                  <p className="lt-lock-text">3~6개월 감정 안정도 그래프는<br />Premium에서 확인할 수 있어요</p>
+                  <button className="rlc-cta" onClick={() => navigate('/premium')}>Premium 알아보기</button>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
