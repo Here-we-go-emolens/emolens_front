@@ -13,6 +13,7 @@ export default function useSpeechRecognition({ onFinalResult } = {}) {
   const [interimText, setInterimText] = useState('');
 
   const recognitionRef = useRef(null);
+  const isRecordingRef = useRef(false);
   // 매 렌더마다 최신 콜백을 ref에 저장 (recognition 재생성 없이 최신 함수 사용)
   const onFinalRef = useRef(onFinalResult);
   useEffect(() => { onFinalRef.current = onFinalResult; });
@@ -40,12 +41,20 @@ export default function useSpeechRecognition({ onFinalResult } = {}) {
     };
 
     recognition.onend = () => {
-      setIsRecording(false);
+      // continuous 모드에서 침묵 등으로 자동 종료 시 재시작
+      if (isRecordingRef.current) {
+        try { recognition.start(); } catch { /* 이미 시작 중이면 무시 */ }
+        return;
+      }
       setInterimText('');
     };
 
-    recognition.onerror = () => {
-      setIsRecording(false);
+    recognition.onerror = (e) => {
+      // not-allowed/service-not-allowed는 복구 불가 — 녹음 중단
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        isRecordingRef.current = false;
+        setIsRecording(false);
+      }
       setInterimText('');
     };
 
@@ -59,15 +68,17 @@ export default function useSpeechRecognition({ onFinalResult } = {}) {
   const toggle = useCallback(() => {
     const rec = recognitionRef.current;
     if (!rec) return;
-    if (isRecording) {
+    if (isRecordingRef.current) {
+      isRecordingRef.current = false;
       rec.stop();
       setIsRecording(false);
       setInterimText('');
     } else {
+      isRecordingRef.current = true;
       rec.start();
       setIsRecording(true);
     }
-  }, [isRecording]);
+  }, []);
 
   return { isSupported, isRecording, interimText, toggle };
 }
