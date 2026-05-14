@@ -42,21 +42,33 @@ export default function CommunityPostDetailPage() {
   }, [location.hash, loading]);
 
   const handleAddComment = async (content, isHidden = false) => {
-    await createComment(id, content, isHidden);
-    const updated = await getComments(id);
-    setComments(updated);
+    try {
+      await createComment(id, content, isHidden);
+      const updated = await getComments(id);
+      setComments(updated);
+    } catch {
+      alert('댓글 등록에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleDeleteComment = async (commentId) => {
     if (!window.confirm('댓글을 삭제하시겠어요?')) return;
-    await deleteComment(id, commentId);
-    setComments((prev) => prev.filter((c) => c.id !== commentId));
+    try {
+      await deleteComment(id, commentId);
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+    } catch {
+      alert('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleDeletePost = async () => {
     if (!window.confirm('게시글을 삭제하시겠어요?')) return;
-    await deletePost(id);
-    navigate('/community');
+    try {
+      await deletePost(id);
+      navigate('/community');
+    } catch {
+      alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleEditStart = () => {
@@ -67,9 +79,13 @@ export default function CommunityPostDetailPage() {
 
   const handleEditSave = async () => {
     if (!editTitle.trim() || !editContent.trim()) return;
-    await updatePost(id, { title: editTitle.trim(), content: editContent.trim(), emotionLabel: post.emotionLabel, tags: post.tags });
-    setPost((prev) => ({ ...prev, title: editTitle.trim(), content: editContent.trim() }));
-    setIsEditing(false);
+    try {
+      await updatePost(id, { title: editTitle.trim(), content: editContent.trim(), emotionLabel: post.emotionLabel, tags: post.tags });
+      setPost((prev) => ({ ...prev, title: editTitle.trim(), content: editContent.trim() }));
+      setIsEditing(false);
+    } catch {
+      alert('게시글 수정에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleToggleReaction = async (postId, type) => {
@@ -172,7 +188,7 @@ export default function CommunityPostDetailPage() {
 
           {!isEditing && (
             <div className="community-detail-content">
-              {post.content.split('\n').map((line, index) => (
+              {(post.content ?? '').split('\n').map((line, index) => (
                 <p key={index}>{line}</p>
               ))}
             </div>
