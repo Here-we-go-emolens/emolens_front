@@ -1,6 +1,6 @@
 import CommentItem from './CommentItem';
 
-export default function CommentList({ comments, onDelete }) {
+export default function CommentList({ comments = [], onDelete }) {
   if (!comments.length) {
     return <p className="comment-empty">첫 댓글로 마음을 나눠보세요.</p>;
   }
