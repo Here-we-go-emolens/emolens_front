@@ -56,20 +56,24 @@ function formatDate(d) {
 
 function getWeatherEmoji(id) {
   if (!id) return '🌡️';
+  if (id >= 200 && id < 300) return '⛈️';
+  if (id >= 300 && id < 500) return '🌦️';
   if (id >= 500 && id < 600) return '🌧️';
   if (id >= 600 && id < 700) return '❄️';
   if (id === 800) return '☀️';
-  if (id <= 802) return '🌤️';
+  if (id >= 801 && id <= 802) return '🌤️';
   return '☁️';
 }
 
 function getWeatherLabel(id) {
   if (!id) return '';
-  if (id === 800) return '맑음';
-  if (id <= 802) return '구름 조금';
-  if (id <= 804) return '흐림';
+  if (id >= 200 && id < 300) return '천둥번개';
+  if (id >= 300 && id < 500) return '이슬비';
   if (id >= 500 && id < 600) return '비';
   if (id >= 600 && id < 700) return '눈';
+  if (id === 800) return '맑음';
+  if (id >= 801 && id <= 802) return '구름 조금';
+  if (id >= 803 && id <= 804) return '흐림';
   return '흐림';
 }
 
@@ -603,6 +607,7 @@ export default function DiaryWritePage() {
                 .sort((a, b) => a.order - b.order)
                 .map(({ id, order }) => {
                   const em = EMOTION_MAP[id];
+                  if (!em) return null;
                   return (
                     <span
                       key={id}
