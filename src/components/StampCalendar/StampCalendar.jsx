@@ -4,13 +4,14 @@ const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 
 const StampCalendar = ({ diaries, year, month }) => {
   const monthInt = parseInt(month);
+  const monthStr = String(monthInt).padStart(2, '0');
   const daysInMonth = new Date(year, monthInt, 0).getDate();
   const firstDayOfWeek = new Date(year, monthInt - 1, 1).getDay();
   const firstDayMon = (firstDayOfWeek + 6) % 7; // 월요일 시작
 
   const diaryDaySet = new Set(
     diaries
-      .filter(d => d.diaryDate?.startsWith(`${year}-${month}`))
+      .filter(d => d.diaryDate?.startsWith(`${year}-${monthStr}`))
       .map(d => parseInt(d.diaryDate.split('-')[2]))
   );
 
