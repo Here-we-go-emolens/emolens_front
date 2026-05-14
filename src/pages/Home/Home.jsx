@@ -459,7 +459,7 @@ const Home = () => {
 
       </main>
 
-      <SidebarRight />
+      <SidebarRight stats={stats} diaries={diaries} monthStr={monthStr} characterName={character?.name} />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { getUnreadCount } from '@/services/letterApi';
+import logoImg from '@/assets/logo.png';
 import "@/styles/Sidebar-left/SidebarLeft.css";
 
 const menuItems = [
@@ -46,6 +47,10 @@ const SidebarLeft = () => {
 
   return (
     <div className="sidebar-left">
+      <div className="sidebar-logo" onClick={() => navigate('/home')}>
+        <img src={logoImg} alt="EmoLens" className="sidebar-logo-img" />
+      </div>
+
       <div className="sidebar-profile">
         <div className="profile-img-wrap">
           <img

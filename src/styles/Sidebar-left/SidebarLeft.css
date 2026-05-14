@@ -12,6 +12,20 @@
   flex-shrink: 0;
 }
 
+.sidebar-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sidebar-logo-img {
+  width: 120px;
+  height: auto;
+  display: block;
+}
+
 .sidebar-profile {
   display: flex;
   flex-direction: column;

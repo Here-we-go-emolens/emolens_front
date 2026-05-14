@@ -1,155 +1,140 @@
-import { useState } from 'react';
-import { useFriendRealtime } from '../../hooks/useFriendRealtime';
+import { useMemo, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { EMOTION_MAP } from '@/constants/emotions';
+import mascotImg from '@/assets/mascot-removebg-preview.png';
 import "@/styles/Sidebar-right/SidebarRight.css";
 
-const DISPLAY_FILTERS = ['프로필', '닉네임', '감정'];
-const TABS = ['전체', '온라인', '새소식'];
+const EmotionPanel = ({ stats, diaries = [], monthStr, characterName }) => {
+  const navigate = useNavigate();
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipPos, setTooltipPos]   = useState({ top: 0, right: 0 });
+  const stabilityRef = useRef(null);
 
-const CONNECTION_LABELS = {
-  connecting:   '연결 중',
-  connected:    '실시간 연결됨',
-  disconnected: '오프라인',
-  reconnecting: '재연결 중',
-};
+  const streak         = stats?.summary?.streak         ?? 0;
+  const diaryCount     = stats?.summary?.diaryCount      ?? 0;
+  const stabilityScore = stats?.summary?.stabilityScore  ?? 0;
 
-const SidebarRight = () => {
-  const [activeTab,      setActiveTab]      = useState('전체');
-  const [displayFilters, setDisplayFilters] = useState(['프로필', '닉네임', '감정']);
+  const daysInMonth = useMemo(() => {
+    if (!monthStr) return 31;
+    const [y, m] = monthStr.split('-').map(Number);
+    return new Date(y, m, 0).getDate();
+  }, [monthStr]);
 
-  const {
-    friends,
-    connectionStatus,
-    recentlyChanged,
-    clearUnread,
-    reconnect,
-  } = useFriendRealtime({ mock: true });
+  const weeklyEmotions = useMemo(() => {
+    const today   = new Date();
+    const weekAgo = new Date(today);
+    weekAgo.setDate(today.getDate() - 6);
+    const weekAgoStr = weekAgo.toISOString().slice(0, 10);
+    const todayStr   = today.toISOString().slice(0, 10);
 
-  const toggleDisplay = (f) =>
-    setDisplayFilters((prev) =>
-      prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]
-    );
+    const counts = {};
+    diaries
+      .filter(d => d.diaryDate >= weekAgoStr && d.diaryDate <= todayStr)
+      .forEach(d => {
+        (d.userEmotions ?? []).forEach(e => {
+          counts[e.emotion] = (counts[e.emotion] ?? 0) + 1;
+        });
+      });
 
-  const show = (f) => displayFilters.includes(f);
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([id, count]) => ({ id, count, ...(EMOTION_MAP[id] ?? { label: id }) }));
+  }, [diaries]);
 
-  const totalUnread = friends.reduce((sum, f) => sum + (f.unreadCount || 0), 0);
+  const progressPct = Math.min(100, Math.round((diaryCount / daysInMonth) * 100));
 
-  const filteredFriends = friends.filter((f) => {
-    if (activeTab === '온라인') return f.status === 'online' || f.status === 'away';
-    if (activeTab === '새소식') return (f.unreadCount || 0) > 0;
-    return true;
-  });
-
-  const isLoading =
-    connectionStatus === 'connecting' || connectionStatus === 'reconnecting';
+  const stabilityComment =
+    stabilityScore >= 80 ? '이번 달 감정이 매우 안정적이에요. 잘 하고 있어요!' :
+    stabilityScore >= 60 ? '감정이 비교적 균형을 잘 유지하고 있어요.' :
+    stabilityScore >= 40 ? '감정 기복이 조금 있었던 달이에요. 괜찮아요.' :
+    '이번 달 감정 변화가 많았네요. 천천히 돌아봐요.';
 
   return (
     <div className="sidebar-right">
+      <h3 className="ep-title">나의 감정 현황</h3>
 
-      {/* ── 헤더 ── */}
-      <div className="friends-header">
-        <h3 className="friends-title">친구창</h3>
-        <div className={`connection-status cs-${connectionStatus}`}>
-          <span className="connection-dot" />
-          <span className="connection-text">{CONNECTION_LABELS[connectionStatus]}</span>
+      <div className="ep-section ep-streak">
+        <span className="ep-streak-icon">🔥</span>
+        <div className="ep-streak-text">
+          <span className="ep-streak-num">{streak}일</span>
+          <span className="ep-streak-label">연속 기록 중</span>
         </div>
       </div>
 
-      {/* ── 탭 필터 (전체 / 온라인 / 새소식) ── */}
-      <div className="friend-tabs">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            className={`friend-tab${activeTab === tab ? ' active' : ''}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-            {tab === '새소식' && totalUnread > 0 && (
-              <span className="tab-unread-badge">{totalUnread}</span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* ── 표시 필터 (프로필 / 닉네임 / 감정) ── */}
-      <div className="friend-filters">
-        {DISPLAY_FILTERS.map((f) => (
-          <button
-            key={f}
-            className={`filter-chip ${show(f) ? 'on' : 'off'}`}
-            onClick={() => toggleDisplay(f)}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
-      {/* ── 친구 목록 ── */}
-      {isLoading ? (
-        <div className="friend-list-loading">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="friend-skeleton">
-              <div className="skeleton-avatar" />
-              <div className="skeleton-lines">
-                <div className="skeleton-line" />
-                <div className="skeleton-line short" />
+      <div className="ep-section">
+        <div className="ep-section-head">이번 주 감정</div>
+        {weeklyEmotions.length === 0 ? (
+          <p className="ep-empty">이번 주 일기가 없어요</p>
+        ) : (
+          <div className="ep-emotion-list">
+            {weeklyEmotions.map(em => (
+              <div key={em.id} className="ep-emotion-row">
+                {em.image
+                  ? <img src={em.image} alt={em.label} className="ep-emotion-img" />
+                  : <span className="ep-emotion-dot" style={{ background: em.border ?? '#ccc' }} />
+                }
+                <span className="ep-emotion-label">{em.label}</span>
+                <span className="ep-emotion-count">{em.count}회</span>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="ep-section">
+        <div className="ep-section-head">이번 달 작성</div>
+        <div className="ep-progress-bar-wrap">
+          <div className="ep-progress-bar" style={{ width: `${progressPct}%` }} />
         </div>
-      ) : filteredFriends.length === 0 ? (
-        <div className="friend-list-empty">
-          {activeTab === '온라인' && '온라인 친구가 없어요 😴'}
-          {activeTab === '새소식' && '새로운 소식이 없어요 ✨'}
-          {activeTab === '전체'   && '친구가 없어요'}
-        </div>
-      ) : (
-        <div className="friend-list">
-          {filteredFriends.map((friend) => (
+        <div className="ep-progress-label">{diaryCount} / {daysInMonth}일</div>
+      </div>
+
+      {stabilityScore > 0 && (
+        <div
+          ref={stabilityRef}
+          className="ep-section ep-stability"
+          onMouseEnter={() => {
+            if (stabilityRef.current) {
+              const rect = stabilityRef.current.getBoundingClientRect();
+              setTooltipPos({
+                top:   rect.bottom - 80,
+                right: window.innerWidth - rect.left + 12,
+              });
+            }
+            setShowTooltip(true);
+          }}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          <div className="ep-stability-label-wrap">
+            <span className="ep-stability-label">감정 안정도</span>
+            <span className="ep-stability-hint">?</span>
+          </div>
+          <span className="ep-stability-val">{stabilityScore}%</span>
+
+          {showTooltip && (
             <div
-              key={friend.id}
-              className={`friend-item${recentlyChanged.has(friend.id) ? ' highlighted' : ''}`}
-              onClick={() => clearUnread(friend.id)}
+              className="ep-stability-tooltip"
+              style={{ top: tooltipPos.top, right: tooltipPos.right }}
             >
-              {show('프로필') && (
-                <div className="friend-avatar-wrap">
-                  <div className="friend-avatar">{friend.emotion}</div>
-                  <span className={`status-dot ${friend.status}`} />
-                </div>
-              )}
-
-              <div className="friend-info">
-                {show('닉네임') && (
-                  <>
-                    <span className="friend-name">{friend.name}</span>
-                    <span className="friend-tag">{friend.tag}</span>
-                  </>
-                )}
-                {show('감정') && (
-                  <span className={`friend-emotion-label emotion-${friend.emotionColor ?? 'calm'}`}>
-                    {friend.emotionLabel}
-                  </span>
-                )}
-                <span className="friend-last-active">{friend.lastActive}</span>
+              <img src={mascotImg} alt="" className="ep-tooltip-mascot" />
+              <div className="ep-tooltip-bubble">
+                <span className="ep-tooltip-name">{characterName ?? 'AI 친구'}</span>
+                <p className="ep-tooltip-desc">
+                  감정 안정도는 이번 달 감정이 얼마나 균형있게 유지됐는지를 나타내요.
+                </p>
+                <p className="ep-tooltip-comment">{stabilityComment}</p>
               </div>
-
-              {(friend.unreadCount || 0) > 0 && (
-                <span className="unread-badge">{friend.unreadCount}</span>
-              )}
             </div>
-          ))}
+          )}
         </div>
       )}
 
-      {/* ── 재연결 버튼 ── */}
-      {connectionStatus === 'disconnected' && (
-        <button className="reconnect-btn" onClick={reconnect}>
-          🔄 재연결
-        </button>
-      )}
-
-      <div className="friends-empty-hint">친구를 더 추가해보세요</div>
+      <button className="ep-stats-btn" onClick={() => navigate('/stats')}>
+        📊 전체 통계 보기
+      </button>
     </div>
   );
 };
 
-export default SidebarRight;
+export default EmotionPanel;
