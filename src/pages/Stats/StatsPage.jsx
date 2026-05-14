@@ -142,7 +142,7 @@ export default function StatsPage() {
 
   // ── 감정 전환 흐름 (Sankey) ─────────────────────────────
   const sankeyData = useMemo(() => {
-    const sorted = [...diaries].sort((a, b) => a.diaryDate.localeCompare(b.diaryDate));
+    const sorted = [...diaries].sort((a, b) => (a.diaryDate ?? '').localeCompare(b.diaryDate ?? ''));
     const counts = {};
     for (let i = 0; i < sorted.length - 1; i++) {
       const from = sorted[i].userEmotions?.[0]?.emotion;
