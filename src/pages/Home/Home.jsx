@@ -340,11 +340,11 @@ const Home = () => {
   }, [user?.id, showTutorial]);
 
   useEffect(() => {
+    if (!user?.id) return;
     getDiaryList(0, 50)
       .then(data => {
         const list = data.content ?? [];
         setDiaries(list);
-        if (!user?.id) return;
         const celebKey = `emolens_stamp_celebrated_${user.id}_${todayStr}`;
         const hasTodayEntry = list.some(d => d.diaryDate === todayStr);
         if (hasTodayEntry && !localStorage.getItem(celebKey)) {
