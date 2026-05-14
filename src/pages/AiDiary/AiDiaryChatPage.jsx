@@ -5,6 +5,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useCharacter } from '@/hooks/useCharacter';
 import useSpeechRecognition from '@/hooks/useSpeechRecognition';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
+import mascotImg from '@/assets/mascot-removebg-preview.png';
 import '@/styles/AiDiary/AiDiaryChatPage.css';
 
 const SUGGESTED_QUESTIONS = [
@@ -366,7 +367,9 @@ export default function AiDiaryChatPage() {
             </p>
             {character && (
               <div className="chat-character-row">
-                <div className="chat-character-avatar">{character.name[0]}</div>
+                <div className="chat-character-avatar">
+                  <img src={mascotImg} alt={character.name} />
+                </div>
                 <div className="chat-character-meta">
                   <strong>{character.name}</strong>
                   <span>{character.toneDescription} · {character.personalityDescription}</span>
@@ -405,7 +408,7 @@ export default function AiDiaryChatPage() {
               <div key={msg.id} className={`msg-row ${msg.role}`}>
                 {msg.role === 'ai' && (
                   <div className="msg-avatar msg-avatar-character">
-                    {character?.name?.[0] ?? 'AI'}
+                    <img src={mascotImg} alt={character?.name ?? 'AI'} />
                   </div>
                 )}
                 <div className="msg-group">
@@ -432,7 +435,9 @@ export default function AiDiaryChatPage() {
             {/* 타이핑 인디케이터 */}
             {isTyping && (
               <div className="msg-row ai">
-                <div className="msg-avatar msg-avatar-character">{character?.name?.[0] ?? 'AI'}</div>
+                <div className="msg-avatar msg-avatar-character">
+                <img src={mascotImg} alt={character?.name ?? 'AI'} />
+              </div>
                 <div className="msg-group">
                   <div className="msg-bubble ai typing-bubble">
                     <span className="dot" /><span className="dot" /><span className="dot" />
@@ -535,7 +540,7 @@ export default function AiDiaryChatPage() {
         <div className="panel-card">
           <p className="panel-card-title">대화 요약</p>
           <p className="panel-card-body">
-            {panelSummary ?? <span style={{ color: '#b0a8c8' }}>대화를 나누면 요약이 표시돼요</span>}
+            {panelSummary ?? <span style={{ color: 'var(--text-muted)' }}>대화를 나누면 요약이 표시돼요</span>}
           </p>
         </div>
 
