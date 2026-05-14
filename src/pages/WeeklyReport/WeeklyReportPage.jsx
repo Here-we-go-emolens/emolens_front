@@ -35,7 +35,7 @@ export default function WeeklyReportPage() {
     getWeeklyReports()
       .then((data) => {
         setReports(data);
-        setIndex(data.length - 1);
+        setIndex(Math.max(0, data.length - 1));
       })
       .catch(console.error)
       .finally(() => setLoading(false));
