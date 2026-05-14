@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import { useUserContext } from '@/contexts/UserContext';
 import { logout, updateProfile, uploadProfileImage, changePassword, withdraw } from '@/services/userApi';
+import { clearTokens } from '@/services/auth';
 import { getMyCharacter } from '@/services/characterApi';
 import '@/styles/Settings/SettingsPage.css';
 
@@ -252,6 +253,8 @@ const SettingsPage = () => {
     if (!window.confirm('다시 한번 확인합니다. 탈퇴하면 복구할 수 없어요.')) return;
     try {
       await withdraw();
+      clearTokens();
+      navigate('/login');
     } catch {
       showToast('탈퇴 처리 중 오류가 발생했습니다.', 'error');
     }
