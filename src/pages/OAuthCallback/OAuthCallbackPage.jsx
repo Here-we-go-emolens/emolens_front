@@ -27,7 +27,7 @@ export default function OAuthCallbackPage() {
       .then((user) => {
         clearTimeout(timeout);
         const signupKey = `emolens_signup_done_${user.id}`;
-        const hasSignedUp = localStorage.getItem(signupKey) === 'true';
+        const hasSignedUp = localStorage.getItem(signupKey) === 'true' || !!user.name;
         const dest = hasSignedUp ? '/home' : '/signup';
         window.location.replace(dest);
       })
