@@ -22,7 +22,7 @@ export default function LoginPage() {
     if (location.state?.registered) {
       setSuccessMsg('회원가입이 완료됐어요! 로그인해주세요.');
     }
-  }, []);
+  }, [location]);
 
   const handleSocialLogin = (provider) => {
     window.location.href = `${API_BASE_URL}/oauth2/authorization/${provider}`;
