@@ -517,7 +517,7 @@ export default function DiaryWritePage() {
         .sort((a, b) => a.order - b.order)
         .map(({ id, score, order }) => ({ emotion: id, score, order }));
 
-      const templateTypeEnum = selectedTemplate === 'template' ? 'PLAIN' : selectedTemplate.toUpperCase();
+      const templateTypeEnum = selectedTemplate === 'plain' ? 'PLAIN' : selectedTemplate.toUpperCase();
 
       const id = await createDiary({
         title: title.trim(),
