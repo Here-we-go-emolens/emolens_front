@@ -22,7 +22,7 @@ export default function WeatherCard({ size = 44 }) {
 
   useEffect(() => {
     getCurrentWeather("Seoul")
-      .then(data => setWeatherId(data.weather[0].id))
+      .then(data => setWeatherId(data.weather?.[0]?.id ?? null))
       .catch(console.error);
   }, []);
 
