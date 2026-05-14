@@ -145,6 +145,70 @@ function WeekTracker({ diaries }) {
   );
 }
 
+function LiveClock() {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const sec  = time.getSeconds();
+  const min  = time.getMinutes();
+  const hour = time.getHours() % 12;
+
+  const secDeg  = sec  * 6;
+  const minDeg  = min  * 6  + sec  * 0.1;
+  const hourDeg = hour * 30 + min  * 0.5;
+
+  const hand = (deg, len, width, color) => {
+    const rad = (deg - 90) * (Math.PI / 180);
+    return <line x1="50" y1="50"
+      x2={50 + len * Math.cos(rad)} y2={50 + len * Math.sin(rad)}
+      stroke={color} strokeWidth={width} strokeLinecap="round" />;
+  };
+
+  return (
+    <svg className="analog-clock" viewBox="0 0 100 100">
+      {/* 시계판 */}
+      <circle cx="50" cy="50" r="46" fill="#fff8f4" stroke="#f26a21" strokeWidth="3.5" />
+
+      {/* 시간 눈금 */}
+      {Array.from({ length: 12 }, (_, i) => {
+        const a = (i * 30 - 90) * (Math.PI / 180);
+        const r1 = 39, r2 = 43;
+        return <line key={i}
+          x1={50 + r1 * Math.cos(a)} y1={50 + r1 * Math.sin(a)}
+          x2={50 + r2 * Math.cos(a)} y2={50 + r2 * Math.sin(a)}
+          stroke="#f2c4a0" strokeWidth="1.8" strokeLinecap="round" />;
+      })}
+
+      {/* 분 눈금 */}
+      {Array.from({ length: 60 }, (_, i) => {
+        if (i % 5 === 0) return null;
+        const a = (i * 6 - 90) * (Math.PI / 180);
+        return <line key={i}
+          x1={50 + 41 * Math.cos(a)} y1={50 + 41 * Math.sin(a)}
+          x2={50 + 43 * Math.cos(a)} y2={50 + 43 * Math.sin(a)}
+          stroke="#f2c4a0" strokeWidth="0.8" strokeLinecap="round" />;
+      })}
+
+      {/* 시침 */}
+      {hand(hourDeg, 24, 3.2, '#3D2B1F')}
+      {/* 분침 */}
+      {hand(minDeg,  33, 2.2, '#5C3D2E')}
+      {/* 초침 */}
+      {hand(secDeg,  36, 1.2, '#f26a21')}
+      {/* 초침 꼬리 */}
+      {hand(secDeg + 180, 10, 1.2, '#f26a21')}
+
+      {/* 중심 점 */}
+      <circle cx="50" cy="50" r="3"   fill="#f26a21" />
+      <circle cx="50" cy="50" r="1.4" fill="#fff8f4" />
+    </svg>
+  );
+}
+
 function QuickCheckIn({ todayHasEntry, navigate }) {
   return (
     <div className="quick-checkin card">
@@ -346,7 +410,8 @@ const Home = () => {
             <button className="hero-write-btn" onClick={() => navigate('/write')}>✏️ 오늘 일기 쓰기</button>
           </div>
           <div className="hero-right">
-            <WeatherCard size={44} />
+            <LiveClock />
+            <WeatherCard size={36} />
             <span className="weather-city">서울</span>
           </div>
         </div>
