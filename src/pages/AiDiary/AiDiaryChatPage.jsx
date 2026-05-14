@@ -266,7 +266,7 @@ export default function AiDiaryChatPage() {
       const aiText = await getAiResponse([...messages, userMsg]);
       const aiMsg = { id: Date.now() + 1, role: 'ai', text: aiText, time: getNow() };
       const updatedMessages = [...messages, userMsg, aiMsg];
-      setMessages(updatedMessages);
+      setMessages(prev => [...prev, aiMsg]);
       setPanelKeywords(extractKeywords(updatedMessages));
       setPanelSummary(buildSummary(updatedMessages));
     } catch {
