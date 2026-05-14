@@ -329,6 +329,7 @@ const Home = () => {
     if (sessionStorage.getItem(sessionKey)) return;
     Promise.all([getLetters(), getMyCharacter().catch(() => null)])
       .then(([letters, char]) => {
+        setLetters(letters);
         const unread = letters.find(l => !l.isRead);
         if (!unread) return;
         setUnreadLetterId(unread.id);
@@ -337,10 +338,6 @@ const Home = () => {
         sessionStorage.setItem(sessionKey, 'true');
       }).catch(() => {});
   }, [user?.id, showTutorial]);
-
-  useEffect(() => {
-    getLetters().then(setLetters).catch(() => {});
-  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     getDiaryList(0, 50)

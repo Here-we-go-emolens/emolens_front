@@ -26,7 +26,7 @@ export function CommunityProvider({ children }) {
       setPosts(fetched);
       const initialReactions = {};
       fetched.forEach((post) => {
-        (post.myReactions ?? []).forEach((type) => {
+        (Array.isArray(post.myReactions) ? post.myReactions : []).forEach((type) => {
           initialReactions[`${post.id}-${type}`] = true;
         });
       });
@@ -90,7 +90,7 @@ export function CommunityProvider({ children }) {
 
   const setReactionStateFromPost = (post) => {
     const patch = {};
-    (post.myReactions ?? []).forEach((type) => {
+    (Array.isArray(post.myReactions) ? post.myReactions : []).forEach((type) => {
       patch[`${post.id}-${type}`] = true;
     });
     setReactionState((prev) => ({ ...prev, ...patch }));

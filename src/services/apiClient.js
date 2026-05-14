@@ -36,7 +36,7 @@ apiClient.interceptors.response.use(
       }).then((token) => {
         original.headers.Authorization = `Bearer ${token}`;
         return apiClient(original);
-      });
+      }).catch((err) => Promise.reject(err));
     }
 
     original._retry = true;
