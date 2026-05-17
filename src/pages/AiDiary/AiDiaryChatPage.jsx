@@ -8,68 +8,107 @@ import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import mascotImg from '@/assets/mascot-removebg-preview.png';
 import '@/styles/AiDiary/AiDiaryChatPage.css';
 
-const SUGGESTED_QUESTIONS = [
-  '오늘 가장 위로가 되었던 순간은?',
-  '내일은 어떤 기분으로 시작하고 싶은가요?',
-  '지금 나에게 가장 필요한 것은?',
-];
-
-const CATEGORY_PROMPTS = {
-  '오늘 가장 힘들었던 순간': '오늘 가장 힘들었던 순간에 대해 이야기하고 싶어. 그때 어떤 감정이었는지 같이 정리할 수 있게 질문해줘.',
-  '지금 가장 큰 감정': '지금 내 안에서 가장 크게 느껴지는 감정이 뭔지 잘 모르겠어. 하나씩 풀어볼 수 있게 도와줘.',
-  '누군가와 있었던 일': '오늘 누군가와 있었던 일이 계속 마음에 남아. 그 상황과 내 감정을 같이 정리해줘.',
-  '내일이 걱정되는 이유': '내일이 걱정돼. 뭐가 불안한지 차근차근 말할 수 있게 질문해줘.',
-  '위로가 필요해': '지금은 해결책보다 위로를 먼저 받고 싶어. 오늘 내 마음을 천천히 들어줘.',
-  '그냥 털어놓고 싶어': '정리되지 않았지만 그냥 털어놓고 싶어. 편하게 이야기할 수 있게 먼저 말 걸어줘.',
-  '왜 그게 마음에 남았을까': '그 일이 왜 이렇게 마음에 남는지 잘 모르겠어. 이유를 같이 짚어볼 수 있게 질문해줘.',
-  '그때 진짜 듣고 싶었던 말': '그 순간 내가 진짜 듣고 싶었던 말이 뭐였는지 생각해보고 싶어. 천천히 꺼낼 수 있게 도와줘.',
-  '내가 놓친 감정이 있을까': '겉으로는 하나의 감정 같지만 다른 감정도 섞여 있는 것 같아. 내가 놓친 감정이 있는지 같이 살펴봐줘.',
-  '관계에서 걸리는 부분': '사람과의 관계에서 걸리는 부분이 있어. 어떤 점이 마음을 불편하게 했는지 정리해보고 싶어.',
-  '지금 가장 필요한 위로': '지금 내게 가장 필요한 위로가 뭔지 모르겠어. 내 마음을 먼저 다독여줘.',
-  '오늘을 한 문장으로 정리': '오늘 하루를 한 문장으로 정리해보고 싶어. 핵심 감정을 같이 잡아줘.',
-  '내일 덜 불안해지려면': '내일을 조금 덜 불안하게 맞이하려면 무엇이 필요할지 같이 정리해줘.',
-  '지금 할 수 있는 작은 행동': '지금 당장 부담 없이 할 수 있는 작은 행동이 뭐가 있을지 같이 찾아줘.',
-  '오늘 내가 잘 버틴 점': '오늘 내가 그래도 잘 버틴 점이 있다면 무엇인지 같이 찾아보고 싶어.',
-};
-
-const CATEGORY_SETS = {
+const SUGGESTIONS = {
   opening: [
-    '오늘 가장 힘들었던 순간',
-    '지금 가장 큰 감정',
-    '누군가와 있었던 일',
-    '내일이 걱정되는 이유',
-    '위로가 필요해',
-    '그냥 털어놓고 싶어',
+    '오늘 좀 지쳐있어요',
+    '뭔가 복잡한 하루였어요',
+    '기분이 꽤 좋았어요',
+    '별 일 없었는데 우울해요',
+    '누군가와 있었던 일이 계속 신경 쓰여요',
+    '내일이 걱정돼서요',
   ],
   emotion: [
-    '지금 가장 큰 감정',
-    '내가 놓친 감정이 있을까',
-    '왜 그게 마음에 남았을까',
-    '그때 진짜 듣고 싶었던 말',
-    '지금 가장 필요한 위로',
+    '슬프고 무기력해요',
+    '화가 나면서도 억울해요',
+    '불안하고 초조해요',
+    '외롭고 허전해요',
+    '지쳐서 아무 감정도 없어요',
+    '기쁜데 뭔가 찜찜해요',
+    '후회스럽고 자책하게 돼요',
+    '설레면서도 긴장돼요',
+  ],
+  cause: [
+    '누군가와 갈등이 있었어요',
+    '제 실수 때문인 것 같아요',
+    '기대했는데 실망했어요',
+    '갑자기 너무 많은 일이 몰렸어요',
+    '오래된 감정이 다시 올라온 것 같아요',
+    '이유를 잘 모르겠어요',
   ],
   relationship: [
-    '누군가와 있었던 일',
-    '관계에서 걸리는 부분',
-    '그때 진짜 듣고 싶었던 말',
-    '왜 그게 마음에 남았을까',
-    '지금 가장 필요한 위로',
+    '가까운 사람이라 더 힘들어요',
+    '내가 잘못한 건지 헷갈려요',
+    '상대방이 이해가 안 돼요',
+    '말을 꺼내기가 너무 어려워요',
+    '상처받았는데 티내기 싫었어요',
+    '그 사람이 보고 싶기도 해요',
   ],
-  anxiety: [
-    '내일이 걱정되는 이유',
-    '지금 가장 큰 감정',
-    '왜 그게 마음에 남았을까',
-    '내일 덜 불안해지려면',
-    '지금 할 수 있는 작은 행동',
+  degree: [
+    '일상이 힘들 정도로 심해요',
+    '꽤 많이 신경 쓰여요',
+    '은근히 계속 걸려요',
+    '잠깐이었지만 강하게 느꼈어요',
+    '지금은 조금 나아진 것 같아요',
   ],
-  closing: [
-    '오늘을 한 문장으로 정리',
-    '오늘 내가 잘 버틴 점',
-    '지금 가장 필요한 위로',
-    '내일 덜 불안해지려면',
-    '지금 할 수 있는 작은 행동',
+  action: [
+    '아무것도 못 하고 있어요',
+    '억지로 참고 넘겼어요',
+    '혼자 끙끙 앓았어요',
+    '누군가에게 털어놨는데 더 힘들었어요',
+    '일에 집중하면서 잊으려 했어요',
+    '울었어요',
+  ],
+  need: [
+    '그냥 들어주는 것만으로도 충분해요',
+    '왜 이런 감정인지 이해하고 싶어요',
+    '어떻게 해야 할지 같이 생각해보고 싶어요',
+    '지금 당장은 위로가 필요해요',
+    '이 감정을 정리해서 일기로 쓰고 싶어요',
+  ],
+  reflection: [
+    '내가 너무 예민한 걸 수도 있어요',
+    '상황이 어쩔 수 없었던 것 같아요',
+    '좀 더 일찍 말했어야 했어요',
+    '아직도 정리가 안 돼요',
+    '화가 나면서도 제 자신이 더 싫어요',
+    '지나고 보니 별 일 아닌 것 같기도 해요',
+  ],
+  future: [
+    '일단 오늘은 그냥 쉬고 싶어요',
+    '용기 내서 말해봐야 할 것 같아요',
+    '조금 거리를 둘 필요가 있는 것 같아요',
+    '내일은 좀 나아질 거라 믿고 싶어요',
+    '아직 뭘 해야 할지 모르겠어요',
+  ],
+  yn: [
+    '맞아요, 정확히 그래요',
+    '비슷한데 조금 달라요',
+    '아니에요, 사실 더 복잡해요',
+    '잘 모르겠어요',
+  ],
+  default: [
+    '맞아요, 정확히 그래요',
+    '조금 더 이야기해볼게요',
+    '사실 더 복잡해요',
+    '잘 모르겠어요',
   ],
 };
+
+function getSuggestions(lastAiText, isFirst) {
+  if (isFirst) return SUGGESTIONS.opening;
+  if (!lastAiText) return SUGGESTIONS.default;
+  const t = lastAiText;
+  if (/감정|느낌|기분|무슨 감정|어떤 감정|어떠셨|어떤가요/.test(t)) return SUGGESTIONS.emotion;
+  if (/왜|어떤 일|무슨 일|계기|이유|원인|어떻게 된/.test(t)) return SUGGESTIONS.cause;
+  if (/누구|상대|그 사람|관계|친구|가족/.test(t)) return SUGGESTIONS.relationship;
+  if (/얼마나|정도|심하|많이|강하/.test(t)) return SUGGESTIONS.degree;
+  if (/어떻게 하셨|어떻게 했|그때 어떻게|대처|어땠/.test(t)) return SUGGESTIONS.action;
+  if (/필요|원하|바라|도움|뭐가 필요/.test(t)) return SUGGESTIONS.need;
+  if (/돌아보|생각해보|어떻게 생각|왜 그런|스스로/.test(t)) return SUGGESTIONS.reflection;
+  if (/앞으로|다음|내일|이제 어떻게|해볼|해보면/.test(t)) return SUGGESTIONS.future;
+  if (/맞나요|그런가요|그렇죠|맞죠|아닌가요/.test(t)) return SUGGESTIONS.yn;
+  return SUGGESTIONS.default;
+}
 
 const EMOTION_MAP = [
   { words: ['피곤', '피로', '지침'], label: '피곤함' },
@@ -131,40 +170,11 @@ function getCharacterGreeting(character) {
   return byTone[character.tone] ?? '오늘 있었던 일을 편하게 이야기해 주세요.';
 }
 
-function inferConversationTopic(messages) {
-  const userMessages = messages.filter((msg) => msg.role === 'user');
+function getActiveSuggestions(messages) {
   const aiMessages = messages.filter((msg) => msg.role === 'ai');
-  const recentText = userMessages.slice(-2).map((msg) => msg.text).join(' ').toLowerCase();
-  const lastAiText = (aiMessages.at(-1)?.text ?? '').toLowerCase();
-
-  if (!recentText.trim() && !lastAiText.trim()) return 'opening';
-
-  const relationshipKeywords = ['친구', '엄마', '아빠', '가족', '선배', '후배', '동료', '사람', '관계', '대화', '말다툼', '연락', '상대'];
-  const anxietyKeywords = ['내일', '걱정', '불안', '긴장', '시험', '면접', '발표', '출근', '미래', '실수', '무서'];
-  const emotionKeywords = ['슬프', '우울', '눈물', '힘들', '지쳤', '외롭', '답답', '화나', '짜증', '허무', '공허', '속상'];
-  const closingKeywords = ['한 문장', '정리', '돌아보', '마무리', '지금 할 수 있는', '작은 행동', '내일', '어떻게 해보면 좋을', '잘 버틴'];
-
-  const containsAny = (text, keywords) => keywords.some((keyword) => text.includes(keyword));
-
-  if (containsAny(lastAiText, closingKeywords)) return 'closing';
-  if (containsAny(lastAiText, anxietyKeywords)) return 'anxiety';
-  if (containsAny(lastAiText, relationshipKeywords)) return 'relationship';
-  if (containsAny(lastAiText, emotionKeywords)) return 'emotion';
-
-  if (containsAny(recentText, anxietyKeywords)) return 'anxiety';
-  if (containsAny(recentText, relationshipKeywords)) return 'relationship';
-  if (containsAny(recentText, emotionKeywords)) return 'emotion';
-
-  return 'emotion';
-}
-
-function getCategorySet(messages) {
-  const userCount = messages.filter((msg) => msg.role === 'user').length;
-  if (userCount === 0) return CATEGORY_SETS.opening;
-  if (userCount >= 4) return CATEGORY_SETS.closing;
-
-  const topic = inferConversationTopic(messages);
-  return CATEGORY_SETS[topic] ?? CATEGORY_SETS.emotion;
+  const lastAiText = aiMessages.at(-1)?.text ?? '';
+  const isFirst = messages.filter((msg) => msg.role === 'user').length === 0;
+  return getSuggestions(lastAiText, isFirst);
 }
 
 function MicIcon() {
@@ -286,10 +296,8 @@ export default function AiDiaryChatPage() {
     }
   };
 
-  const handleStarterPick = (category) => {
-    const starterPrompt = CATEGORY_PROMPTS[category];
-    if (!starterPrompt) return;
-    sendMessage(starterPrompt);
+  const handleSuggestionPick = (suggestion) => {
+    sendMessage(suggestion);
   };
 
   const handleSave = async () => {
@@ -335,7 +343,7 @@ export default function AiDiaryChatPage() {
     );
   };
 
-  const activeCategories = getCategorySet(messages);
+  const activeSuggestions = !isTyping ? getActiveSuggestions(messages) : [];
   const lastAiMessageId = [...messages].reverse().find((msg) => msg.role === 'ai')?.id;
 
   return (
@@ -403,16 +411,16 @@ export default function AiDiaryChatPage() {
                 <div className="msg-group">
                   <div className={`msg-bubble ${msg.role}`}>{msg.text}</div>
                   <span className="msg-time">{msg.time}</span>
-                  {msg.role === 'ai' && msg.id === lastAiMessageId && (
+                  {msg.role === 'ai' && msg.id === lastAiMessageId && activeSuggestions.length > 0 && (
                     <div className="starter-chip-wrap">
-                      {activeCategories.map((category) => (
+                      {activeSuggestions.map((suggestion) => (
                         <button
-                          key={category}
+                          key={suggestion}
                           type="button"
                           className="starter-chip"
-                          onClick={() => handleStarterPick(category)}
+                          onClick={() => handleSuggestionPick(suggestion)}
                         >
-                          {category}
+                          {suggestion}
                         </button>
                       ))}
                     </div>
@@ -533,13 +541,13 @@ export default function AiDiaryChatPage() {
           </p>
         </div>
 
-        {/* 추천 주제 */}
+        {/* 답변 추천 */}
         <div className="panel-card">
-          <p className="panel-card-title">이야기 주제 제안</p>
+          <p className="panel-card-title">답변 추천</p>
           <div className="suggest-list">
-            {activeCategories.slice(0, 3).map(category => (
-              <button key={category} className="suggest-btn" onClick={() => handleStarterPick(category)}>
-                {category}
+            {activeSuggestions.slice(0, 4).map(suggestion => (
+              <button key={suggestion} className="suggest-btn" onClick={() => handleSuggestionPick(suggestion)}>
+                {suggestion}
               </button>
             ))}
           </div>
