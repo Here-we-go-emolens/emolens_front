@@ -427,6 +427,8 @@ export default function DiaryWritePage() {
   const [imageUrls, setImageUrls]                 = useState([]);
   const [uploading, setUploading]                 = useState(false);
   const [submitting, setSubmitting]               = useState(false);
+  const [showComplete, setShowComplete]           = useState(false);
+  const [completeDiaryId, setCompleteDiaryId]     = useState(null);
   const [weather, setWeather]                     = useState(null);
   const [showDraftModal, setShowDraftModal]       = useState(false);
   const [draftData, setDraftData]                 = useState(null);
@@ -589,7 +591,9 @@ export default function DiaryWritePage() {
 
       localStorage.setItem(`diary_template_${id}`, selectedTemplate);
       localStorage.removeItem(DRAFT_KEY);
-      navigate(`/diary/${id}`);
+      setCompleteDiaryId(id);
+      setShowComplete(true);
+      setTimeout(() => navigate(`/diary/${id}`), 2200);
     } catch {
       alert('일기 저장에 실패했습니다.');
     } finally {
@@ -601,8 +605,62 @@ export default function DiaryWritePage() {
   const primaryEmotionData = primaryId ? EMOTION_MAP[primaryId] : null;
   const today_date = new Date();
 
+  const COMPLETE_MESSAGES = {
+    happy:    ['오늘 행복한 하루를 잘 담았어요 😊', '행복한 기억이 오래 남길 바라요 🌟'],
+    excited:  ['설레는 마음이 고스란히 담겼어요 🌸', '오늘의 설렘을 오래 기억해요 ✨'],
+    calm:     ['고요한 하루를 잘 기록했어요 😌', '평온한 마음이 전해져요 🍃'],
+    proud:    ['뿌듯한 하루, 충분히 칭찬받아요 🌟', '오늘의 나를 자랑스러워해도 돼요 💪'],
+    anxious:  ['불안한 마음을 꺼내놓은 것만으로도 용감해요 🤗', '여기 적은 것만큼 마음이 가벼워지길 바라요'],
+    angry:    ['화난 감정을 솔직하게 담았어요 💙', '털어놓고 나면 조금 나아질 거예요'],
+    sad:      ['힘든 마음을 여기 잘 담아줬어요 💙', '울어도 괜찮아요, 오늘도 잘 버텼어요'],
+    tired:    ['오늘도 정말 수고했어요 😴', '쉬어도 괜찮아요, 충분히 잘했어요'],
+    grateful: ['감사한 마음이 가득 담겼어요 🙏', '이런 마음이 하루를 빛나게 해요'],
+    longing:  ['그리운 마음을 잘 표현해줬어요 🌙', '그리움도 소중한 감정이에요'],
+    lonely:   ['외로운 마음을 이렇게 꺼내줘서 고마워요 🫂', '혼자가 아니에요, 여기 있을게요'],
+    annoyed:  ['짜증도 감정이에요, 솔직하게 써줘서 고마워요', '다 털어냈으니 이제 좀 편해지길 바라요'],
+    regret:   ['후회도 성장의 일부예요 😔', '오늘의 기록이 내일을 바꿀 거예요'],
+    shy:      ['부끄러운 순간도 소중한 기억이에요 🫣', '솔직하게 적어줘서 고마워요'],
+    listless: ['무기력한 날도 기록할 용기를 냈어요 😶', '그냥 앉아있는 것도 충분히 잘한 거예요'],
+    blank:    ['멍한 하루도 기록이 돼요 😑', '오늘 하루를 잘 보냈어요'],
+  };
+  const completeMsg = primaryId
+    ? (COMPLETE_MESSAGES[primaryId] ?? ['오늘 하루를 잘 담았어요 ✨', '기록은 당신 편이에요'])[
+        Math.floor(Math.random() * 2)
+      ]
+    : '오늘 하루를 잘 담았어요 ✨';
+  const completeEmoji = primaryEmotionData?.image ?? mascotFallback;
+
+  const PARTICLES = ['✨', '🌸', '💫', '⭐', '🌟', '💖', '🍃', '🌙'];
+
   return (
     <div className="dw-layout">
+
+      {/* ── 완료 애니메이션 오버레이 ── */}
+      {showComplete && (
+        <div className="dw-complete-overlay">
+          <div className="dw-complete-particles">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <span
+                key={i}
+                className="dw-particle"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 0.6}s`,
+                  animationDuration: `${1.2 + Math.random() * 0.8}s`,
+                  fontSize: `${16 + Math.floor(Math.random() * 14)}px`,
+                }}
+              >
+                {PARTICLES[i % PARTICLES.length]}
+              </span>
+            ))}
+          </div>
+          <div className="dw-complete-card">
+            <img src={completeEmoji} alt="" className="dw-complete-mascot" />
+            <p className="dw-complete-msg">{completeMsg}</p>
+            <p className="dw-complete-sub">일기가 저장됐어요 📔</p>
+          </div>
+        </div>
+      )}
 
       {/* ── 임시저장 복원 모달 ── */}
       {showDraftModal && (
