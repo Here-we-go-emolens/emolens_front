@@ -46,7 +46,6 @@ export default function CommunityPage() {
   const {
     posts,
     selectedEmotion,
-    selectedFilter,
     aiInsight,
     setSelectedEmotionLabel,
     createPost,

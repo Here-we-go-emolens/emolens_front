@@ -286,17 +286,6 @@ export default function AiDiaryChatPage() {
     }
   };
 
-  const handleSuggest = (q) => {
-    setInput(q);
-    textareaRef.current?.focus();
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
-        textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
-      }
-    }, 0);
-  };
-
   const handleStarterPick = (category) => {
     const starterPrompt = CATEGORY_PROMPTS[category];
     if (!starterPrompt) return;

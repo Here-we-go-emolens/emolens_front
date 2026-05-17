@@ -168,6 +168,7 @@ function formatTime(isoString) {
   return `${Math.floor(diff / 86400)}일 전`;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useCommunity() {
   const context = useContext(CommunityContext);
   if (!context) {

@@ -13,7 +13,7 @@ export default function OAuthCallbackPage() {
     const refreshToken = params.get('refreshToken');
 
     if (!accessToken || !refreshToken) {
-      setError('토큰을 받지 못했습니다. 다시 로그인해주세요.');
+      setError('토큰을 받지 못했습니다. 다시 로그인해주세요.'); // eslint-disable-line react-hooks/set-state-in-effect
       return;
     }
 

@@ -133,20 +133,6 @@ export default function LetterPage() {
   const [loading, setLoading]   = useState(true);
   const [selected, setSelected] = useState(null);
 
-  useEffect(() => {
-    getLetters()
-      .then((data) => {
-        setLetters(data);
-        const openId = location.state?.openLetterId;
-        if (openId) {
-          const target = data.find((l) => l.id === openId);
-          if (target) handleOpen(target);
-        }
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   const handleOpen = async (item) => {
     try {
       const wasUnread = !item.isRead;
@@ -160,6 +146,20 @@ export default function LetterPage() {
       console.error(e);
     }
   };
+
+  useEffect(() => {
+    getLetters()
+      .then((data) => {
+        setLetters(data);
+        const openId = location.state?.openLetterId;
+        if (openId) {
+          const target = data.find((l) => l.id === openId);
+          if (target) handleOpen(target);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="letter-layout">

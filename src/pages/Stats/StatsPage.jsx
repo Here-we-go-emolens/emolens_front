@@ -219,7 +219,7 @@ export default function StatsPage() {
 
   // ── 주간 미니 바 차트 ────────────────────────────────────
   const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
-  const last7Days = useMemo(() => {
+  const last7Days = (() => {
     const today = new Date();
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(today);
@@ -228,9 +228,9 @@ export default function StatsPage() {
       const entry   = trend.find(t => t.date === dateStr);
       return { day: DAY_NAMES[d.getDay()], date: dateStr, score: entry?.score ?? null, isToday: i === 6 };
     });
-  }, [trend]); // eslint-disable-line react-hooks/exhaustive-deps
+  })();
 
-  const prev7Days = useMemo(() => {
+  const prev7Days = (() => {
     const today = new Date();
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(today);
@@ -238,7 +238,7 @@ export default function StatsPage() {
       const dateStr = d.toISOString().slice(0, 10);
       return trend.find(t => t.date === dateStr)?.score ?? null;
     });
-  }, [trend]);
+  })();
 
   // ── 전주 대비 변화 ────────────────────────────────────────
   const thisWeekScores = last7Days.map(d => d.score).filter(s => s !== null);

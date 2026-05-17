@@ -364,6 +364,7 @@ function MascotImage({ emotionId }) {
     if (emotionId === prevId.current) return;
     prevId.current = emotionId;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOpacity(0);
     const t = setTimeout(() => {
       const emotion = emotionId ? findEmotionById(emotionId) : null;

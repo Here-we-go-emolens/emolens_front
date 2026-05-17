@@ -1,5 +1,3 @@
-import apiClient from './apiClient';
-
 // 백엔드 미구현 — localStorage 기반 목업
 const STORAGE_KEY = 'emolens_notifications';
 

@@ -16,6 +16,7 @@ export default function CreatePostModal({ isOpen, initialEmotionLabel, onClose, 
 
   useEffect(() => {
     if (!isOpen) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEmotionLabel(initialEmotionLabel);
     setActiveCategory(getEmotionCategoryId(initialEmotionLabel));
     setTitle('');

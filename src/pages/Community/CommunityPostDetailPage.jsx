@@ -24,6 +24,7 @@ export default function CommunityPostDetailPage() {
   const [editContent, setEditContent] = useState('');
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     Promise.all([getPost(id), getComments(id)])
       .then(([postData, commentsData]) => {
@@ -33,7 +34,7 @@ export default function CommunityPostDetailPage() {
       })
       .catch(() => setPost(null))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (location.hash === '#comments' && commentsRef.current) {

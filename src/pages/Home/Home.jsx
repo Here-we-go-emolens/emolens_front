@@ -67,17 +67,18 @@ function DonutChart({ data }) {
     );
   }
 
-  let cumulative = 0;
-  const segments = data.slice(0, 6).map(d => {
-    const start = cumulative;
-    cumulative += d.percentage;
+  const segments = data.slice(0, 6).reduce(({ acc, items }, d) => {
+    const start = acc;
     return {
-      ...d,
-      dashLength: (d.percentage / 100) * circumference,
-      startOffset: (start / 100) * circumference,
-      color: EMOTION_COLOR[d.emotion] ?? '#D4C8B8',
+      acc: acc + d.percentage,
+      items: [...items, {
+        ...d,
+        dashLength: (d.percentage / 100) * circumference,
+        startOffset: (start / 100) * circumference,
+        color: EMOTION_COLOR[d.emotion] ?? '#D4C8B8',
+      }],
     };
-  });
+  }, { acc: 0, items: [] }).items;
 
   const top = data[0];
 
@@ -280,7 +281,7 @@ const Home = () => {
 
   useEffect(() => {
     if (!user?.id) return;
-    if (!localStorage.getItem(`emolens_tutorial_done_${user.id}`)) setShowTutorial(true);
+    if (!localStorage.getItem(`emolens_tutorial_done_${user.id}`)) setShowTutorial(true); // eslint-disable-line react-hooks/set-state-in-effect
   }, [user?.id]);
 
   useEffect(() => {
