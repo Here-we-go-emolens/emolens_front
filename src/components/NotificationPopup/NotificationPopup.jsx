@@ -6,9 +6,10 @@ import { getLetters, getLetter } from '@/services/letterApi';
 import './NotificationPopup.css';
 
 const NOTI_META = {
-  ANALYSIS: { icon: '📊', bg: '#E8F5E9', accent: '#2E7D32', label: '분석완료' },
-  WEEKLY:   { icon: '📋', bg: '#EEF4FF', accent: '#3B5BDB', label: '주간리포트' },
-  LETTER:   { icon: '💌', bg: '#FFF3E0', accent: '#f26a21', label: '편지' },
+  ANALYSIS:      { icon: '📊', bg: '#E8F5E9', accent: '#2E7D32', label: '분석완료' },
+  WEEKLY:        { icon: '📋', bg: '#EEF4FF', accent: '#3B5BDB', label: '주간리포트' },
+  LETTER:        { icon: '💌', bg: '#FFF3E0', accent: '#f26a21', label: '편지' },
+  DAILY_REMINDER:{ icon: '✏️', bg: '#FFF8F0', accent: '#f26a21', label: '일기 알림' },
 };
 
 const LETTER_TYPE_LABEL = {

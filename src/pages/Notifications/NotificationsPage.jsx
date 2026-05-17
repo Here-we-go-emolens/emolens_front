@@ -9,10 +9,11 @@ import {
 import '@/styles/Notifications/NotificationsPage.css';
 
 const TYPE_META = {
-  ANALYSIS: { icon: '📊', bg: '#E8F5E9', accent: '#2E7D32', label: '분석완료' },
-  WEEKLY:   { icon: '📋', bg: '#EEF4FF', accent: '#3B5BDB', label: '주간리포트' },
-  LETTER:   { icon: '💌', bg: '#FFF3E0', accent: '#f26a21', label: '편지' },
-  FRIEND:   { icon: '👥', bg: '#F3E5F5', accent: '#7B2D8B', label: '친구' },
+  ANALYSIS:      { icon: '📊', bg: '#E8F5E9', accent: '#2E7D32', label: '분석완료' },
+  WEEKLY:        { icon: '📋', bg: '#EEF4FF', accent: '#3B5BDB', label: '주간리포트' },
+  LETTER:        { icon: '💌', bg: '#FFF3E0', accent: '#f26a21', label: '편지' },
+  FRIEND:        { icon: '👥', bg: '#F3E5F5', accent: '#7B2D8B', label: '친구' },
+  DAILY_REMINDER:{ icon: '✏️', bg: '#FFF8F0', accent: '#f26a21', label: '일기 알림' },
 };
 
 const TABS = [
