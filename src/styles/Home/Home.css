@@ -653,7 +653,7 @@
 
 .diary-table-head {
   display: grid;
-  grid-template-columns: 2.5fr 1.2fr 1.2fr 1fr;
+  grid-template-columns: 3fr 1.2fr 1fr;
   padding: 10px 14px;
   background: var(--bg);
   border-radius: 10px;
@@ -665,15 +665,53 @@
   margin-bottom: 4px;
 }
 
+.diary-date-group { display: flex; flex-direction: column; }
+
+.diary-date-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 4px;
+}
+
+.diary-date-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.diary-date-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 1px 7px;
+}
+
 .diary-row {
   display: grid;
-  grid-template-columns: 2.5fr 1.2fr 1.2fr 1fr;
-  padding: 13px 14px;
+  grid-template-columns: 3fr 1.2fr 1fr;
+  padding: 11px 14px;
   border-bottom: 1px solid var(--border);
   align-items: center;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.12s;
+}
+
+.dr-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  background: #fff3ec;
+  border-radius: 50%;
+  margin-right: 7px;
+  flex-shrink: 0;
 }
 
 .diary-row:hover { background: var(--bg); }
@@ -800,6 +838,7 @@
   .main-content { padding: 16px; }
   .diary-table-head,
   .diary-row { grid-template-columns: 2fr 1fr 1fr; }
+
   .diary-table-head span:last-child,
   .dr-pub { display: none; }
   .search-input { width: 120px; }

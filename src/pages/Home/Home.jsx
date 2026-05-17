@@ -368,6 +368,14 @@ const Home = () => {
     return true;
   });
 
+  const groupedDiaries = filtered.reduce((acc, d) => {
+    const date = d.diaryDate;
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(d);
+    return acc;
+  }, {});
+  const groupedDates = Object.keys(groupedDiaries).sort((a, b) => b.localeCompare(a));
+
   const streak      = stats?.summary?.streak ?? 0;
   const emotionDist = stats?.emotionDistribution ?? [];
   const keywords    = stats?.keywords ?? [];
@@ -539,18 +547,32 @@ const Home = () => {
           </div>
           <div className="diary-table">
             <div className="diary-table-head">
-              <span>제목</span><span>날짜</span><span>AI 분석</span><span>공개</span>
+              <span>제목</span><span>AI 분석</span><span>공개</span>
             </div>
             {loading ? (
               <div className="diary-empty">불러오는 중...</div>
             ) : filtered.length === 0 ? (
               <div className="diary-empty">일기가 없습니다.</div>
-            ) : filtered.map(d => (
-              <div key={d.id} className="diary-row" onClick={() => navigate(`/diary/${d.id}`)}>
-                <span className="dr-title">{d.title}</span>
-                <span className="dr-date">{formatDate(d.diaryDate)}</span>
-                <span className="dr-emotion">{STATUS_LABEL[d.status] ?? '-'}</span>
-                <span className="dr-pub">{d.isSecret ? '🔒 비공개' : '🌐 공개'}</span>
+            ) : groupedDates.map(date => (
+              <div key={date} className="diary-date-group">
+                <div className="diary-date-header">
+                  <span className="diary-date-label">{formatDate(date)}</span>
+                  {groupedDiaries[date].length > 1 && (
+                    <span className="diary-date-count">{groupedDiaries[date].length}개</span>
+                  )}
+                </div>
+                {groupedDiaries[date].map((d, idx) => (
+                  <div key={d.id} className="diary-row" onClick={() => navigate(`/diary/${d.id}`)}>
+                    <span className="dr-title">
+                      {groupedDiaries[date].length > 1 && (
+                        <span className="dr-index">{idx + 1}</span>
+                      )}
+                      {d.title}
+                    </span>
+                    <span className="dr-emotion">{STATUS_LABEL[d.status] ?? '-'}</span>
+                    <span className="dr-pub">{d.isSecret ? '🔒 비공개' : '🌐 공개'}</span>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
