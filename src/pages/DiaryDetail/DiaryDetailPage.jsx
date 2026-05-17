@@ -30,7 +30,8 @@ const KOREAN_TO_EMOTION_ID = {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const WEATHER_ICON = { SUNNY: '☀️', CLOUDY: '⛅', RAINY: '🌧️', SNOWY: '❄️' };
+const WEATHER_ICON  = { SUNNY: '☀️', CLOUDY: '⛅', RAINY: '🌧️', SNOWY: '❄️' };
+const WEATHER_LABEL = { SUNNY: '맑음', CLOUDY: '흐림', RAINY: '비', SNOWY: '눈' };
 
 const TEMPLATE_LABELS = {
   '오늘의 감정:': '😊 오늘의 감정',
@@ -314,7 +315,7 @@ export default function DiaryDetailPage() {
                     <h1 className="dd-hero-title">{diary.title}</h1>
                     <div className="dd-hero-meta">
                       <span className="dd-meta-chip">📅 {diary.diaryDate}</span>
-                      {diary.weather && <span className="dd-meta-chip">{WEATHER_ICON[diary.weather]} {diary.weather}</span>}
+                      {diary.weather && <span className="dd-meta-chip">{WEATHER_ICON[diary.weather]} {WEATHER_LABEL[diary.weather] ?? diary.weather}</span>}
                       <span className={`dd-status-chip ${isCompleted ? 'done' : 'pending'}`}>
                         {isCompleted ? '✦ AI 분석완료' : '⏳ 분석중'}
                       </span>
