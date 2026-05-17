@@ -7,5 +7,5 @@ export async function getAiResponse(messages) {
 
 export async function finishChat(messages) {
   const { data } = await apiClient.post('/api/chat/finish', { messages });
-  return data.diaryId;
+  return data;
 }
