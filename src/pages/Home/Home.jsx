@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import SidebarRight from '../../components/Sidebar-right/SidebarRight';
 import WeatherCard from '../../components/WeatherCard/WeatherCard';
+import { getWeatherByLocation } from '@/api/Weather/Weather';
 import TutorialOverlay from '../../components/Tutorial/TutorialOverlay';
 import mascotImg from '@/assets/mascot-removebg-preview.png';
 import { getDiaryList } from '@/services/diaryApi';
@@ -274,6 +275,7 @@ const Home = () => {
   const [greetingDaysSince, setGreetingDaysSince]     = useState(0);
   const [character, setCharacter]                     = useState(null);
   const [letters, setLetters]                         = useState([]);
+  const [cityName, setCityName]                       = useState('날씨');
 
   useEffect(() => {
     if (!user?.id) return;
@@ -346,6 +348,12 @@ const Home = () => {
     getStats(monthStr).then(setStats).catch(() => {});
   }, [monthStr]);
 
+  useEffect(() => {
+    getWeatherByLocation()
+      .then(data => setCityName(data.name ?? '날씨'))
+      .catch(() => {});
+  }, []);
+
   const filtered = diaries.filter(d => {
     if (!searchQuery) return true;
     if (searchType === '제목') return d.title.includes(searchQuery);
@@ -400,7 +408,7 @@ const Home = () => {
           <div className="hero-right">
             <LiveClock />
             <WeatherCard size={36} />
-            <span className="weather-city">서울</span>
+            <span className="weather-city">{cityName}</span>
           </div>
         </div>
 
