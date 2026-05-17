@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCurrentWeather } from "@/api/Weather/Weather";
+import { getWeatherByLocation } from "@/api/Weather/Weather";
 import {
   WiDaySunny, WiDayCloudy, WiCloud, WiCloudy,
   WiRain, WiShowers, WiThunderstorm, WiSnow, WiFog,
@@ -21,7 +21,7 @@ export default function WeatherCard({ size = 44 }) {
   const [weatherId, setWeatherId] = useState(null);
 
   useEffect(() => {
-    getCurrentWeather("Seoul")
+    getWeatherByLocation()
       .then(data => setWeatherId(data.weather?.[0]?.id ?? null))
       .catch(console.error);
   }, []);

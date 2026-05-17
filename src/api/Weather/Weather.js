@@ -7,10 +7,35 @@ export const getCurrentWeather = async (city = "Seoul") => {
     params: {
       q: city,
       appid: API_KEY,
-      units: "metric", // 섭씨
-      lang: "ko",      // 한국어 설명
+      units: "metric",
+      lang: "ko",
     },
   });
-
   return response.data;
 };
+
+export const getWeatherByCoords = async (lat, lon) => {
+  const response = await axios.get("https://api.openweathermap.org/data/2.5/weather", {
+    params: {
+      lat,
+      lon,
+      appid: API_KEY,
+      units: "metric",
+      lang: "ko",
+    },
+  });
+  return response.data;
+};
+
+export const getWeatherByLocation = () =>
+  new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(getCurrentWeather("Seoul"));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => resolve(getWeatherByCoords(coords.latitude, coords.longitude)),
+      () => resolve(getCurrentWeather("Seoul")),
+      { timeout: 5000 },
+    );
+  });
