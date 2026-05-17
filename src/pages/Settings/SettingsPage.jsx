@@ -31,7 +31,6 @@ const DEFAULT_SETTINGS = {
     defaultMode: 'normal', // 'normal' | 'ai'
     fontSize: 'medium',    // 'small' | 'medium' | 'large'
     autoSave: true,
-    darkMode: false,
   },
   ai: {
     emotionKeywords: true,
@@ -474,13 +473,7 @@ const SettingsPage = () => {
             checked={writing.autoSave}
             onChange={v => setNested('writing', 'autoSave', v)}
           />
-          <ToggleRow
-            label="다크모드 스타일 선호"
-            desc="다크모드를 기본 스타일로 사용합니다"
-            checked={writing.darkMode}
-            onChange={v => setNested('writing', 'darkMode', v)}
-          />
-        </SettingSection>
+                </SettingSection>
 
         {/* ⑤ AI 분석 설정 */}
         <SettingSection

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -136,9 +136,44 @@ export default function DiaryDetailPage() {
 
   const [diary, setDiary]     = useState(null);
   const [loading, setLoading] = useState(true);
+  const pollRef = useRef(null);
+
+  const stopPolling = () => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  };
 
   useEffect(() => {
-    getDiary(id).then(setDiary).catch(() => {}).finally(() => setLoading(false));
+    let cancelled = false;
+
+    const fetchDiary = async () => {
+      try {
+        const data = await getDiary(id);
+        if (!cancelled) {
+          setDiary(data);
+          const done = data.status === 'COMPLETED' || data.status === 'FAILED';
+          if (done) stopPolling();
+        }
+      } catch {
+        if (!cancelled) stopPolling();
+      }
+    };
+
+    fetchDiary().finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+
+    // 분석 미완료 상태면 4초마다 재조회, 최대 2분
+    pollRef.current = setInterval(fetchDiary, 4000);
+    const maxTimer = setTimeout(stopPolling, 120_000);
+
+    return () => {
+      cancelled = true;
+      stopPolling();
+      clearTimeout(maxTimer);
+    };
   }, [id]);
 
   const handleDelete = async () => {
