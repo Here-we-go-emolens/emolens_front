@@ -862,22 +862,87 @@ export default function StatsPage() {
         </div>
       )}
 
-      {/* 오른쪽 AI 패널 */}
+      {/* 오른쪽 패널 */}
       <aside className="stats-panel">
 
-        <PanelCard icon="🧠" title="AI 종합 분석">
+        {/* 이달 감정 랭킹 */}
+        <PanelCard icon="🏅" title="이달 감정 랭킹">
+          {dist.length > 0 ? (
+            <div className="sp-emotion-rank">
+              {dist.slice(0, 3).map((d, i) => (
+                <div key={d.emotion} className="sp-rank-row">
+                  <span className="sp-rank-num">{i + 1}</span>
+                  <span className="sp-rank-label">{d.emotion}</span>
+                  <div className="sp-rank-track">
+                    <div className="sp-rank-fill" style={{ width: `${d.percentage}%` }} />
+                  </div>
+                  <span className="sp-rank-pct">{d.percentage}%</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="panel-body">일기를 작성하면 감정 랭킹이 표시돼요.</p>
+          )}
+        </PanelCard>
+
+        {/* 기록 패턴 */}
+        <PanelCard icon="📅" title="기록 패턴">
+          <div className="sp-pattern-grid">
+            <div className="sp-pattern-item">
+              <span className="sp-pattern-val">{summary?.diaryCount ?? 0}일</span>
+              <span className="sp-pattern-label">이달 기록</span>
+            </div>
+            <div className="sp-pattern-item">
+              <span className="sp-pattern-val">{summary?.streak ?? 0}일</span>
+              <span className="sp-pattern-label">연속 기록</span>
+            </div>
+          </div>
+          {dow.length > 0 && (() => {
+            const maxDow = dow.reduce((a, b) => a.score > b.score ? a : b);
+            return (
+              <p className="panel-body sp-pattern-note">
+                <strong>{maxDow.day}요일</strong>에 감정 점수가 가장 높고
+                {minDow ? <>, <strong>{minDow.day}요일</strong>에 가장 낮아요.</> : '.'}
+              </p>
+            );
+          })()}
+        </PanelCard>
+
+        {/* 전월 비교 */}
+        <PanelCard icon="📊" title="전월 비교">
+          {prevStats ? (
+            <div className="sp-compare-list">
+              {[
+                { label: '감정 안정도', current: summary?.stabilityScore ?? 0, prev: prevStats?.summary?.stabilityScore ?? 0, unit: '%' },
+                { label: '기록 일수',   current: summary?.diaryCount ?? 0,     prev: prevStats?.summary?.diaryCount ?? 0,     unit: '일' },
+                { label: '평균 감정',   current: parseFloat(currentMonthAvg) || 0, prev: parseFloat(prevMonthAvg) || 0,       unit: '점' },
+              ].map(({ label, current, prev, unit }) => {
+                const delta = +(current - prev).toFixed(1);
+                return (
+                  <div key={label} className="sp-compare-row">
+                    <span className="sp-compare-label">{label}</span>
+                    <span className="sp-compare-val">{current}{unit}</span>
+                    <span className={`sp-compare-delta ${delta > 0 ? 'up' : delta < 0 ? 'down' : 'same'}`}>
+                      {delta > 0 ? `▲ ${delta}` : delta < 0 ? `▼ ${Math.abs(delta)}` : '—'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="panel-body">지난 달 데이터를 불러오는 중이에요.</p>
+          )}
+        </PanelCard>
+
+        {/* AI 월간 종합 */}
+        <PanelCard icon="🧠" title="AI 월간 종합">
           <p className="panel-body">
-            {aiInsights?.summary ?? 'AI 분석이 완료되면 표시됩니다.'}
+            {aiInsights?.summary ?? '이번 달 일기가 충분히 쌓이면 AI가 종합 분석을 해드릴게요.'}
           </p>
         </PanelCard>
 
-        <PanelCard icon="📈" title="감정 변화 해석">
-          <p className="panel-body">
-            {aiInsights?.trend ?? '충분한 일기가 쌓이면 변화 해석을 보여드릴게요.'}
-          </p>
-        </PanelCard>
-
-        <PanelCard icon="🌱" title="추천 행동">
+        {/* 이달의 추천 */}
+        <PanelCard icon="🌱" title="이달의 추천">
           {aiInsights?.recommendations?.length > 0 ? (
             <div className="rec-list">
               {aiInsights.recommendations.map((r, i) => (
@@ -888,22 +953,8 @@ export default function StatsPage() {
               ))}
             </div>
           ) : (
-            <p className="panel-body">AI 분석이 완료되면 추천 행동을 보여드릴게요.</p>
+            <p className="panel-body">충분한 기록이 쌓이면 맞춤 추천을 보여드릴게요.</p>
           )}
-        </PanelCard>
-
-        <PanelCard icon="📊" title="이번 달 요약">
-          <div className="mini-stats">
-            <div className="mini-stat"><span className="mini-val">{summary?.diaryCount ?? 0}</span><span className="mini-label">총 기록일</span></div>
-            <div className="mini-stat">
-              <span className="mini-val">
-                {trend.length > 0 ? (trend.reduce((s, t) => s + t.score, 0) / trend.length).toFixed(1) : '-'}
-              </span>
-              <span className="mini-label">평균 감정</span>
-            </div>
-            <div className="mini-stat"><span className="mini-val">{summary?.streak ?? 0}</span><span className="mini-label">연속 기록</span></div>
-            <div className="mini-stat"><span className="mini-val">{summary?.stabilityScore ?? 0}%</span><span className="mini-label">감정 안정도</span></div>
-          </div>
         </PanelCard>
 
       </aside>
