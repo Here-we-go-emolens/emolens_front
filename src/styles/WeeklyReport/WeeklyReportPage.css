@@ -235,3 +235,145 @@
   font-weight: 600;
   color: #059669;
 }
+
+/* ── 섹션 공통 ───────────────────────────────────── */
+.wr-section {
+  margin-top: 28px;
+}
+
+.wr-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.wr-section-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.wr-section-card {
+  padding: 20px 22px;
+}
+
+.wr-empty-section {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* ── 날씨-감정 상관관계 ───────────────────────────── */
+.wr-weather-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wr-weather-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.wr-weather-icon-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 44px;
+  gap: 2px;
+}
+
+.wr-weather-icon {
+  font-size: 22px;
+}
+
+.wr-weather-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.wr-weather-emotions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wr-weather-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid;
+  font-size: 12px;
+}
+
+.wr-wec-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.wr-wec-label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.wr-wec-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── 이번 달 vs 지난 달 ───────────────────────────── */
+.wr-month-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.wr-month-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+
+.wr-month-card--current {
+  border-color: rgba(242, 106, 33, 0.4);
+  background: linear-gradient(135deg, #fff8f4 0%, var(--card-bg) 100%);
+}
+
+.wr-month-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.wr-month-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.wr-month-row:last-child {
+  border-bottom: none;
+}
+
+.wr-month-key {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.wr-month-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
