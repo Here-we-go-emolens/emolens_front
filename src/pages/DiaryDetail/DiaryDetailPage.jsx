@@ -162,9 +162,11 @@ export default function DiaryDetailPage() {
   const user = useCurrentUser();
   const isPremium = user?.plan === 'PREMIUM';
 
-  const [diary, setDiary]     = useState(null);
-  const [loading, setLoading] = useState(true);
-  const pollRef = useRef(null);
+  const [diary, setDiary]       = useState(null);
+  const [loading, setLoading]   = useState(true);
+  const [showToast, setShowToast] = useState(false);
+  const pollRef    = useRef(null);
+  const toastTimer = useRef(null);
 
   const stopPolling = () => {
     if (pollRef.current) {
@@ -190,7 +192,16 @@ export default function DiaryDetailPage() {
     };
 
     fetchDiary().finally(() => {
-      if (!cancelled) setLoading(false);
+      if (!cancelled) {
+        setLoading(false);
+        setDiary(prev => {
+          if (prev && prev.status !== 'COMPLETED' && prev.status !== 'FAILED') {
+            setShowToast(true);
+            toastTimer.current = setTimeout(() => setShowToast(false), 3000);
+          }
+          return prev;
+        });
+      }
     });
 
     // 분석 미완료 상태면 4초마다 재조회, 최대 2분
@@ -201,6 +212,7 @@ export default function DiaryDetailPage() {
       cancelled = true;
       stopPolling();
       clearTimeout(maxTimer);
+      clearTimeout(toastTimer.current);
     };
   }, [id]);
 
@@ -250,6 +262,12 @@ export default function DiaryDetailPage() {
 
   return (
     <div className="dd-layout">
+      {showToast && (
+        <div className="dd-analyzing-toast">
+          <span className="dd-analyzing-spinner" />
+          AI가 감정을 분석하고 있어요...
+        </div>
+      )}
       <SidebarLeft />
 
       {/* ── 가운데 본문 ──────────────────────── */}
@@ -339,11 +357,19 @@ export default function DiaryDetailPage() {
               <span className="dd-ai-summary-icon">✨</span>
               <div className="dd-ai-summary-body">
                 <div className="dd-ai-summary-label">오늘의 핵심 인사이트</div>
-                <p className="dd-ai-summary-text">
-                  {isCompleted && diary.feedback
-                    ? `"${diary.feedback}"`
-                    : '"AI 분석이 완료되면 오늘 하루의 핵심 인사이트를 보여드릴게요."'}
-                </p>
+                {isCompleted && diary.feedback ? (
+                  <p className="dd-ai-summary-text">"{diary.feedback}"</p>
+                ) : (
+                  <div className="dd-analyzing-insight">
+                    <span className="dd-analyzing-tag">
+                      <span className="dd-analyzing-spinner" />
+                      AI 분석 중
+                    </span>
+                    <div className="dd-skeleton-bar long" />
+                    <div className="dd-skeleton-bar medium" />
+                    <div className="dd-skeleton-bar short" />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -356,19 +382,31 @@ export default function DiaryDetailPage() {
                   <h2 className="dd-main-rec-title">내일 바로 해볼 한 가지</h2>
                 </div>
               </div>
-              {isCompleted && diary.recommendations?.length > 0 ? (
-                <div className="dd-main-rec-list">
-                  {diary.recommendations.slice(0, 3).map((rec, index) => (
-                    <div key={`${rec.type}-${index}`} className={`dd-main-rec-item ${index === 0 ? 'primary' : ''}`}>
-                      <span className="dd-main-rec-step">{index + 1}</span>
-                      <span className="dd-main-rec-text">{rec.content}</span>
+              {isCompleted ? (
+                diary.recommendations?.length > 0 ? (
+                  <div className="dd-main-rec-list">
+                    {diary.recommendations.slice(0, 3).map((rec, index) => (
+                      <div key={`${rec.type}-${index}`} className={`dd-main-rec-item ${index === 0 ? 'primary' : ''}`}>
+                        <span className="dd-main-rec-step">{index + 1}</span>
+                        <span className="dd-main-rec-text">{rec.content}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="dd-main-rec-empty">추천 행동 분석 결과가 없습니다.</p>
+                )
+              ) : (
+                <>
+                  {[90, 70, 55].map((w, i) => (
+                    <div key={i} className="dd-skeleton-rec">
+                      <div className="dd-skeleton-rec-num" />
+                      <div className="dd-skeleton-text-wrap">
+                        <div className="dd-skeleton-bar" style={{ width: `${w}%` }} />
+                        <div className="dd-skeleton-bar short" style={{ width: `${w - 20}%` }} />
+                      </div>
                     </div>
                   ))}
-                </div>
-              ) : (
-                <p className="dd-main-rec-empty">
-                  {isCompleted ? '추천 행동 분석 결과가 없습니다.' : 'AI 분석이 완료되면 오늘에 맞는 추천 행동을 보여드릴게요.'}
-                </p>
+                </>
               )}
             </div>
 
@@ -435,7 +473,19 @@ export default function DiaryDetailPage() {
               </div>
             </>
           ) : (
-            <p className="dd-muted-msg">AI 분석이 완료되면 표시됩니다.</p>
+            <div className="dd-donut-skeleton">
+              <div className="dd-donut-skeleton-ring" />
+              <div className="dd-donut-skeleton-legend">
+                {[70, 50].map((w, i) => (
+                  <div key={i} className="dd-skeleton-row">
+                    <div className="dd-skeleton-dot" />
+                    <div className="dd-skeleton-text-wrap">
+                      <div className="dd-skeleton-bar" style={{ width: `${w}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 
@@ -473,7 +523,17 @@ export default function DiaryDetailPage() {
               </div>
             </div>
           ) : (
-            <PremiumLockCard title="분석이 완료되면 깊은 통찰을 보여드려요" />
+            <div className="dd-skeleton-rows">
+              {[{ w1: '80%', w2: '60%' }, { w1: '70%', w2: '50%' }, { w1: '75%', w2: '40%' }].map((r, i) => (
+                <div key={i} className="dd-skeleton-row">
+                  <div className="dd-skeleton-dot" />
+                  <div className="dd-skeleton-text-wrap">
+                    <div className="dd-skeleton-bar" style={{ width: r.w1 }} />
+                    <div className="dd-skeleton-bar" style={{ width: r.w2 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
@@ -481,39 +541,58 @@ export default function DiaryDetailPage() {
         <div className="dd-panel-card">
           <div className="dd-panel-head"><span>🏷</span><span>감정 키워드</span></div>
           <div className="dd-kw-chips">
-            {isCompleted && diary.keywords?.length > 0
-              ? diary.keywords.map(k => <span key={k} className="dd-kw-chip">{k}</span>)
-              : <span className="dd-muted-msg">분석이 완료되면 표시됩니다.</span>}
+            {isCompleted
+              ? (diary.keywords?.length > 0
+                  ? diary.keywords.map(k => <span key={k} className="dd-kw-chip">{k}</span>)
+                  : <span className="dd-muted-msg">키워드 분석 결과가 없습니다.</span>)
+              : [60, 80, 50, 70].map((w, i) => (
+                  <div key={i} className="dd-skeleton-bar" style={{ width: `${w}px`, height: '28px', borderRadius: '14px', display: 'inline-block', marginRight: '6px' }} />
+                ))
+            }
           </div>
         </div>
 
         {/* 추천 행동 */}
         <div className="dd-panel-card">
           <div className="dd-panel-head"><span>🌱</span><span>추천 행동</span></div>
-          {isCompleted && diary.recommendations?.length > 0 ? (
-            <>
-              <div className="dd-rec-item">
-                <span className="dd-rec-icon">🌱</span>
-                <span className="dd-rec-text">{diary.recommendations[0].content}</span>
-              </div>
-              {diary.recommendations.length > 1 && (
-                isPremium ? (
-                  diary.recommendations.slice(1).map((rec, i) => (
-                    <div key={i + 1} className="dd-rec-item">
-                      <span className="dd-rec-icon">🌱</span>
-                      <span className="dd-rec-text">{rec.content}</span>
+          {isCompleted ? (
+            diary.recommendations?.length > 0 ? (
+              <>
+                <div className="dd-rec-item">
+                  <span className="dd-rec-icon">🌱</span>
+                  <span className="dd-rec-text">{diary.recommendations[0].content}</span>
+                </div>
+                {diary.recommendations.length > 1 && (
+                  isPremium ? (
+                    diary.recommendations.slice(1).map((rec, i) => (
+                      <div key={i + 1} className="dd-rec-item">
+                        <span className="dd-rec-icon">🌱</span>
+                        <span className="dd-rec-text">{rec.content}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="dd-rec-more">
+                      <span>🔒 {diary.recommendations.length - 1}개 더 보기</span>
+                      <button className="dd-rec-more-btn" onClick={() => navigate('/premium')}>Premium</button>
                     </div>
-                  ))
-                ) : (
-                  <div className="dd-rec-more">
-                    <span>🔒 {diary.recommendations.length - 1}개 더 보기</span>
-                    <button className="dd-rec-more-btn" onClick={() => navigate('/premium')}>Premium</button>
-                  </div>
-                )
-              )}
-            </>
+                  )
+                )}
+              </>
+            ) : (
+              <p className="dd-muted-msg">분석 결과가 없습니다.</p>
+            )
           ) : (
-            <p className="dd-muted-msg">분석이 완료되면 표시됩니다.</p>
+            <div className="dd-skeleton-rows">
+              {[{ w1: '85%', w2: '60%' }, { w1: '70%', w2: '45%' }].map((r, i) => (
+                <div key={i} className="dd-skeleton-row">
+                  <div className="dd-skeleton-dot" />
+                  <div className="dd-skeleton-text-wrap">
+                    <div className="dd-skeleton-bar" style={{ width: r.w1 }} />
+                    <div className="dd-skeleton-bar" style={{ width: r.w2 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
@@ -541,7 +620,14 @@ export default function DiaryDetailPage() {
                       <span className="dd-legend-pct">{e.score}%</span>
                     </div>
                   ))
-                : <span className="dd-muted-msg">AI 분석 완료 후 표시됩니다.</span>
+                : [65, 45].map((w, i) => (
+                    <div key={i} className="dd-skeleton-row">
+                      <div className="dd-skeleton-dot" style={{ width: '16px', height: '16px' }} />
+                      <div className="dd-skeleton-text-wrap">
+                        <div className="dd-skeleton-bar" style={{ width: `${w}%` }} />
+                      </div>
+                    </div>
+                  ))
               }
             </div>
           </div>
