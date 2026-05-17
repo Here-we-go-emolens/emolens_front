@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAiResponse, finishChat } from '@/api/aiChat';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -9,6 +9,39 @@ import mascotImg from '@/assets/mascot-removebg-preview.png';
 import '@/styles/AiDiary/AiDiaryChatPage.css';
 
 const CHAT_DRAFT_KEY = 'emolens_chat_draft';
+
+const PROGRESS_STEPS = ['감정 탐색', '이야기 파악', '분석 준비', '분석 가능'];
+const READY_THRESHOLD = 4; // 사용자 메시지 4개 이상이면 분석 준비 완료
+
+function getReadyModalText(character) {
+  const byTone = {
+    FRIENDLY_INFORMAL: {
+      bubble: '이 정도면 딱 좋은 것 같아!',
+      title:  '충분히 이야기했어요',
+      body:   '네 이야기를 잘 들었어. 지금 일기로 만들어볼까? 더 하고 싶은 말이 있으면 계속 이야기해도 돼.',
+    },
+    WARM_FORMAL: {
+      bubble: '충분한 대화가 이루어졌어요.',
+      title:  '일기를 작성할 준비가 됐어요',
+      body:   '오늘 하루를 충분히 들었어요. 지금 감정 일기를 만들어드릴 수 있답니다. 더 나누고 싶은 이야기가 있으시면 계속해도 좋아요.',
+    },
+    PLAYFUL: {
+      bubble: '오케이, 이 정도면 완벽해!',
+      title:  '일기 만들 준비 됐어요!',
+      body:   '이야기를 잘 들었어요. 지금 바로 일기로 만들어볼까요? 아니면 조금 더 신나는 이야기 해볼 수도 있어요!',
+    },
+    COOL: {
+      bubble: '분석 데이터 수집 완료.',
+      title:  '분석 준비가 완료됐습니다',
+      body:   '충분한 대화 데이터가 수집됐습니다. 일기를 생성하거나 추가 대화를 이어갈 수 있습니다.',
+    },
+  };
+  return byTone[character?.tone] ?? {
+    bubble: '충분한 이야기를 나눴어요!',
+    title:  '일기로 만들어볼까요?',
+    body:   '이제 AI가 오늘의 감정을 담은 일기를 작성할 수 있어요. 더 이야기하거나 지금 저장해보세요.',
+  };
+}
 
 const SUGGESTIONS = {
   opening: [
@@ -210,9 +243,11 @@ export default function AiDiaryChatPage() {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [panelKeywords, setPanelKeywords] = useState([]);
   const [panelSummary,  setPanelSummary]  = useState(null);
-  const [draftData,     setDraftData]     = useState(null);
-  const [draftChecked,  setDraftChecked]  = useState(false);
+  const [draftData,      setDraftData]      = useState(null);
+  const [draftChecked,   setDraftChecked]   = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
+  const [showReadyModal, setShowReadyModal] = useState(false);
+  const readyModalShownRef = useRef(false);
 
   const bottomRef  = useRef(null);
   const textareaRef = useRef(null);
@@ -275,6 +310,16 @@ export default function AiDiaryChatPage() {
     if (!hasUserMsg) return;
     localStorage.setItem(CHAT_DRAFT_KEY, JSON.stringify({ messages, savedAt: new Date().toISOString() }));
   }, [messages, draftChecked]);
+
+  // 분석 준비 완료 모달 트리거
+  useEffect(() => {
+    if (readyModalShownRef.current || isTyping) return;
+    const userMsgCount = messages.filter(m => m.role === 'user').length;
+    if (userMsgCount >= READY_THRESHOLD) {
+      setShowReadyModal(true);
+      readyModalShownRef.current = true;
+    }
+  }, [messages, isTyping]);
 
   // 새 메시지마다 하단 스크롤
   useEffect(() => {
@@ -395,6 +440,8 @@ export default function AiDiaryChatPage() {
 
   const activeSuggestions = !isTyping ? getActiveSuggestions(messages) : [];
   const lastAiMessageId = [...messages].reverse().find((msg) => msg.role === 'ai')?.id;
+  const userMsgCount = messages.filter(m => m.role === 'user').length;
+  const progressStep = Math.min(userMsgCount, PROGRESS_STEPS.length);
 
   return (
     <div className="ai-layout">
@@ -430,6 +477,31 @@ export default function AiDiaryChatPage() {
               {isPremium ? '무제한 이용 중 ✨' : `이번 달 ${chatUsed}/${chatLimit}회`}
             </span>
           </div>
+        </div>
+
+        {/* 진행도 표시 */}
+        <div className="chat-progress-wrap">
+          <div className="chat-progress-steps">
+            {PROGRESS_STEPS.map((label, i) => {
+              const done    = progressStep > i;
+              const current = progressStep === i && i < PROGRESS_STEPS.length;
+              const isLast  = i === PROGRESS_STEPS.length - 1;
+              return (
+                <div key={label} className="cp-step-item">
+                  <div className={`cp-node ${done ? 'done' : current ? 'current' : ''} ${isLast && done ? 'ready' : ''}`}>
+                    {done ? <span className="cp-check">✓</span> : <span className="cp-num">{i + 1}</span>}
+                  </div>
+                  <span className={`cp-label ${done ? 'done' : current ? 'current' : ''}`}>{label}</span>
+                  {!isLast && <div className={`cp-line ${progressStep > i ? 'filled' : ''}`} />}
+                </div>
+              );
+            })}
+          </div>
+          {progressStep >= PROGRESS_STEPS.length && (
+            <button className="cp-ready-btn" onClick={() => setShowReadyModal(true)}>
+              일기 만들기
+            </button>
+          )}
         </div>
 
         {/* 소프트 배너: 잔여 3회 이하 */}
@@ -535,6 +607,41 @@ export default function AiDiaryChatPage() {
             </div>
           )}
         </div>
+
+        {/* 분석 준비 완료 모달 */}
+        {showReadyModal && (() => {
+          const { bubble, title, body } = getReadyModalText(character);
+          return (
+            <div className="cr-overlay" onClick={() => setShowReadyModal(false)}>
+              <div className="cr-modal" onClick={e => e.stopPropagation()}>
+                <div className="cr-top">
+                  <div className="cr-avatar-wrap">
+                    <img src={mascotImg} alt={character?.name ?? 'AI'} className="cr-avatar" />
+                    <div className="cr-badge">✦</div>
+                  </div>
+                  <div className="cr-bubble">{bubble}</div>
+                </div>
+                <div className="cr-body">
+                  <div className="cr-progress-dots">
+                    {PROGRESS_STEPS.map((_, i) => (
+                      <div key={i} className="cr-dot filled" />
+                    ))}
+                  </div>
+                  <h3 className="cr-title">{title}</h3>
+                  <p className="cr-desc">{body}</p>
+                  <div className="cr-btns">
+                    <button className="cr-btn-primary" onClick={() => { setShowReadyModal(false); handleSave(); }}>
+                      일기로 저장하기
+                    </button>
+                    <button className="cr-btn-secondary" onClick={() => setShowReadyModal(false)}>
+                      계속 이야기하기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* 임시저장 복원 모달 */}
         {showDraftModal && draftData && (() => {

@@ -907,6 +907,282 @@
   text-decoration: underline;
 }
 
+/* ── 진행도 표시 ─────────────────────────────────────────── */
+.chat-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: var(--card-bg, #fff);
+  border-bottom: 1px solid var(--border);
+}
+
+.chat-progress-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+}
+
+.cp-step-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.cp-step-item:last-child { flex: none; }
+
+.cp-node {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--border, #eee);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.cp-node.done {
+  background: #f26a21;
+}
+
+.cp-node.current {
+  background: #fff;
+  border: 2px solid #f26a21;
+  animation: cp-pulse 1.5s ease-in-out infinite;
+}
+
+.cp-node.ready {
+  background: linear-gradient(135deg, #f26a21, #f0864a);
+  box-shadow: 0 0 0 4px rgba(242, 106, 33, 0.2);
+}
+
+@keyframes cp-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(242, 106, 33, 0.4); }
+  50%       { box-shadow: 0 0 0 5px rgba(242, 106, 33, 0); }
+}
+
+.cp-check { font-size: 12px; color: #fff; font-weight: 700; }
+.cp-num   { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+
+.cp-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.cp-label.done    { color: #f26a21; font-weight: 600; }
+.cp-label.current { color: var(--text); font-weight: 700; }
+
+.cp-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border, #eee);
+  border-radius: 1px;
+  margin: 0 4px;
+  transition: background 0.4s;
+}
+.cp-line.filled { background: #f26a21; }
+
+.cp-ready-btn {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: none;
+  background: linear-gradient(135deg, #f26a21, #f0864a);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(242, 106, 33, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+  animation: cp-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cp-pop {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.cp-ready-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(242, 106, 33, 0.45);
+}
+
+/* ── 분석 준비 완료 모달 ─────────────────────────────────── */
+.cr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: cr-fade 0.2s ease;
+}
+
+@keyframes cr-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cr-modal {
+  background: var(--card-bg, #fff);
+  border-radius: 28px;
+  width: 380px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+  animation: cr-slide 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cr-slide {
+  from { opacity: 0; transform: translateY(28px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 상단 캐릭터 영역 */
+.cr-top {
+  background: linear-gradient(135deg, #fff8f4 0%, #ffeee0 100%);
+  padding: 28px 24px 22px;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  position: relative;
+}
+
+.cr-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.cr-avatar {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(242, 106, 33, 0.25));
+}
+
+.cr-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #f26a21, #f0864a);
+  border-radius: 50%;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #fff;
+  font-weight: 700;
+}
+
+.cr-bubble {
+  background: #fff;
+  border: 1.5px solid rgba(242, 106, 33, 0.25);
+  border-radius: 18px 18px 18px 4px;
+  padding: 11px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text, #333);
+  line-height: 1.6;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+  max-width: 200px;
+}
+
+/* 하단 본문 */
+.cr-body {
+  padding: 20px 24px 26px;
+  text-align: center;
+}
+
+.cr-progress-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.cr-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border, #eee);
+  transition: background 0.3s;
+}
+
+.cr-dot.filled {
+  background: #f26a21;
+}
+
+.cr-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text, #111);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.cr-desc {
+  font-size: 13px;
+  color: var(--text-muted, #888);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.cr-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.cr-btn-primary {
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #f26a21, #f0864a);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 16px rgba(242, 106, 33, 0.38);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.cr-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(242, 106, 33, 0.48);
+}
+
+.cr-btn-secondary {
+  width: 100%;
+  padding: 12px 0;
+  border-radius: 14px;
+  border: 1.5px solid var(--border, #e8e8e8);
+  background: transparent;
+  color: var(--text-muted, #999);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cr-btn-secondary:hover {
+  background: var(--bg, #f7f7f7);
+  color: var(--text, #555);
+}
+
 /* ── 채팅 임시저장 복원 모달 ────────────────────────────── */
 .cd-draft-overlay {
   position: fixed;
