@@ -8,6 +8,8 @@ import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import mascotImg from '@/assets/mascot-removebg-preview.png';
 import '@/styles/AiDiary/AiDiaryChatPage.css';
 
+const CHAT_DRAFT_KEY = 'emolens_chat_draft';
+
 const SUGGESTIONS = {
   opening: [
     '오늘 좀 지쳐있어요',
@@ -208,6 +210,9 @@ export default function AiDiaryChatPage() {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [panelKeywords, setPanelKeywords] = useState([]);
   const [panelSummary,  setPanelSummary]  = useState(null);
+  const [draftData,     setDraftData]     = useState(null);
+  const [draftChecked,  setDraftChecked]  = useState(false);
+  const [showDraftModal, setShowDraftModal] = useState(false);
 
   const bottomRef  = useRef(null);
   const textareaRef = useRef(null);
@@ -242,6 +247,34 @@ export default function AiDiaryChatPage() {
       return [{ ...prev[0], text: getCharacterGreeting(character) }];
     });
   }, [character]);
+
+  // 임시저장 초기 확인
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CHAT_DRAFT_KEY);
+      if (raw) {
+        const draft = JSON.parse(raw);
+        const hasUserMsg = draft.messages?.some(m => m.role === 'user');
+        if (hasUserMsg) {
+          setDraftData(draft);
+          setShowDraftModal(true);
+        } else {
+          localStorage.removeItem(CHAT_DRAFT_KEY);
+        }
+      }
+    } catch {
+      localStorage.removeItem(CHAT_DRAFT_KEY);
+    }
+    setDraftChecked(true);
+  }, []);
+
+  // 자동 임시저장
+  useEffect(() => {
+    if (!draftChecked) return;
+    const hasUserMsg = messages.some(m => m.role === 'user');
+    if (!hasUserMsg) return;
+    localStorage.setItem(CHAT_DRAFT_KEY, JSON.stringify({ messages, savedAt: new Date().toISOString() }));
+  }, [messages, draftChecked]);
 
   // 새 메시지마다 하단 스크롤
   useEffect(() => {
@@ -300,6 +333,22 @@ export default function AiDiaryChatPage() {
     sendMessage(suggestion);
   };
 
+  const handleRestoreDraft = () => {
+    if (!draftData) return;
+    setMessages(draftData.messages);
+    const updated = draftData.messages.filter(m => m.role === 'user');
+    setPanelKeywords(extractKeywords(draftData.messages));
+    setPanelSummary(buildSummary(draftData.messages));
+    setShowDraftModal(false);
+    setDraftData(null);
+  };
+
+  const handleDiscardDraft = () => {
+    localStorage.removeItem(CHAT_DRAFT_KEY);
+    setShowDraftModal(false);
+    setDraftData(null);
+  };
+
   const handleSave = async () => {
     const userMessages = messages.filter(m => m.role === 'user');
     if (userMessages.length === 0) {
@@ -309,6 +358,7 @@ export default function AiDiaryChatPage() {
     setSaveState('saving');
     try {
       const diaryId = await finishChat(messages);
+      localStorage.removeItem(CHAT_DRAFT_KEY);
       setSaveState('saved');
       setTimeout(() => navigate(`/diary/${diaryId}`), 800);
     } catch {
@@ -485,6 +535,33 @@ export default function AiDiaryChatPage() {
             </div>
           )}
         </div>
+
+        {/* 임시저장 복원 모달 */}
+        {showDraftModal && draftData && (() => {
+          const userMsgCount = draftData.messages.filter(m => m.role === 'user').length;
+          const lastUserMsg = [...draftData.messages].reverse().find(m => m.role === 'user');
+          const preview = lastUserMsg?.text?.slice(0, 40) + (lastUserMsg?.text?.length > 40 ? '…' : '');
+          const savedDate = draftData.savedAt ? new Date(draftData.savedAt).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+          return (
+            <div className="cd-draft-overlay">
+              <div className="cd-draft-modal">
+                <div className="cd-draft-mascot-wrap">
+                  <img src={mascotImg} alt="EmoLens" className="cd-draft-mascot" />
+                  <div className="cd-draft-bubble">아직 나눈 이야기가<br />남아있어요 💬</div>
+                </div>
+                <div className="cd-draft-body">
+                  <h3 className="cd-draft-title">이어서 대화할까요?</h3>
+                  <p className="cd-draft-preview">"{preview}"</p>
+                  <p className="cd-draft-desc">{savedDate} · {userMsgCount}번 답변한 대화예요</p>
+                  <div className="cd-draft-btns">
+                    <button className="cd-draft-restore" onClick={handleRestoreDraft}>이어서 대화하기</button>
+                    <button className="cd-draft-discard" onClick={handleDiscardDraft}>새로 시작하기</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* 한도 초과 모달 */}
         {showLimitModal && (
