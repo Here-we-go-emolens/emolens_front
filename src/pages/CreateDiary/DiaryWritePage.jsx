@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { getCurrentWeather } from '@/api/Weather/Weather';
+import { getWeatherByLocation } from '@/api/Weather/Weather';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import useSpeechRecognition from '@/hooks/useSpeechRecognition';
 import { createDiary, uploadImage } from '@/services/diaryApi';
@@ -444,7 +444,7 @@ export default function DiaryWritePage() {
   }, [primaryId]);
 
   useEffect(() => {
-    getCurrentWeather('Seoul')
+    getWeatherByLocation()
       .then(data => setWeather({ id: data.weather[0].id }))
       .catch(() => {});
   }, []);
