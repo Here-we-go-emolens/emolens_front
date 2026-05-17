@@ -43,6 +43,59 @@
   background: var(--accent-light);
 }
 
+/* 알림 버튼 */
+.sidebar-noti-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+  border: 1.5px solid #f0ece8;
+  background: #fff8f4;
+  font-size: 13px;
+  font-weight: 700;
+  color: #c05a18;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.sidebar-noti-row:hover,
+.sidebar-noti-row.active {
+  background: #fff1e6;
+  border-color: #f26a21;
+}
+
+.sidebar-noti-row.has-unread {
+  border-color: #f26a21;
+  background: #fff3ec;
+}
+
+.sidebar-noti-row-icon {
+  font-size: 16px;
+}
+
+.sidebar-noti-row-label {
+  flex: 1;
+}
+
+.sidebar-noti-row-badge {
+  background: #f26a21;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .profile-img {
   width: 100%;
   height: 100%;

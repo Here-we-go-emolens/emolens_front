@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { getUnreadCount } from '@/services/letterApi';
-import { getUnreadNotificationCount } from '@/services/notificationApi';
+import NotificationPopup from '@/components/NotificationPopup/NotificationPopup';
+import { getLetters } from '@/services/letterApi';
+import { getNotifications } from '@/services/notificationApi';
 import logoImg from '@/assets/logo.png';
 import "@/styles/Sidebar-left/SidebarLeft.css";
 
@@ -10,10 +11,8 @@ const menuItems = [
   { label: '홈',         icon: '🏠', route: '/home'      },
   { label: '일기 작성',   icon: '✏️', route: '/write',         tutId: 'tut-write'     },
   { label: '대화형 일기', icon: '🤖', route: '/ai-chat',       tutId: 'tut-ai-chat'   },
-  { label: '편지함',     icon: '💌', route: '/letters'       },
   { label: '주간 리포트', icon: '📋', route: '/weekly-report', tutId: 'tut-weekly'    },
   { label: '통계',       icon: '📊', route: '/stats',         tutId: 'tut-stats'     },
-  { label: '알림',       icon: '🔔', route: '/notifications' },
   { label: 'EchoLens',  icon: '🌊', route: '/community' },
   { label: '설정',       icon: '⚙️', route: '/settings'  },
 ];
@@ -22,32 +21,34 @@ const SidebarLeft = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const user = useCurrentUser();
+  const [showNoti, setShowNoti]  = useState(false);
+  const [unreadCount, setUnread] = useState(0);
+
+  const refreshUnread = useCallback(() => {
+    Promise.all([getLetters().catch(() => []), getNotifications().catch(() => [])])
+      .then(([l, n]) => setUnread(l.filter(x => !x.isRead).length + n.filter(x => !x.isRead).length));
+  }, []);
+
+  const closeNoti = useCallback(() => {
+    setShowNoti(false);
+    refreshUnread();
+  }, [refreshUnread]);
+
+  useEffect(() => {
+    refreshUnread();
+    window.addEventListener('letter-read', refreshUnread);
+    window.addEventListener('notification-new', refreshUnread);
+    return () => {
+      window.removeEventListener('letter-read', refreshUnread);
+      window.removeEventListener('notification-new', refreshUnread);
+    };
+  }, [refreshUnread]);
 
   const isActive = (route) => {
     if (!route) return false;
     if (route === '/home') return pathname === '/home';
     return pathname.startsWith(route);
   };
-
-  const [unreadCount, setUnreadCount]     = useState(0);
-  const [unreadNotiCount, setUnreadNotiCount] = useState(0);
-
-  useEffect(() => {
-    getUnreadCount().then(setUnreadCount).catch(() => {});
-    getUnreadNotificationCount().then(setUnreadNotiCount).catch(() => {});
-  }, [pathname]);
-
-  useEffect(() => {
-    const refresh = () => getUnreadCount().then(setUnreadCount).catch(() => {});
-    window.addEventListener('letter-read', refresh);
-    return () => window.removeEventListener('letter-read', refresh);
-  }, []);
-
-  useEffect(() => {
-    const refresh = () => getUnreadNotificationCount().then(setUnreadNotiCount).catch(() => {});
-    window.addEventListener('notification-new', refresh);
-    return () => window.removeEventListener('notification-new', refresh);
-  }, []);
 
   const chatUsed      = user?.chatUsed  ?? 0;
   const chatLimit     = user?.chatLimit ?? 10;
@@ -81,6 +82,18 @@ const SidebarLeft = () => {
           {isPremium ? 'Premium 플랜' : 'Free 플랜'}
         </div>
       </div>
+      {showNoti && <NotificationPopup onClose={closeNoti} />}
+
+      <button
+        className={`sidebar-noti-row ${showNoti ? 'active' : ''} ${unreadCount > 0 ? 'has-unread' : ''}`}
+        onClick={() => setShowNoti(v => !v)}
+      >
+        <span className="sidebar-noti-row-icon">🔔</span>
+        <span className="sidebar-noti-row-label">알림 · 편지함</span>
+        {unreadCount > 0 && (
+          <span className="sidebar-noti-row-badge">{unreadCount}</span>
+        )}
+      </button>
 
       <nav className="sidebar-nav">
         {menuItems.map(item => (
@@ -97,17 +110,10 @@ const SidebarLeft = () => {
                 {chatUsed}/{chatLimit}
               </span>
             )}
-            {item.route === '/letters' && unreadCount > 0 && (
-              <span className="chat-badge">{unreadCount}</span>
-            )}
-            {item.route === '/notifications' && unreadNotiCount > 0 && (
-              <span className="chat-badge">{unreadNotiCount}</span>
-            )}
           </button>
         ))}
       </nav>
 
-      {/* Premium 배너 */}
       {isPremium ? (
         <div className="sidebar-premium-cta sidebar-premium-active">
           <span className="sidebar-premium-icon">✨</span>

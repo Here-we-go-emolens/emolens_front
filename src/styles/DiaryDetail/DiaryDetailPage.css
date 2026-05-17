@@ -252,6 +252,169 @@
   margin: 0;
 }
 
+/* ── 분석중 skeleton ───────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+@keyframes pulse-ring {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.dd-skeleton-bar {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0ece8 25%, #e8e4e0 50%, #f0ece8 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  margin-bottom: 8px;
+}
+.dd-skeleton-bar.short  { width: 55%; }
+.dd-skeleton-bar.medium { width: 75%; }
+.dd-skeleton-bar.long   { width: 90%; }
+.dd-skeleton-bar.full   { width: 100%; }
+
+.dd-skeleton-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 4px 0;
+}
+
+.dd-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f5f2ef;
+}
+.dd-skeleton-row:last-child { border-bottom: none; }
+
+.dd-skeleton-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #f0ece8 25%, #e8e4e0 50%, #f0ece8 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.4s infinite linear;
+  flex-shrink: 0;
+}
+
+.dd-skeleton-text-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 도넛 자리 skeleton */
+.dd-donut-skeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+}
+
+.dd-donut-skeleton-ring {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 20px solid transparent;
+  border-color: #f0ece8 #e8e4e0 #f0ece8 #ece8e4;
+  animation: spin 1.2s linear infinite, pulse-ring 2s ease-in-out infinite;
+  position: relative;
+}
+
+.dd-donut-skeleton-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* 분석중 인사이트 */
+.dd-analyzing-insight {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dd-analyzing-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c2410c;
+  background: rgba(255,247,237,0.9);
+  padding: 4px 10px;
+  border-radius: 20px;
+  width: fit-content;
+  margin-bottom: 4px;
+}
+
+.dd-analyzing-spinner {
+  width: 8px;
+  height: 8px;
+  border: 2px solid #fed7aa;
+  border-top-color: #c2410c;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+/* 분석중 토스트 */
+.dd-analyzing-toast {
+  position: fixed;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1a1410;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 13px 22px;
+  border-radius: 40px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  z-index: 9999;
+  animation: toast-in 0.3s ease, toast-out 0.4s ease 2.6s forwards;
+  white-space: nowrap;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(-50%) translateY(0); }
+  to   { opacity: 0; transform: translateX(-50%) translateY(8px); }
+}
+
+/* 추천행동 skeleton 아이템 */
+.dd-skeleton-rec {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #faf8f5;
+  margin-bottom: 8px;
+}
+.dd-skeleton-rec-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #f0ece8 25%, #e8e4e0 50%, #f0ece8 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.4s infinite linear;
+  flex-shrink: 0;
+}
+
 /* ── 마스코트 ────────────────────────────────────────────── */
 .dd-mascot-area {
   flex-shrink: 0;
