@@ -27,6 +27,19 @@ export const getWeatherByCoords = async (lat, lon) => {
   return response.data;
 };
 
+const getKoreanCityName = async (lat, lon) => {
+  try {
+    const res = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+      params: { lat, lon, format: 'json', 'accept-language': 'ko' },
+      headers: { 'Accept-Language': 'ko' },
+    });
+    const addr = res.data.address;
+    return addr.city ?? addr.town ?? addr.county ?? addr.state ?? null;
+  } catch {
+    return null;
+  }
+};
+
 export const getWeatherByLocation = () =>
   new Promise((resolve) => {
     if (!navigator.geolocation) {
@@ -34,7 +47,14 @@ export const getWeatherByLocation = () =>
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) => resolve(getWeatherByCoords(coords.latitude, coords.longitude)),
+      async ({ coords }) => {
+        const { latitude: lat, longitude: lon } = coords;
+        const [weather, koreanName] = await Promise.all([
+          getWeatherByCoords(lat, lon),
+          getKoreanCityName(lat, lon),
+        ]);
+        resolve({ ...weather, name: koreanName ?? weather.name });
+      },
       () => resolve(getCurrentWeather("Seoul")),
       { timeout: 5000 },
     );
