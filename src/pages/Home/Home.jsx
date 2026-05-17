@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import SidebarRight from '../../components/Sidebar-right/SidebarRight';
 import WeatherCard from '../../components/WeatherCard/WeatherCard';
 import TutorialOverlay from '../../components/Tutorial/TutorialOverlay';
-import LetterPopup from '../../components/LetterPopup/LetterPopup';
+import NotificationPopup from '@/components/NotificationPopup/NotificationPopup';
 import mascotImg from '@/assets/mascot-removebg-preview.png';
 import { getDiaryList } from '@/services/diaryApi';
 import { getStats } from '@/services/statsApi';
 import { getLetters } from '@/services/letterApi';
+import { getNotifications } from '@/services/notificationApi';
 import { getMyCharacter } from '@/services/characterApi';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import CharacterGreetingPopup from '@/components/CharacterGreeting/CharacterGreetingPopup';
@@ -269,15 +270,16 @@ const Home = () => {
   const [searchType,  setSearchType]  = useState('제목');
   const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats]         = useState(null);
-  const [showTutorial, setShowTutorial]       = useState(false);
-  const [showLetterPopup, setShowLetterPopup] = useState(false);
-  const [showGreeting, setShowGreeting]         = useState(false);
+  const [showTutorial, setShowTutorial]               = useState(false);
+  const [showNotiPopup, setShowNotiPopup]             = useState(false);
+  const [showGreeting, setShowGreeting]               = useState(false);
   const [showStampCelebration, setShowStampCelebration] = useState(false);
-  const [greetingDaysSince, setGreetingDaysSince] = useState(0);
-  const [character, setCharacter]               = useState(null);
-  const [characterName, setCharacterName]       = useState(null);
-  const [unreadLetterId, setUnreadLetterId]     = useState(null);
-  const [letters, setLetters]                   = useState([]);
+  const [greetingDaysSince, setGreetingDaysSince]     = useState(0);
+  const [character, setCharacter]                     = useState(null);
+  const [letters, setLetters]                         = useState([]);
+  const [unreadNotiCount, setUnreadNotiCount]         = useState(0);
+
+  const closeNotiPopup = useCallback(() => setShowNotiPopup(false), []);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -326,18 +328,10 @@ const Home = () => {
 
   useEffect(() => {
     if (!user?.id || showTutorial) return;
-    const sessionKey = `emolens_letter_popup_${user.id}`;
-    if (sessionStorage.getItem(sessionKey)) return;
-    Promise.all([getLetters(), getMyCharacter().catch(() => null)])
-      .then(([letters, char]) => {
-        setLetters(letters);
-        const unread = letters.find(l => !l.isRead);
-        if (!unread) return;
-        setUnreadLetterId(unread.id);
-        setCharacterName(char?.name ?? null);
-        setShowLetterPopup(true);
-        sessionStorage.setItem(sessionKey, 'true');
-      }).catch(() => {});
+    getLetters().then(setLetters).catch(() => {});
+    getNotifications().then(list => {
+      setUnreadNotiCount(list.filter(n => !n.isRead).length);
+    }).catch(() => {});
   }, [user?.id, showTutorial]);
 
   useEffect(() => {
@@ -386,10 +380,8 @@ const Home = () => {
   return (
     <div className="home-layout">
       {showTutorial && <TutorialOverlay userId={user?.id} onDone={() => setShowTutorial(false)} />}
-      {showLetterPopup && (
-        <LetterPopup characterName={characterName} letterId={unreadLetterId} onClose={() => setShowLetterPopup(false)} />
-      )}
-      {showGreeting && !showLetterPopup && (
+      {showNotiPopup && <NotificationPopup onClose={closeNotiPopup} />}
+      {showGreeting && !showNotiPopup && (
         <CharacterGreetingPopup
           characterName={character?.name}
           daysSinceLast={greetingDaysSince}
@@ -416,6 +408,17 @@ const Home = () => {
             <button className="hero-write-btn" onClick={() => navigate('/write')}>✏️ 오늘 일기 쓰기</button>
           </div>
           <div className="hero-right">
+            <button
+              className={`hero-bell-btn ${showNotiPopup ? 'active' : ''}`}
+              onClick={() => setShowNotiPopup(v => !v)}
+            >
+              🔔
+              {(letters.filter(l => !l.isRead).length + unreadNotiCount) > 0 && (
+                <span className="hero-bell-badge">
+                  {letters.filter(l => !l.isRead).length + unreadNotiCount}
+                </span>
+              )}
+            </button>
             <LiveClock />
             <WeatherCard size={36} />
             <span className="weather-city">서울</span>
@@ -506,7 +509,7 @@ const Home = () => {
               <div className="hlc-body">
                 <div className="hlc-top">
                   <span className="hlc-title">
-                    {hasUnread ? `${characterName ?? 'AI 친구'}의 편지가 도착했어요` : '편지함'}
+                    {hasUnread ? `${character?.name ?? 'AI 친구'}의 편지가 도착했어요` : '편지함'}
                   </span>
                   {hasUnread && <span className="hlc-badge">{unread.length}</span>}
                 </div>
