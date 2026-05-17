@@ -10,6 +10,8 @@ import EmotionSelector from './EmotionSelector';
 import mascotFallback from '@/assets/mascot-removebg-preview.png';
 import '@/styles/CreateDiary/DiaryWritePage.css';
 
+const DRAFT_KEY = 'emolens_diary_draft';
+
 // ── 일기 형식 ──────────────────────────────────────────────
 const TEMPLATES = [
   { id: 'plain',    label: '내지',  icon: '📄', desc: '빈 페이지 형식' },
@@ -425,6 +427,9 @@ export default function DiaryWritePage() {
   const [uploading, setUploading]                 = useState(false);
   const [submitting, setSubmitting]               = useState(false);
   const [weather, setWeather]                     = useState(null);
+  const [showDraftModal, setShowDraftModal]       = useState(false);
+  const [draftData, setDraftData]                 = useState(null);
+  const [draftChecked, setDraftChecked]           = useState(false);
 
   const primaryEmotion = selectedEmotions.find(e => e.order === 1) ?? null;
   const primaryId      = primaryEmotion?.id ?? null;
@@ -443,11 +448,58 @@ export default function DiaryWritePage() {
       .catch(() => {});
   }, []);
 
+  // 임시저장 초기 확인
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft.title || draft.content) {
+          setDraftData(draft);
+          setShowDraftModal(true);
+        } else {
+          localStorage.removeItem(DRAFT_KEY);
+        }
+      }
+    } catch {
+      localStorage.removeItem(DRAFT_KEY);
+    }
+    setDraftChecked(true);
+  }, []);
+
+  // 자동 임시저장
+  useEffect(() => {
+    if (!draftChecked) return;
+    if (!title && !content && selectedEmotions.length === 0) return;
+    const draft = { title, content, selectedTemplate, selectedEmotions, letterTo, letterFrom, imageUrls };
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  }, [title, content, selectedTemplate, selectedEmotions, letterTo, letterFrom, imageUrls, draftChecked]);
+
   const { isSupported: micSupported, isRecording, interimText, toggle: toggleMic } =
     useSpeechRecognition({
       onFinalResult: (text) =>
         setContent(prev => prev + (prev && !prev.endsWith('\n') ? ' ' : '') + text),
     });
+
+  // ── 임시저장 복원 / 버리기 ──────────────────────────────
+  const handleRestoreDraft = () => {
+    if (!draftData) return;
+    setTitle(draftData.title ?? '');
+    setContent(draftData.content ?? '');
+    setSelectedTemplate(draftData.selectedTemplate ?? 'plain');
+    setSelectedEmotions(draftData.selectedEmotions ?? []);
+    setLetterTo(draftData.letterTo ?? '');
+    setLetterFrom(draftData.letterFrom ?? '');
+    setImageUrls(draftData.imageUrls ?? []);
+    setShowDraftModal(false);
+    setDraftData(null);
+  };
+
+  const handleDiscardDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    setShowDraftModal(false);
+    setDraftData(null);
+  };
 
   // ── 감정 토글 ────────────────────────────────────────────
   const handleEmotionToggle = (id) => {
@@ -535,6 +587,7 @@ export default function DiaryWritePage() {
       }
 
       localStorage.setItem(`diary_template_${id}`, selectedTemplate);
+      localStorage.removeItem(DRAFT_KEY);
       navigate(`/diary/${id}`);
     } catch {
       alert('일기 저장에 실패했습니다.');
@@ -549,6 +602,30 @@ export default function DiaryWritePage() {
 
   return (
     <div className="dw-layout">
+
+      {/* ── 임시저장 복원 모달 ── */}
+      {showDraftModal && (
+        <div className="dw-draft-overlay">
+          <div className="dw-draft-modal">
+            <div className="dw-draft-mascot-wrap">
+              <img src={mascotFallback} alt="EmoLens 마스코트" className="dw-draft-mascot" />
+              <div className="dw-draft-bubble">다 쓴 줄 알았는데,<br />아직 남아있어요! ✍️</div>
+            </div>
+            <div className="dw-draft-body">
+              <h3 className="dw-draft-title">작성 중이던 일기가 있어요</h3>
+              {draftData?.title
+                ? <p className="dw-draft-preview">📄 "{draftData.title}"</p>
+                : <p className="dw-draft-preview">📄 제목 없는 일기</p>
+              }
+              <p className="dw-draft-desc">이어서 작성할까요?</p>
+              <div className="dw-draft-btns">
+                <button className="dw-draft-restore" onClick={handleRestoreDraft}>✏️ 이어서 쓰기</button>
+                <button className="dw-draft-discard" onClick={handleDiscardDraft}>새로 쓰기</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <SidebarLeft />
 
       <main className="dw-main">
