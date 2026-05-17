@@ -36,6 +36,8 @@ function App() {
         <Route path="/"               element={<OnboardingPage />} />
         <Route path="/login"          element={<LoginPage />} />
         <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+        <Route path="/signup"         element={<SignupPage />} />
+        <Route path="/register"       element={<RegisterPage />} />
 
         <Route path="/home"           element={<Home />} />
         <Route element={<CommunityLayout />}>
@@ -48,12 +50,10 @@ function App() {
         <Route path="/diary/:id"      element={<DiaryDetailPage />} />
         <Route path="/letters"        element={<LetterPage />} />
         <Route path="/weekly-report"  element={<WeeklyReportPage />} />
-        <Route path="/notifications"   element={<NotificationsPage />} />
+        <Route path="/notifications"  element={<NotificationsPage />} />
         <Route path="/stats"          element={<StatsPage />} />
         <Route path="/settings"       element={<SettingsPage />} />
         <Route path="/premium"        element={<PremiumPage />} />
-        <Route path="/signup"         element={<SignupPage />} />
-        <Route path="/register"       element={<RegisterPage />} />
       </Routes>
     </UserProvider>
   )

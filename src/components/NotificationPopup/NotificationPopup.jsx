@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { getNotifications, markAsRead, markAllAsRead } from '@/services/notificationApi';
 import { getLetters, getLetter } from '@/services/letterApi';
@@ -112,7 +113,7 @@ export default function NotificationPopup({ onClose }) {
     setLetters(prev => prev.map(l => ({ ...l, isRead: true })));
   };
 
-  return (
+  return createPortal(
     <div className="noti-popup" ref={popupRef}>
       {/* 헤더 */}
       <div className="noti-popup-header">
@@ -180,6 +181,7 @@ export default function NotificationPopup({ onClose }) {
           );
         })}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

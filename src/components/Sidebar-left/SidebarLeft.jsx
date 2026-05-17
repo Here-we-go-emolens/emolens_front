@@ -1,5 +1,9 @@
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import NotificationPopup from '@/components/NotificationPopup/NotificationPopup';
+import { getLetters } from '@/services/letterApi';
+import { getNotifications } from '@/services/notificationApi';
 import logoImg from '@/assets/logo.png';
 import "@/styles/Sidebar-left/SidebarLeft.css";
 
@@ -17,6 +21,22 @@ const SidebarLeft = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const user = useCurrentUser();
+  const [showNoti, setShowNoti]     = useState(false);
+  const [unreadCount, setUnread]    = useState(0);
+
+  const closeNoti = useCallback(() => {
+    setShowNoti(false);
+    Promise.all([getLetters().catch(() => []), getNotifications().catch(() => [])])
+      .then(([l, n]) => setUnread(l.filter(x => !x.isRead).length + n.filter(x => !x.isRead).length));
+  }, []);
+
+  useEffect(() => {
+    Promise.all([getLetters().catch(() => []), getNotifications().catch(() => [])])
+      .then(([l, n]) => setUnread(l.filter(x => !x.isRead).length + n.filter(x => !x.isRead).length));
+    const onRead = () => closeNoti();
+    window.addEventListener('letter-read', onRead);
+    return () => window.removeEventListener('letter-read', onRead);
+  }, [closeNoti]);
 
   const isActive = (route) => {
     if (!route) return false;
@@ -56,6 +76,18 @@ const SidebarLeft = () => {
           {isPremium ? 'Premium 플랜' : 'Free 플랜'}
         </div>
       </div>
+      {showNoti && <NotificationPopup onClose={closeNoti} />}
+
+      <button
+        className={`sidebar-noti-row ${showNoti ? 'active' : ''} ${unreadCount > 0 ? 'has-unread' : ''}`}
+        onClick={() => setShowNoti(v => !v)}
+      >
+        <span className="sidebar-noti-row-icon">🔔</span>
+        <span className="sidebar-noti-row-label">알림 · 편지함</span>
+        {unreadCount > 0 && (
+          <span className="sidebar-noti-row-badge">{unreadCount}</span>
+        )}
+      </button>
 
       <nav className="sidebar-nav">
         {menuItems.map(item => (
