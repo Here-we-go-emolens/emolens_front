@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import { useUserContext } from '@/contexts/UserContext';
-import { logout, updateProfile, uploadProfileImage, changePassword, withdraw } from '@/services/userApi';
+import { logout, updateProfile, uploadProfileImage, changePassword, withdraw, getNotificationSettings, updateNotificationSettings } from '@/services/userApi';
 import { clearTokens } from '@/services/auth';
 import { getMyCharacter } from '@/services/characterApi';
 import '@/styles/Settings/SettingsPage.css';
@@ -166,6 +166,9 @@ const SettingsPage = () => {
 
   useEffect(() => {
     getMyCharacter().then(setCharacter).catch(() => {});
+    getNotificationSettings()
+      .then(ns => setSettings(prev => ({ ...prev, notifications: ns })))
+      .catch(() => {}); // 백엔드 미구현 시 기본값 유지
   }, []);
 
   useEffect(() => {
@@ -260,9 +263,14 @@ const SettingsPage = () => {
   };
 
   /* 전체 저장 */
-  const handleSaveAll = () => {
+  const handleSaveAll = async () => {
     setSettings(prev => ({ ...prev, profile: { ...profileDraft } }));
-    showToast('모든 설정이 저장되었습니다.');
+    try {
+      await updateNotificationSettings(settings.notifications);
+      showToast('모든 설정이 저장되었습니다.');
+    } catch {
+      showToast('알림 설정 저장에 실패했습니다.', 'error');
+    }
   };
 
   /* 초기화 */

@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { getUnreadCount } from '@/services/letterApi';
+import { getUnreadNotificationCount } from '@/services/notificationApi';
 import logoImg from '@/assets/logo.png';
 import "@/styles/Sidebar-left/SidebarLeft.css";
 
@@ -7,8 +10,10 @@ const menuItems = [
   { label: '홈',         icon: '🏠', route: '/home'      },
   { label: '일기 작성',   icon: '✏️', route: '/write',         tutId: 'tut-write'     },
   { label: '대화형 일기', icon: '🤖', route: '/ai-chat',       tutId: 'tut-ai-chat'   },
+  { label: '편지함',     icon: '💌', route: '/letters'       },
   { label: '주간 리포트', icon: '📋', route: '/weekly-report', tutId: 'tut-weekly'    },
   { label: '통계',       icon: '📊', route: '/stats',         tutId: 'tut-stats'     },
+  { label: '알림',       icon: '🔔', route: '/notifications' },
   { label: 'EchoLens',  icon: '🌊', route: '/community' },
   { label: '설정',       icon: '⚙️', route: '/settings'  },
 ];
@@ -23,6 +28,26 @@ const SidebarLeft = () => {
     if (route === '/home') return pathname === '/home';
     return pathname.startsWith(route);
   };
+
+  const [unreadCount, setUnreadCount]     = useState(0);
+  const [unreadNotiCount, setUnreadNotiCount] = useState(0);
+
+  useEffect(() => {
+    getUnreadCount().then(setUnreadCount).catch(() => {});
+    getUnreadNotificationCount().then(setUnreadNotiCount).catch(() => {});
+  }, [pathname]);
+
+  useEffect(() => {
+    const refresh = () => getUnreadCount().then(setUnreadCount).catch(() => {});
+    window.addEventListener('letter-read', refresh);
+    return () => window.removeEventListener('letter-read', refresh);
+  }, []);
+
+  useEffect(() => {
+    const refresh = () => getUnreadNotificationCount().then(setUnreadNotiCount).catch(() => {});
+    window.addEventListener('notification-new', refresh);
+    return () => window.removeEventListener('notification-new', refresh);
+  }, []);
 
   const chatUsed      = user?.chatUsed  ?? 0;
   const chatLimit     = user?.chatLimit ?? 10;
@@ -71,6 +96,12 @@ const SidebarLeft = () => {
               <span className={`chat-badge ${chatWarning ? 'warn' : ''}`}>
                 {chatUsed}/{chatLimit}
               </span>
+            )}
+            {item.route === '/letters' && unreadCount > 0 && (
+              <span className="chat-badge">{unreadCount}</span>
+            )}
+            {item.route === '/notifications' && unreadNotiCount > 0 && (
+              <span className="chat-badge">{unreadNotiCount}</span>
             )}
           </button>
         ))}
