@@ -8,3 +8,6 @@ export const getUnreadCount = () =>
 
 export const getLetter = (id) =>
   apiClient.get(`/api/letters/${id}`).then((r) => r.data);
+
+export const devDeliverPendingLetters = () =>
+  apiClient.post('/api/dev/deliver-letters').then((r) => r.data);

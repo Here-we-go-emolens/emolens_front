@@ -7,7 +7,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import { ResponsiveSankey } from '@nivo/sankey';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
-import { getWeeklyReports, completeAction } from '@/services/weeklyReportApi';
+import { getWeeklyReports, completeAction, devGenerateWeeklyReport } from '@/services/weeklyReportApi';
 import { getDiaryList } from '@/services/diaryApi';
 import { getStats } from '@/services/statsApi';
 import { EMOTION_MAP } from '@/constants/emotions';
@@ -62,13 +62,29 @@ const longTermLineOptions = {
 };
 
 export default function WeeklyReportPage() {
-  const [reports, setReports]         = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [index, setIndex]             = useState(0);
-  const [diaries, setDiaries]         = useState([]);
+  const [reports, setReports]           = useState([]);
+  const [loading, setLoading]           = useState(true);
+  const [index, setIndex]               = useState(0);
+  const [diaries, setDiaries]           = useState([]);
   const [currentStats, setCurrentStats] = useState(null);
-  const [prevStats, setPrevStats]     = useState(null);
+  const [prevStats, setPrevStats]       = useState(null);
   const [longTermStats, setLongTermStats] = useState([]);
+  const [generating, setGenerating]     = useState(false);
+
+  const handleDevGenerate = async () => {
+    setGenerating(true);
+    try {
+      const msg = await devGenerateWeeklyReport();
+      const data = await getWeeklyReports();
+      setReports(data);
+      setIndex(Math.max(0, data.length - 1));
+      alert(msg);
+    } catch (e) {
+      alert('생성 실패: ' + e.message);
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   useEffect(() => {
     getWeeklyReports()
@@ -206,6 +222,27 @@ export default function WeeklyReportPage() {
       <main className="wr-main">
         <h2 className="wr-title">주간 감정 리포트</h2>
         <p className="wr-desc">일기 3편 이상 쓴 주에 자동으로 생성돼요.</p>
+
+        {import.meta.env.DEV && (
+          <button
+            onClick={handleDevGenerate}
+            disabled={generating}
+            style={{
+              marginBottom: '16px',
+              padding: '8px 16px',
+              background: '#f26a21',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: generating ? 'not-allowed' : 'pointer',
+              fontSize: '13px',
+              fontWeight: 600,
+              opacity: generating ? 0.6 : 1,
+            }}
+          >
+            {generating ? '생성 중…' : '이번 주 리포트 즉시 생성 (DEV)'}
+          </button>
+        )}
 
         {loading ? (
           <p className="wr-loading">불러오는 중…</p>

@@ -5,3 +5,6 @@ export const getWeeklyReports = () =>
 
 export const completeAction = (id) =>
   apiClient.post(`/api/weekly-reports/${id}/complete`).then((r) => r.data);
+
+export const devGenerateWeeklyReport = () =>
+  apiClient.post('/api/dev/weekly-report').then((r) => r.data);

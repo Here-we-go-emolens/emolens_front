@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
-import { getLetters, getLetter } from '@/services/letterApi';
+import { getLetters, getLetter, devDeliverPendingLetters } from '@/services/letterApi';
 import mascotImg from '@/assets/mascot-removebg-preview.png';
 import '@/styles/Letter/LetterPage.css';
 
@@ -129,9 +129,24 @@ function LetterDetail({ letter, onClose, onViewDiary }) {
 export default function LetterPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [letters, setLetters]   = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [selected, setSelected] = useState(null);
+  const [letters, setLetters]     = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [selected, setSelected]   = useState(null);
+  const [delivering, setDelivering] = useState(false);
+
+  const handleDevDeliver = async () => {
+    setDelivering(true);
+    try {
+      const msg = await devDeliverPendingLetters();
+      const data = await getLetters();
+      setLetters(data);
+      alert(msg);
+    } catch (e) {
+      alert('배달 실패: ' + e.message);
+    } finally {
+      setDelivering(false);
+    }
+  };
 
   const handleOpen = async (item) => {
     try {
@@ -170,6 +185,27 @@ export default function LetterPage() {
         <p className="letter-page-desc">
           AI 캐릭터가 보낸 일기 답장과 주간 리포트를 확인하세요.
         </p>
+
+        {import.meta.env.DEV && (
+          <button
+            onClick={handleDevDeliver}
+            disabled={delivering}
+            style={{
+              marginBottom: '16px',
+              padding: '8px 16px',
+              background: '#f26a21',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: delivering ? 'not-allowed' : 'pointer',
+              fontSize: '13px',
+              fontWeight: 600,
+              opacity: delivering ? 0.6 : 1,
+            }}
+          >
+            {delivering ? '배달 중…' : '편지 즉시 배달 (DEV)'}
+          </button>
+        )}
 
         {loading ? (
           <p className="letter-loading">불러오는 중…</p>
