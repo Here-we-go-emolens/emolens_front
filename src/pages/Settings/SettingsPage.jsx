@@ -25,10 +25,8 @@ const DEFAULT_SETTINGS = {
     dailyReminder: true,
     aiAnalysisDone: true,
     weeklyReport: false,
-    friendActivity: false,
   },
   writing: {
-    defaultMode: 'normal', // 'normal' | 'ai'
     fontSize: 'medium',    // 'small' | 'medium' | 'large'
     autoSave: true,
   },
@@ -40,7 +38,6 @@ const DEFAULT_SETTINGS = {
   },
   privacy: {
     privateDiary: true,
-    shareEmotionWithFriends: false,
     publicProfile: false,
     saveAnalysisData: true,
   },
@@ -85,7 +82,7 @@ const ToggleRow = ({ label, desc, checked, onChange }) => (
 
 /* ── 오른쪽 패널 ────────────────────────────────────── */
 const RightPanel = ({ settings, profileImageUrl }) => {
-  const { profile, notifications, writing, ai } = settings;
+  const { profile, notifications, writing, ai } = settings; // writing: fontSize 요약용
   const notifOn = Object.values(notifications).some(Boolean);
   const aiOn    = Object.values(ai).some(Boolean);
 
@@ -105,12 +102,6 @@ const RightPanel = ({ settings, profileImageUrl }) => {
       <div className="rp-card">
         <div className="rp-card-label">현재 설정 요약</div>
         <ul className="rp-summary-list">
-          <li>
-            <span className="rp-sum-key">✏️ 기본 작성 모드</span>
-            <span className="rp-sum-val">
-              {writing.defaultMode === 'normal' ? '일반 일기' : 'AI 대화형'}
-            </span>
-          </li>
           <li>
             <span className="rp-sum-key">🔔 알림</span>
             <span className={`rp-sum-val ${notifOn ? 'val-on' : 'val-off'}`}>
@@ -422,12 +413,6 @@ const SettingsPage = () => {
             checked={notifications.weeklyReport}
             onChange={v => setNested('notifications', 'weeklyReport', v)}
           />
-          <ToggleRow
-            label="친구 관련 알림"
-            desc="친구의 반응이나 공유 활동을 알려드립니다"
-            checked={notifications.friendActivity}
-            onChange={v => setNested('notifications', 'friendActivity', v)}
-          />
         </SettingSection>
 
         {/* ④ 일기 작성 환경 */}
@@ -436,25 +421,6 @@ const SettingsPage = () => {
           title="일기 작성 환경 설정"
           subtitle="더 편안한 기록 환경을 설정하세요"
         >
-          {/* 기본 작성 모드 */}
-          <div className="sub-setting-group">
-            <div className="sub-setting-label">기본 작성 모드</div>
-            <div className="btn-group">
-              {[
-                { val: 'normal', label: '📝 일반 일기' },
-                { val: 'ai',    label: '🤖 AI 대화형 일기' },
-              ].map(({ val, label }) => (
-                <button
-                  key={val}
-                  className={`btn-choice ${writing.defaultMode === val ? 'selected' : ''}`}
-                  onClick={() => setNested('writing', 'defaultMode', val)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* 글자 크기 */}
           <div className="sub-setting-group">
             <div className="sub-setting-label">글자 크기</div>
@@ -526,12 +492,6 @@ const SettingsPage = () => {
             desc="모든 일기를 나만 볼 수 있게 설정합니다"
             checked={privacy.privateDiary}
             onChange={v => setNested('privacy', 'privateDiary', v)}
-          />
-          <ToggleRow
-            label="친구에게 감정 상태 공개"
-            desc="오늘의 감정 태그를 친구 피드에 표시합니다"
-            checked={privacy.shareEmotionWithFriends}
-            onChange={v => setNested('privacy', 'shareEmotionWithFriends', v)}
           />
           <ToggleRow
             label="프로필 공개"
