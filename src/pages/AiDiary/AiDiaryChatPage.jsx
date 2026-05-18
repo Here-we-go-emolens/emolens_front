@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAiResponse, finishChat } from '@/api/aiChat';
+import { getAiResponse, previewChat, finishChat } from '@/api/aiChat';
+import { createDiary } from '@/services/diaryApi';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useCharacter } from '@/hooks/useCharacter';
 import useSpeechRecognition from '@/hooks/useSpeechRecognition';
@@ -239,7 +240,11 @@ export default function AiDiaryChatPage() {
   ]);
   const [input,      setInput]      = useState('');
   const [isTyping,   setIsTyping]   = useState(false);
-  const [saveState,  setSaveState]  = useState('idle'); // 'idle' | 'saving' | 'saved'
+  const [saveState,  setSaveState]  = useState('idle'); // 'idle' | 'previewing' | 'saved'
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewTitle,   setPreviewTitle]   = useState('');
+  const [previewContent, setPreviewContent] = useState('');
+  const [confirmSaving,  setConfirmSaving]  = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [panelKeywords, setPanelKeywords] = useState([]);
   const [panelSummary,  setPanelSummary]  = useState(null);
@@ -394,21 +399,48 @@ export default function AiDiaryChatPage() {
     setDraftData(null);
   };
 
-  const handleSave = async () => {
+  const handleGeneratePreview = async () => {
     const userMessages = messages.filter(m => m.role === 'user');
     if (userMessages.length === 0) {
       alert('먼저 AI와 대화를 나눠주세요.');
       return;
     }
-    setSaveState('saving');
+    setSaveState('previewing');
     try {
-      const diaryId = await finishChat(messages);
+      const { title, content } = await previewChat(messages);
+      setPreviewTitle(title);
+      setPreviewContent(content);
+      setShowPreviewModal(true);
+    } catch {
+      alert('일기 미리보기 생성에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setSaveState('idle');
+    }
+  };
+
+  const handleConfirmSave = async () => {
+    setConfirmSaving(true);
+    try {
+      const today = new Date();
+      const diaryDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      const diaryId = await createDiary({
+        title: previewTitle,
+        content: previewContent,
+        diaryDate,
+        weather: null,
+        templateType: null,
+        isSecret: false,
+        imageUrls: [],
+        userEmotions: [],
+      });
       localStorage.removeItem(CHAT_DRAFT_KEY);
+      setShowPreviewModal(false);
       setSaveState('saved');
       setTimeout(() => navigate(`/diary/${diaryId}`), 800);
     } catch {
-      alert('일기 생성에 실패했습니다. 다시 시도해주세요.');
-      setSaveState('idle');
+      alert('일기 저장에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setConfirmSaving(false);
     }
   };
 
@@ -630,7 +662,7 @@ export default function AiDiaryChatPage() {
                   <h3 className="cr-title">{title}</h3>
                   <p className="cr-desc">{body}</p>
                   <div className="cr-btns">
-                    <button className="cr-btn-primary" onClick={() => { setShowReadyModal(false); handleSave(); }}>
+                    <button className="cr-btn-primary" onClick={() => { setShowReadyModal(false); handleGeneratePreview(); }}>
                       일기로 저장하기
                     </button>
                     <button className="cr-btn-secondary" onClick={() => setShowReadyModal(false)}>
@@ -670,6 +702,55 @@ export default function AiDiaryChatPage() {
           );
         })()}
 
+        {/* 일기 미리보기 모달 */}
+        {showPreviewModal && (
+          <div className="pv-overlay" onClick={() => !confirmSaving && setShowPreviewModal(false)}>
+            <div className="pv-modal" onClick={e => e.stopPropagation()}>
+              <div className="pv-header">
+                <div className="pv-header-left">
+                  <img src={mascotImg} alt="AI" className="pv-avatar" />
+                  <div>
+                    <p className="pv-label">AI가 작성한 오늘의 일기</p>
+                    <p className="pv-sublabel">내용을 수정한 후 저장하세요</p>
+                  </div>
+                </div>
+                {!confirmSaving && (
+                  <button className="pv-close" onClick={() => setShowPreviewModal(false)}>✕</button>
+                )}
+              </div>
+              <div className="pv-body">
+                <label className="pv-field-label">제목</label>
+                <input
+                  className="pv-title-input"
+                  value={previewTitle}
+                  onChange={e => setPreviewTitle(e.target.value)}
+                  maxLength={100}
+                  disabled={confirmSaving}
+                />
+                <label className="pv-field-label">내용</label>
+                <textarea
+                  className="pv-content-textarea"
+                  value={previewContent}
+                  onChange={e => setPreviewContent(e.target.value)}
+                  disabled={confirmSaving}
+                />
+              </div>
+              <div className="pv-footer">
+                <button
+                  className="pv-btn-confirm"
+                  onClick={handleConfirmSave}
+                  disabled={confirmSaving || !previewTitle.trim() || !previewContent.trim()}
+                >
+                  {confirmSaving ? '저장 중…' : '이대로 저장하기'}
+                </button>
+                <button className="pv-btn-cancel" onClick={() => setShowPreviewModal(false)} disabled={confirmSaving}>
+                  다시 생성하기
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 한도 초과 모달 */}
         {showLimitModal && (
           <div className="chat-modal-overlay" onClick={() => setShowLimitModal(false)}>
@@ -697,10 +778,10 @@ export default function AiDiaryChatPage() {
         {/* 저장 버튼 */}
         <button
           className={`save-btn ${saveState === 'saved' ? 'saved' : ''}`}
-          onClick={handleSave}
-          disabled={saveState === 'saving'}
+          onClick={handleGeneratePreview}
+          disabled={saveState === 'previewing'}
         >
-          {saveState === 'saving' ? '일기 작성 중…' : saveState === 'saved' ? '✓ 저장됨' : '✍️ 대화로 일기 작성'}
+          {saveState === 'previewing' ? '미리보기 생성 중…' : saveState === 'saved' ? '✓ 저장됨' : '✍️ 대화로 일기 작성'}
         </button>
         {saveState === 'saved' && (
           <div className="save-toast">일기가 생성됐어요! 이동 중...</div>
