@@ -1384,7 +1384,6 @@
   top: -10%;
   animation: dw-particle-fall linear both;
   opacity: 0.85;
-  user-select: none;
 }
 
 @keyframes dw-particle-fall {

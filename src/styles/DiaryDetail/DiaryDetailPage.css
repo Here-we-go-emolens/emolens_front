@@ -1609,7 +1609,6 @@
   font-size: 13px;
   color: var(--text-muted);
   cursor: pointer;
-  user-select: none;
 }
 
 /* ── Premium 잠금 카드 (패널용) ─────────────────────────── */
