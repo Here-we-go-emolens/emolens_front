@@ -268,6 +268,7 @@ const Home = () => {
   const [loading, setLoading]     = useState(true);
   const [searchType,  setSearchType]  = useState('제목');
   const [searchQuery, setSearchQuery] = useState('');
+  const [stampDayDiaries, setStampDayDiaries] = useState(null);
   const [stats, setStats]         = useState(null);
   const [showTutorial, setShowTutorial]               = useState(false);
   const [showGreeting, setShowGreeting]               = useState(false);
@@ -415,7 +416,15 @@ const Home = () => {
         {/* ② 퀵 체크인 + 스탬프 달력 */}
         <div className="home-checkin-row">
           <QuickCheckIn todayHasEntry={todayHasEntry} navigate={navigate} />
-          <StampCalendar diaries={diaries} year={year} month={month} onDayClick={(id) => navigate(`/diary/${id}`)} />
+          <StampCalendar
+            diaries={diaries}
+            year={year}
+            month={month}
+            onDayClick={(dayDiaries) => {
+              if (dayDiaries.length === 1) navigate(`/diary/${dayDiaries[0].id}`);
+              else setStampDayDiaries(dayDiaries);
+            }}
+          />
         </div>
 
         {/* ③ 인사이트 2열 */}
@@ -571,6 +580,30 @@ const Home = () => {
       </main>
 
       <SidebarRight stats={stats} diaries={diaries} monthStr={monthStr} characterName={character?.name} />
+
+      {stampDayDiaries && (
+        <div className="stamp-day-overlay" onClick={() => setStampDayDiaries(null)}>
+          <div className="stamp-day-modal" onClick={e => e.stopPropagation()}>
+            <div className="stamp-day-modal-head">
+              <span>📅 {stampDayDiaries[0]?.diaryDate} 일기 목록</span>
+              <button className="stamp-day-modal-close" onClick={() => setStampDayDiaries(null)}>✕</button>
+            </div>
+            <div className="stamp-day-modal-list">
+              {stampDayDiaries.map(d => (
+                <button
+                  key={d.id}
+                  className="stamp-day-modal-item"
+                  onClick={() => { setStampDayDiaries(null); navigate(`/diary/${d.id}`); }}
+                >
+                  <span className="stamp-day-modal-emotion" style={{ background: EMOTION_COLOR[d.emotion] ?? '#D4C8B8' }} />
+                  <span className="stamp-day-modal-title">{d.title}</span>
+                  <span className="stamp-day-modal-arrow">›</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
