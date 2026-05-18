@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useToast } from '@/contexts/ToastContext';
 import {
   Chart as ChartJS,
   CategoryScale, LinearScale, PointElement, LineElement,
@@ -62,6 +63,7 @@ const longTermLineOptions = {
 };
 
 export default function WeeklyReportPage() {
+  const { showToast } = useToast();
   const [reports, setReports]           = useState([]);
   const [loading, setLoading]           = useState(true);
   const [index, setIndex]               = useState(0);
@@ -78,9 +80,9 @@ export default function WeeklyReportPage() {
       const data = await getWeeklyReports();
       setReports(data);
       setIndex(Math.max(0, data.length - 1));
-      alert(msg);
+      showToast(msg, 'success');
     } catch (e) {
-      alert('생성 실패: ' + e.message);
+      showToast('생성 실패: ' + e.message, 'error');
     } finally {
       setGenerating(false);
     }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useToast } from '@/contexts/ToastContext';
 import SidebarLeft from '../../components/Sidebar-left/SidebarLeft';
 import CommentSection from './components/CommentSection';
 import PostReactionBar from './components/PostReactionBar';
@@ -13,6 +14,7 @@ export default function CommunityPostDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
+  const { showToast } = useToast();
   const { setSelectedEmotionLabel, toggleReaction, isReacted, getReactionCount, setReactionStateFromPost } = useCommunity();
   const commentsRef = useRef(null);
 
@@ -48,7 +50,7 @@ export default function CommunityPostDetailPage() {
       const updated = await getComments(id);
       setComments(updated);
     } catch {
-      alert('댓글 등록에 실패했습니다. 다시 시도해주세요.');
+      showToast('댓글 등록에 실패했습니다. 다시 시도해주세요.', 'error');
     }
   };
 
@@ -58,7 +60,7 @@ export default function CommunityPostDetailPage() {
       await deleteComment(id, commentId);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
     } catch {
-      alert('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
+      showToast('댓글 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
     }
   };
 
@@ -68,7 +70,7 @@ export default function CommunityPostDetailPage() {
       await deletePost(id);
       navigate('/community');
     } catch {
-      alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
+      showToast('게시글 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
     }
   };
 
@@ -85,7 +87,7 @@ export default function CommunityPostDetailPage() {
       setPost((prev) => ({ ...prev, title: editTitle.trim(), content: editContent.trim() }));
       setIsEditing(false);
     } catch {
-      alert('게시글 수정에 실패했습니다. 다시 시도해주세요.');
+      showToast('게시글 수정에 실패했습니다. 다시 시도해주세요.', 'error');
     }
   };
 

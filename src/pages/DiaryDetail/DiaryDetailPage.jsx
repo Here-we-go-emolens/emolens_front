@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useToast } from '@/contexts/ToastContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -180,6 +181,7 @@ function PremiumLockCard({ title }) {
 export default function DiaryDetailPage() {
   const navigate = useNavigate();
   const { id }   = useParams();
+  const { showToast: toast } = useToast();
   const user = useCurrentUser();
   const isPremium = user?.plan === 'PREMIUM';
 
@@ -245,7 +247,7 @@ export default function DiaryDetailPage() {
       await deleteDiary(id);
       navigate('/home');
     } catch {
-      alert('일기 삭제에 실패했습니다. 다시 시도해주세요.');
+      toast('일기 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
     }
   };
 
@@ -261,7 +263,7 @@ export default function DiaryDetailPage() {
       setShowShareModal(false);
       navigate('/community');
     } catch {
-      alert('커뮤니티 공유에 실패했습니다. 다시 시도해주세요.');
+      toast('커뮤니티 공유에 실패했습니다. 다시 시도해주세요.', 'error');
     } finally {
       setSharing(false);
     }

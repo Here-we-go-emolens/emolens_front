@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/contexts/ToastContext';
 import { getAiResponse, previewChat, finishChat } from '@/api/aiChat';
 import { createDiary } from '@/services/diaryApi';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -227,6 +228,7 @@ function MicIcon() {
 // ── 컴포넌트 ──────────────────────────────────────────────
 export default function AiDiaryChatPage() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const user = useCurrentUser();
   const { character, loading: characterLoading, notFound } = useCharacter();
 
@@ -403,7 +405,7 @@ export default function AiDiaryChatPage() {
   const handleGeneratePreview = async () => {
     const userMessages = messages.filter(m => m.role === 'user');
     if (userMessages.length === 0) {
-      alert('먼저 AI와 대화를 나눠주세요.');
+      showToast('먼저 AI와 대화를 나눠주세요.', 'warning');
       return;
     }
     setSaveState('previewing');
@@ -413,7 +415,7 @@ export default function AiDiaryChatPage() {
       setPreviewContent(content);
       setShowPreviewModal(true);
     } catch {
-      alert('일기 미리보기 생성에 실패했습니다. 다시 시도해주세요.');
+      showToast('일기 미리보기 생성에 실패했습니다. 다시 시도해주세요.', 'error');
     } finally {
       setSaveState('idle');
     }
@@ -439,7 +441,7 @@ export default function AiDiaryChatPage() {
       setSaveState('saved');
       setTimeout(() => navigate(`/diary/${diaryId}`), 800);
     } catch {
-      alert('일기 저장에 실패했습니다. 다시 시도해주세요.');
+      showToast('일기 저장에 실패했습니다. 다시 시도해주세요.', 'error');
     } finally {
       setConfirmSaving(false);
     }

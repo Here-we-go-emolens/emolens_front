@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useToast } from '@/contexts/ToastContext';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import { getLetters, getLetter, devDeliverPendingLetters } from '@/services/letterApi';
 import mascotImg from '@/assets/mascot-removebg-preview.png';
@@ -129,6 +130,7 @@ function LetterDetail({ letter, onClose, onViewDiary }) {
 export default function LetterPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { showToast } = useToast();
   const [letters, setLetters]     = useState([]);
   const [loading, setLoading]     = useState(true);
   const [selected, setSelected]   = useState(null);
@@ -140,9 +142,9 @@ export default function LetterPage() {
       const msg = await devDeliverPendingLetters();
       const data = await getLetters();
       setLetters(data);
-      alert(msg);
+      showToast(msg, 'success');
     } catch (e) {
-      alert('배달 실패: ' + e.message);
+      showToast('배달 실패: ' + e.message, 'error');
     } finally {
       setDelivering(false);
     }

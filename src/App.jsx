@@ -1,5 +1,6 @@
 import { Outlet, Route, Routes } from 'react-router-dom';
 import { UserProvider } from '@/contexts/UserContext';
+import { ToastProvider } from '@/contexts/ToastContext';
 import Home from './pages/Home/Home.jsx';
 import DiaryWritePage from './pages/CreateDiary/DiaryWritePage.jsx';
 import AiDiaryChatPage from './pages/AiDiary/AiDiaryChatPage.jsx';
@@ -31,6 +32,7 @@ function CommunityLayout() {
 
 function App() {
   return (
+    <ToastProvider>
     <UserProvider>
       <Routes>
         <Route path="/"               element={<OnboardingPage />} />
@@ -56,6 +58,7 @@ function App() {
         <Route path="/premium"        element={<PremiumPage />} />
       </Routes>
     </UserProvider>
+    </ToastProvider>
   )
 }
 

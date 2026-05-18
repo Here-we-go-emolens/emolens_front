@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useToast } from '@/contexts/ToastContext';
 import { getWeatherByLocation } from '@/api/Weather/Weather';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import useSpeechRecognition from '@/hooks/useSpeechRecognition';
@@ -389,6 +390,7 @@ const today = new Date().toISOString().split('T')[0];
 
 export default function DiaryWritePage() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [searchParams] = useSearchParams();
   const urlEmotion = searchParams.get('emotion'); // 한국어 감정명
 
@@ -546,7 +548,7 @@ export default function DiaryWritePage() {
       const url = await uploadImage(file);
       setImageUrls(prev => [...prev, url]);
     } catch {
-      alert('이미지 업로드에 실패했습니다.');
+      showToast('이미지 업로드에 실패했습니다.', 'error');
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -564,8 +566,8 @@ export default function DiaryWritePage() {
 
   const handleSubmit = async () => {
     const finalContent = buildContent();
-    if (!title.trim())        { alert('제목을 입력해주세요.'); return; }
-    if (!finalContent.trim()) { alert('내용을 입력해주세요.'); return; }
+    if (!title.trim())        { showToast('제목을 입력해주세요.', 'warning'); return; }
+    if (!finalContent.trim()) { showToast('내용을 입력해주세요.', 'warning'); return; }
     setSubmitting(true);
     try {
       const emotions = selectedEmotions
@@ -595,7 +597,7 @@ export default function DiaryWritePage() {
       setShowComplete(true);
       setTimeout(() => navigate(`/diary/${id}`), 2200);
     } catch {
-      alert('일기 저장에 실패했습니다.');
+      showToast('일기 저장에 실패했습니다.', 'error');
     } finally {
       setSubmitting(false);
     }
