@@ -259,6 +259,7 @@ export default function DiaryDetailPage() {
         title,
         content,
         tags: [emotion.label, '일기공유', '감정기록'],
+        isPublic: true,
       });
       setShowShareModal(false);
       navigate('/community');

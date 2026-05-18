@@ -28,7 +28,6 @@ const DEFAULT_SETTINGS = {
   },
   writing: {
     fontSize: 'medium',    // 'small' | 'medium' | 'large'
-    autoSave: true,
   },
   ai: {
     emotionKeywords: true,
@@ -441,12 +440,6 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <ToggleRow
-            label="자동 임시저장"
-            desc="작성 중인 일기를 30초마다 자동 저장합니다"
-            checked={writing.autoSave}
-            onChange={v => setNested('writing', 'autoSave', v)}
-          />
                 </SettingSection>
 
         {/* ⑤ AI 분석 설정 */}

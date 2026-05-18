@@ -8,29 +8,44 @@ export function useNotificationSSE(onNotification) {
   callbackRef.current = onNotification;
 
   useEffect(() => {
-    const token = getAccessToken();
-    if (!token) return;
+    let es = null;
+    let retryTimer = null;
+    let destroyed = false;
 
-    const base = import.meta.env.VITE_API_BASE_URL ?? '';
-    const url = `${base}/api/notifications/stream?token=${encodeURIComponent(token)}`;
-    const es = new EventSource(url);
+    function connect() {
+      const token = getAccessToken();
+      if (!token || destroyed) return;
 
-    es.addEventListener('NOTIFICATION', (e) => {
-      try {
-        callbackRef.current?.(JSON.parse(e.data));
-      } catch {}
-    });
+      const base = import.meta.env.VITE_API_BASE_URL ?? '';
+      const url = `${base}/api/notifications/stream?token=${encodeURIComponent(token)}`;
+      es = new EventSource(url);
 
-    // 토큰 만료/무효 시 서버가 AUTH_ERROR 이벤트를 보내고 연결 종료
-    // → 브라우저의 자동 재연결을 막기 위해 명시적으로 close()
-    es.addEventListener('AUTH_ERROR', () => {
-      es.close();
-    });
+      es.addEventListener('NOTIFICATION', (e) => {
+        try {
+          callbackRef.current?.(JSON.parse(e.data));
+        } catch {}
+      });
 
-    es.onerror = () => {
-      if (es.readyState === EventSource.CLOSED) es.close();
+      // 토큰 만료/무효 시 서버가 AUTH_ERROR 이벤트를 보냄
+      // → 최신 토큰으로 3초 후 재연결 시도
+      es.addEventListener('AUTH_ERROR', () => {
+        es.close();
+        if (!destroyed) {
+          retryTimer = setTimeout(connect, 3000);
+        }
+      });
+
+      es.onerror = () => {
+        if (es.readyState === EventSource.CLOSED) es.close();
+      };
+    }
+
+    connect();
+
+    return () => {
+      destroyed = true;
+      clearTimeout(retryTimer);
+      es?.close();
     };
-
-    return () => es.close();
-  }, []); // 로그인 세션 동안 단일 연결 유지
+  }, []); // 로그인 세션 동안 단일 연결 유지, AUTH_ERROR 시 재연결
 }
