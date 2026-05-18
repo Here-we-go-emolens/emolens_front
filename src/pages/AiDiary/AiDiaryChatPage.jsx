@@ -358,10 +358,12 @@ export default function AiDiaryChatPage() {
     try {
       const aiText = await getAiResponse([...messages, userMsg]);
       const aiMsg = { id: Date.now() + 1, role: 'ai', text: aiText, time: getNow() };
-      const updatedMessages = [...messages, userMsg, aiMsg];
-      setMessages(prev => [...prev, aiMsg]);
-      setPanelKeywords(extractKeywords(updatedMessages));
-      setPanelSummary(buildSummary(updatedMessages));
+      setMessages(prev => {
+        const updated = [...prev, aiMsg];
+        setPanelKeywords(extractKeywords(updated));
+        setPanelSummary(buildSummary(updated));
+        return updated;
+      });
     } catch {
       setMessages(prev => [
         ...prev,
@@ -386,7 +388,6 @@ export default function AiDiaryChatPage() {
   const handleRestoreDraft = () => {
     if (!draftData) return;
     setMessages(draftData.messages);
-    const updated = draftData.messages.filter(m => m.role === 'user');
     setPanelKeywords(extractKeywords(draftData.messages));
     setPanelSummary(buildSummary(draftData.messages));
     setShowDraftModal(false);
