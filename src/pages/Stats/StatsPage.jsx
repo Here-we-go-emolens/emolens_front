@@ -9,6 +9,7 @@ import {
 import { Line, Doughnut } from 'react-chartjs-2';
 import { ResponsiveSankey } from '@nivo/sankey';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
+import mascotImg from '@/assets/mascot-removebg-preview.png';
 import { getStats } from '@/services/statsApi';
 import { getDiaryList } from '@/services/diaryApi';
 import { EMOTION_MAP } from '@/constants/emotions';
@@ -19,14 +20,26 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcEleme
 const DIST_COLORS    = ['#f26a21', '#f9a06e', '#fbbf90', '#fcd3b0', '#fde8d0', '#74B9FF', '#A29BFE', '#6BCB77'];
 const TRIGGER_COLORS = ['#f26a21', '#f9a06e', '#6bba7c', '#74B9FF', '#A29BFE'];
 const REC_ICONS      = ['📋', '🚶', '📝'];
+const KW_PALETTE = [
+  { bg: '#fff0e6', color: '#c44f0a' },
+  { bg: '#e8f0ff', color: '#2a5cc4' },
+  { bg: '#eef7e8', color: '#2f7a20' },
+  { bg: '#f5e8ff', color: '#7a25c4' },
+  { bg: '#fff6e0', color: '#b07a10' },
+  { bg: '#ffe8f2', color: '#c41a5a' },
+  { bg: '#e2f9f2', color: '#0f8a5a' },
+  { bg: '#fde8e8', color: '#b52020' },
+  { bg: '#e8f7ff', color: '#0a7ab0' },
+  { bg: '#f0ffe8', color: '#3d8c10' },
+];
 const WEATHER_ICON   = { SUNNY: '☀️', CLOUDY: '⛅', RAINY: '🌧️', SNOWY: '❄️' };
 const WEATHER_LABEL  = { SUNNY: '맑음', CLOUDY: '흐림', RAINY: '비', SNOWY: '눈' };
 
 function kwSize(count, max) {
-  const ratio = max > 0 ? count / max : 0;
-  if (ratio >= 0.7) return 'lg';
-  if (ratio >= 0.4) return 'md';
-  if (ratio >= 0.2) return 'sm';
+  if (count === max) return 'lg';
+  const ratio = max > 1 ? count / max : 0;
+  if (ratio >= 0.6) return 'md';
+  if (ratio >= 0.3) return 'sm';
   return 'xs';
 }
 
@@ -397,10 +410,7 @@ export default function StatsPage() {
                       className="week-bar-fill"
                       style={{
                         height: score !== null ? `${(score / 10) * 100}%` : '0%',
-                        background: score === null ? 'transparent'
-                          : score >= 7 ? '#6bba7c'
-                          : score >= 5 ? '#f9a06e'
-                          : '#e57373',
+                        background: score === null ? 'transparent' : '#f26a21',
                       }}
                     />
                   </div>
@@ -582,9 +592,25 @@ export default function StatsPage() {
             </div>
             <div className="kw-cloud">
               {keywords.length > 0
-                ? keywords.map(k => (
-                    <span key={k.text} className={`kw-tag kw-${kwSize(k.count, maxKwCount)}`}>{k.text}</span>
-                  ))
+                ? keywords.map((k, i) => {
+                    const palette = KW_PALETTE[i % KW_PALETTE.length];
+                    const size = kwSize(k.count, maxKwCount);
+                    return (
+                      <div key={k.text} className="kw-wrap">
+                        <span
+                          className={`kw-tag kw-${size}`}
+                        >
+                          {k.text}
+                        </span>
+                        <div className="kw-tooltip">
+                          <img src={mascotImg} alt="캐릭터" className="kw-tooltip-mascot" />
+                          <div className="kw-tooltip-bubble">
+                            이 키워드는 <strong>{k.count}회</strong> 나왔어요
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
                 : <p style={{ color: '#999', fontSize: 14 }}>키워드 데이터가 없어요.</p>
               }
             </div>
