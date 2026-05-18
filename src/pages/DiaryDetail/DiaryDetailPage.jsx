@@ -5,9 +5,29 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import { getDiary, deleteDiary } from '@/services/diaryApi';
+import { createPost } from '@/services/communityApi';
 import mascotImg from '@/assets/mascot-removebg-preview.png';
 import { findEmotionById } from '@/constants/emotions';
+import { getEmotionByLabel } from '@/pages/Community/communityData';
+import CreatePostModal from '@/pages/Community/components/CreatePostModal';
 import '@/styles/DiaryDetail/DiaryDetailPage.css';
+
+const DIARY_TO_COMMUNITY_LABEL = {
+  '행복': '행복',   '기쁨': '행복',
+  '설렘': '설렘',
+  '평온': '평온',
+  '뿌듯': '뿌듯함', '뿌듯함': '뿌듯함',
+  '감사': '만족',
+  '슬픔': '우울',   '우울': '우울',
+  '분노': '스트레스', '화남': '스트레스',
+  '불안': '불안',   '두려움': '불안',
+  '피곤': '피곤함', '피로': '피곤함', '피곤함': '피곤함',
+  '짜증': '짜증',
+  '외로움': '외로움',
+  '후회': '스트레스',
+  '무기력': '번아웃',
+  '그리움': '무덤덤', '부끄러움': '무덤덤', '멍함': '무덤덤',
+};
 
 const KOREAN_TO_EMOTION_ID = {
   '행복': 'happy',  '기쁨': 'happy',
@@ -163,9 +183,11 @@ export default function DiaryDetailPage() {
   const user = useCurrentUser();
   const isPremium = user?.plan === 'PREMIUM';
 
-  const [diary, setDiary]       = useState(null);
-  const [loading, setLoading]   = useState(true);
-  const [showToast, setShowToast] = useState(false);
+  const [diary, setDiary]           = useState(null);
+  const [loading, setLoading]       = useState(true);
+  const [showToast, setShowToast]   = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [sharing, setSharing]       = useState(false);
   const pollRef    = useRef(null);
   const toastTimer = useRef(null);
 
@@ -227,6 +249,24 @@ export default function DiaryDetailPage() {
     }
   };
 
+  const handleShareSubmit = async ({ emotion, title, content }) => {
+    setSharing(true);
+    try {
+      await createPost({
+        emotionLabel: emotion.label,
+        title,
+        content,
+        tags: [emotion.label, '일기공유', '감정기록'],
+      });
+      setShowShareModal(false);
+      navigate('/community');
+    } catch {
+      alert('커뮤니티 공유에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setSharing(false);
+    }
+  };
+
   if (loading) return (
     <div className="dd-fullcenter"><div className="dd-spinner" /><p>불러오는 중...</p></div>
   );
@@ -278,6 +318,7 @@ export default function DiaryDetailPage() {
         <div className="dd-topbar">
           <button className="dd-back-btn" onClick={() => navigate('/home')}>← 목록으로</button>
           <div className="dd-topbar-actions">
+            <button className="dd-btn btn-secondary" onClick={() => setShowShareModal(true)}>💬 커뮤니티 공유</button>
             <button className="dd-btn btn-danger" onClick={handleDelete}>🗑 삭제</button>
           </div>
         </div>
@@ -643,6 +684,13 @@ export default function DiaryDetailPage() {
         )}
 
       </aside>
+
+      <CreatePostModal
+        isOpen={showShareModal}
+        initialEmotionLabel={DIARY_TO_COMMUNITY_LABEL[emoName] ?? '행복'}
+        onClose={() => setShowShareModal(false)}
+        onSubmit={sharing ? undefined : handleShareSubmit}
+      />
     </div>
   );
 }

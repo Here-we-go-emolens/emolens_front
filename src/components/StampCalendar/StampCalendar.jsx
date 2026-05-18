@@ -2,18 +2,18 @@ import "@/styles/StampCalendar/StampCalendar.css";
 
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 
-const StampCalendar = ({ diaries, year, month }) => {
+const StampCalendar = ({ diaries, year, month, onDayClick }) => {
   const monthInt = parseInt(month);
   const monthStr = String(monthInt).padStart(2, '0');
   const daysInMonth = new Date(year, monthInt, 0).getDate();
   const firstDayOfWeek = new Date(year, monthInt - 1, 1).getDay();
   const firstDayMon = (firstDayOfWeek + 6) % 7; // 월요일 시작
 
-  const diaryDaySet = new Set(
-    diaries
-      .filter(d => d.diaryDate?.startsWith(`${year}-${monthStr}`))
-      .map(d => parseInt(d.diaryDate.split('-')[2]))
+  const monthDiaries = diaries.filter(d => d.diaryDate?.startsWith(`${year}-${monthStr}`));
+  const diaryIdMap = Object.fromEntries(
+    monthDiaries.map(d => [parseInt(d.diaryDate.split('-')[2]), d.id])
   );
+  const diaryDaySet = new Set(Object.keys(diaryIdMap).map(Number));
 
   const today = new Date();
   const isCurrentMonth = today.getFullYear() === year && (today.getMonth() + 1) === monthInt;
@@ -53,8 +53,13 @@ const StampCalendar = ({ diaries, year, month }) => {
           const isPast = todayDay !== null && day < todayDay;
           const isFuture = todayDay !== null && day > todayDay;
 
+          const isClickable = hasStamp && onDayClick;
           return (
-            <div key={day} className={`stamp-cell ${isToday ? 'is-today' : ''} ${isFuture ? 'is-future' : ''}`}>
+            <div
+              key={day}
+              className={`stamp-cell ${isToday ? 'is-today' : ''} ${isFuture ? 'is-future' : ''} ${isClickable ? 'clickable' : ''}`}
+              onClick={isClickable ? () => onDayClick(diaryIdMap[day]) : undefined}
+            >
               <div className={`stamp-mark ${hasStamp ? 'stamped' : ''} ${isToday && hasStamp ? 'today-stamped' : ''}`}>
                 {hasStamp
                   ? <span className="stamp-symbol">✦</span>

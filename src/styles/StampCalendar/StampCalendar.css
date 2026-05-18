@@ -63,6 +63,8 @@
 
 .stamp-cell.empty { visibility: hidden; }
 .stamp-cell.is-future { opacity: 0.35; }
+.stamp-cell.clickable { cursor: pointer; }
+.stamp-cell.clickable:hover .stamp-mark.stamped { transform: scale(1.15); }
 
 /* ── 스탬프 마크 ── */
 .stamp-mark {

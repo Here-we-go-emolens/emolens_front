@@ -415,7 +415,7 @@ const Home = () => {
         {/* ② 퀵 체크인 + 스탬프 달력 */}
         <div className="home-checkin-row">
           <QuickCheckIn todayHasEntry={todayHasEntry} navigate={navigate} />
-          <StampCalendar diaries={diaries} year={year} month={month} />
+          <StampCalendar diaries={diaries} year={year} month={month} onDayClick={(id) => navigate(`/diary/${id}`)} />
         </div>
 
         {/* ③ 인사이트 2열 */}
