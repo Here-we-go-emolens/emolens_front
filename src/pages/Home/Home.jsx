@@ -305,9 +305,9 @@ const Home = () => {
       const sorted = [...diaries].sort((a, b) => b.diaryDate.localeCompare(a.diaryDate));
       const daysSince = sorted[0]
         ? Math.floor((Date.now() - new Date(sorted[0].diaryDate).getTime()) / 86400000)
-        : 999;
+        : 0;
 
-      if (hour >= 18 && hour <= 23 || daysSince >= 3) {
+      if (sorted.length === 0 || hour >= 18 && hour <= 23 || daysSince >= 3) {
         localStorage.setItem(greetKey, '1');
         setGreetingDaysSince(daysSince);
         setShowGreeting(true);
