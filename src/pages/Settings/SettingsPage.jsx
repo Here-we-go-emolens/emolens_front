@@ -194,7 +194,7 @@ const SettingsPage = () => {
     try {
       const url = await uploadProfileImage(file);
       setProfileImageUrl(url);
-      await updateProfile({ name: profileDraft.nickname || user?.name, profileImageUrl: url });
+      await updateProfile({ name: profileDraft.nickname || user?.name, bio: profileDraft.bio, profileImageUrl: url });
       setUser(prev => ({ ...prev, profileImageUrl: url }));
       showToast('프로필 사진이 변경됐습니다.');
     } catch {
@@ -212,9 +212,9 @@ const SettingsPage = () => {
       return;
     }
     try {
-      await updateProfile({ name: profileDraft.nickname.trim(), profileImageUrl: profileImageUrl || null });
+      await updateProfile({ name: profileDraft.nickname.trim(), bio: profileDraft.bio.trim(), profileImageUrl: profileImageUrl || null });
       setSettings(prev => ({ ...prev, profile: { ...profileDraft } }));
-      setUser(prev => ({ ...prev, name: profileDraft.nickname.trim(), profileImageUrl }));
+      setUser(prev => ({ ...prev, name: profileDraft.nickname.trim(), bio: profileDraft.bio.trim(), profileImageUrl }));
       showToast('프로필이 저장되었습니다.');
     } catch {
       showToast('프로필 저장에 실패했습니다.', 'error');

@@ -12,8 +12,8 @@ export const logout = async () => {
   }
 };
 
-export const updateProfile = ({ name, profileImageUrl }) =>
-  apiClient.patch('/api/users/profile', { name, profileImageUrl });
+export const updateProfile = ({ name, bio, profileImageUrl }) =>
+  apiClient.patch('/api/users/profile', { name, bio, profileImageUrl });
 
 export const uploadProfileImage = (file) => {
   const formData = new FormData();
