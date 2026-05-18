@@ -394,10 +394,12 @@ export default function DiaryWritePage() {
   const [searchParams] = useSearchParams();
   const urlEmotion = searchParams.get('emotion'); // 한국어 감정명
 
-  // 오프닝 질문 상태
-  const openingQuestion = urlEmotion
-    ? (OPENING_QUESTIONS[urlEmotion] ?? [])[Math.floor(Math.random() * (OPENING_QUESTIONS[urlEmotion]?.length ?? 1))] ?? null
-    : null;
+  // 오프닝 질문 상태 — 렌더마다 Math.random() 재실행을 막기 위해 useState 초기화로 고정
+  const [openingQuestion] = useState(() => {
+    if (!urlEmotion) return null;
+    const pool = OPENING_QUESTIONS[urlEmotion] ?? [];
+    return pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null;
+  });
   const [showOpening, setShowOpening]   = useState(!!openingQuestion);
   const [openingText, setOpeningText]   = useState('');
   const [openingDone, setOpeningDone]   = useState(false);
