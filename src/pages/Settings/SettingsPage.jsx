@@ -29,17 +29,6 @@ const DEFAULT_SETTINGS = {
   writing: {
     fontSize: 'medium',    // 'small' | 'medium' | 'large'
   },
-  ai: {
-    emotionKeywords: true,
-    actionRecommend: true,
-    weeklySummary: false,
-    patternAnalysis: true,
-  },
-  privacy: {
-    privateDiary: true,
-    publicProfile: false,
-    saveAnalysisData: true,
-  },
 };
 
 /* ── 토글 스위치 ────────────────────────────────────── */
@@ -81,9 +70,8 @@ const ToggleRow = ({ label, desc, checked, onChange }) => (
 
 /* ── 오른쪽 패널 ────────────────────────────────────── */
 const RightPanel = ({ settings, profileImageUrl }) => {
-  const { profile, notifications, writing, ai } = settings; // writing: fontSize 요약용
+  const { profile, notifications, writing } = settings;
   const notifOn = Object.values(notifications).some(Boolean);
-  const aiOn    = Object.values(ai).some(Boolean);
 
   return (
     <aside className="right-panel">
@@ -108,18 +96,6 @@ const RightPanel = ({ settings, profileImageUrl }) => {
             </span>
           </li>
           <li>
-            <span className="rp-sum-key">🤖 AI 분석</span>
-            <span className={`rp-sum-val ${aiOn ? 'val-on' : 'val-off'}`}>
-              {aiOn ? '사용 중' : '사용 안 함'}
-            </span>
-          </li>
-          <li>
-            <span className="rp-sum-key">🔒 공개 범위</span>
-            <span className="rp-sum-val">
-              {settings.privacy.privateDiary ? '비공개' : '공개'}
-            </span>
-          </li>
-          <li>
             <span className="rp-sum-key">🔡 글자 크기</span>
             <span className="rp-sum-val">
               {{ small: '작게', medium: '보통', large: '크게' }[writing.fontSize]}
@@ -133,7 +109,6 @@ const RightPanel = ({ settings, profileImageUrl }) => {
         <div className="rp-card-label">💡 안내</div>
         <ul className="rp-tip-list">
           <li>설정을 변경하면 기록 경험이 더 나에게 맞게 조정됩니다.</li>
-          <li>AI 분석 기능은 언제든 켜고 끌 수 있습니다.</li>
           <li>비밀번호는 보안을 위해 주기적으로 변경해 주세요.</li>
         </ul>
       </div>
@@ -270,7 +245,7 @@ const SettingsPage = () => {
     showToast('기본값으로 초기화되었습니다.', 'info');
   };
 
-  const { notifications, writing, ai, privacy } = settings;
+  const { notifications, writing } = settings;
 
   return (
     <div className="settings-layout">
@@ -442,65 +417,7 @@ const SettingsPage = () => {
 
                 </SettingSection>
 
-        {/* ⑤ AI 분석 설정 */}
-        <SettingSection
-          icon="🤖"
-          title="AI 분석 설정"
-          subtitle="나의 감정을 더 깊이 이해할 수 있도록 도와드려요"
-        >
-          <ToggleRow
-            label="감정 키워드 분석"
-            desc="일기 내용을 바탕으로 핵심 감정 키워드를 추출합니다"
-            checked={ai.emotionKeywords}
-            onChange={v => setNested('ai', 'emotionKeywords', v)}
-          />
-          <ToggleRow
-            label="행동 추천 받기"
-            desc="기록을 바탕으로 감정 관리 팁을 제안합니다"
-            checked={ai.actionRecommend}
-            onChange={v => setNested('ai', 'actionRecommend', v)}
-          />
-          <ToggleRow
-            label="주간 감정 요약"
-            desc="한 주간의 감정 흐름을 요약하여 제공합니다"
-            checked={ai.weeklySummary}
-            onChange={v => setNested('ai', 'weeklySummary', v)}
-          />
-          <ToggleRow
-            label="감정 패턴 분석"
-            desc="장기적인 감정 패턴을 분석하여 인사이트를 제공합니다"
-            checked={ai.patternAnalysis}
-            onChange={v => setNested('ai', 'patternAnalysis', v)}
-          />
-        </SettingSection>
-
-        {/* ⑥ 개인정보 및 공개 범위 */}
-        <SettingSection
-          icon="🔒"
-          title="개인정보 및 공개 범위"
-          subtitle="나의 기록이 어떻게 공유될지 설정하세요"
-        >
-          <ToggleRow
-            label="내 일기 비공개 유지"
-            desc="모든 일기를 나만 볼 수 있게 설정합니다"
-            checked={privacy.privateDiary}
-            onChange={v => setNested('privacy', 'privateDiary', v)}
-          />
-          <ToggleRow
-            label="프로필 공개"
-            desc="다른 사용자에게 내 프로필이 노출됩니다"
-            checked={privacy.publicProfile}
-            onChange={v => setNested('privacy', 'publicProfile', v)}
-          />
-          <ToggleRow
-            label="분석 결과 저장 동의"
-            desc="서비스 개선을 위해 익명화된 분석 결과를 활용합니다"
-            checked={privacy.saveAnalysisData}
-            onChange={v => setNested('privacy', 'saveAnalysisData', v)}
-          />
-        </SettingSection>
-
-        {/* ⑦ 계정 설정 */}
+        {/* ⑤ 계정 설정 */}
         <SettingSection
           icon="🔑"
           title="계정 설정"
