@@ -17,8 +17,8 @@ import '@/styles/Stats/StatsPage.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler);
 
-const DIST_COLORS    = ['#f26a21', '#f9a06e', '#fbbf90', '#fcd3b0', '#fde8d0', '#74B9FF', '#A29BFE', '#6BCB77'];
-const TRIGGER_COLORS = ['#f26a21', '#f9a06e', '#6bba7c', '#74B9FF', '#A29BFE'];
+const DIST_COLORS    = ['#f26a21', '#f9a06e', '#fbbf90', '#fcd3b0', '#fde8d0', '#74B9FF', '#A29BFE', '#f5a87a'];
+const TRIGGER_COLORS = ['#f26a21', '#f9a06e', '#f5a87a', '#74B9FF', '#A29BFE'];
 const REC_ICONS      = ['📋', '🚶', '📝'];
 const KW_PALETTE = [
   { bg: '#fff0e6', color: '#c44f0a' },
@@ -634,7 +634,7 @@ export default function StatsPage() {
                         className="dow-fill"
                         style={{
                           '--pct': `${(d.score / 10) * 100}%`,
-                          background: d.score >= 7 ? '#6bba7c' : d.score >= 5 ? '#f9a06e' : '#e57373',
+                          background: '#f26a21',
                         }}
                       />
                     </div>
@@ -663,7 +663,7 @@ export default function StatsPage() {
                         className="time-fill"
                         style={{
                           '--pct': `${(t.score / 10) * 100}%`,
-                          background: t.score >= 7 ? '#6bba7c' : t.score >= 5 ? '#f9a06e' : '#e57373',
+                          background: '#f26a21',
                         }}
                       />
                     </div>
