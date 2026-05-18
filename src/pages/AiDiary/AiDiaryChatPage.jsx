@@ -706,47 +706,56 @@ export default function AiDiaryChatPage() {
         {showPreviewModal && (
           <div className="pv-overlay" onClick={() => !confirmSaving && setShowPreviewModal(false)}>
             <div className="pv-modal" onClick={e => e.stopPropagation()}>
-              <div className="pv-header">
-                <div className="pv-header-left">
-                  <img src={mascotImg} alt="AI" className="pv-avatar" />
-                  <div>
-                    <p className="pv-label">AI가 작성한 오늘의 일기</p>
-                    <p className="pv-sublabel">내용을 수정한 후 저장하세요</p>
-                  </div>
-                </div>
+
+              {/* 상단 배너 */}
+              <div className="pv-banner">
                 {!confirmSaving && (
                   <button className="pv-close" onClick={() => setShowPreviewModal(false)}>✕</button>
                 )}
+                <img src={mascotImg} alt="AI" className="pv-banner-avatar" />
+                <div className="pv-banner-text">
+                  <p className="pv-banner-title">오늘의 일기가 완성됐어요</p>
+                  <p className="pv-banner-sub">수정하고 싶은 부분이 있으면 바로 고쳐보세요</p>
+                </div>
+                <div className="pv-banner-date">{formatDate(new Date())}</div>
               </div>
+
+              {/* 일기지 본문 */}
               <div className="pv-body">
-                <label className="pv-field-label">제목</label>
-                <input
-                  className="pv-title-input"
-                  value={previewTitle}
-                  onChange={e => setPreviewTitle(e.target.value)}
-                  maxLength={100}
-                  disabled={confirmSaving}
-                />
-                <label className="pv-field-label">내용</label>
-                <textarea
-                  className="pv-content-textarea"
-                  value={previewContent}
-                  onChange={e => setPreviewContent(e.target.value)}
-                  disabled={confirmSaving}
-                />
+                <div className="pv-diary-card">
+                  <input
+                    className="pv-title-input"
+                    value={previewTitle}
+                    onChange={e => setPreviewTitle(e.target.value)}
+                    maxLength={100}
+                    placeholder="제목을 입력하세요"
+                    disabled={confirmSaving}
+                  />
+                  <div className="pv-divider" />
+                  <textarea
+                    className="pv-content-textarea"
+                    value={previewContent}
+                    onChange={e => setPreviewContent(e.target.value)}
+                    placeholder="내용을 입력하세요"
+                    disabled={confirmSaving}
+                  />
+                </div>
               </div>
+
+              {/* 하단 버튼 */}
               <div className="pv-footer">
+                <button className="pv-btn-cancel" onClick={() => setShowPreviewModal(false)} disabled={confirmSaving}>
+                  다시 생성하기
+                </button>
                 <button
                   className="pv-btn-confirm"
                   onClick={handleConfirmSave}
                   disabled={confirmSaving || !previewTitle.trim() || !previewContent.trim()}
                 >
-                  {confirmSaving ? '저장 중…' : '이대로 저장하기'}
-                </button>
-                <button className="pv-btn-cancel" onClick={() => setShowPreviewModal(false)} disabled={confirmSaving}>
-                  다시 생성하기
+                  {confirmSaving ? '저장 중…' : '저장하기'}
                 </button>
               </div>
+
             </div>
           </div>
         )}
