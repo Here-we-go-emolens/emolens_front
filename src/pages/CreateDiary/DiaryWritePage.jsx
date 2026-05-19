@@ -479,9 +479,11 @@ export default function DiaryWritePage() {
     setDraftChecked(true);
   }, []);
 
-  // 임시저장 확인 + 오프닝 배너 끝난 뒤 질문 팝업 표시 (초안 복원 시엔 표시 안 함)
+  // 임시저장 확인 + 오프닝 배너 끝난 뒤 질문 팝업 표시 (세션당 1회, 초안 복원 시 제외)
   useEffect(() => {
     if (!draftChecked || showDraftModal || showOpening || draftRestored) return;
+    if (sessionStorage.getItem('emolens_write_popup_shown')) return;
+    sessionStorage.setItem('emolens_write_popup_shown', '1');
     setShowWritePopup(true);
   }, [draftChecked, showDraftModal, showOpening, draftRestored]);
 
