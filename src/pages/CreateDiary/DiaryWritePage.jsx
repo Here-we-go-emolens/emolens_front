@@ -568,8 +568,9 @@ export default function DiaryWritePage() {
 
   const handleSubmit = async () => {
     const finalContent = buildContent();
-    if (!title.trim())        { showToast('제목을 입력해주세요.', 'warning'); return; }
-    if (!finalContent.trim()) { showToast('내용을 입력해주세요.', 'warning'); return; }
+    if (!title.trim())                    { showToast('제목을 입력해주세요.', 'warning'); return; }
+    if (!finalContent.trim())             { showToast('내용을 입력해주세요.', 'warning'); return; }
+    if (finalContent.trim().length < 10) { showToast('일기 내용은 최소 10자 이상 입력해주세요.', 'warning'); return; }
     setSubmitting(true);
     try {
       const emotions = selectedEmotions

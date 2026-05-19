@@ -517,6 +517,8 @@ export default function DiaryDetailPage() {
                 ))}
               </div>
             </>
+          ) : isCompleted ? (
+            <p className="dd-muted-msg">일기 내용이 짧아 감정을 분석하지 못했어요.</p>
           ) : (
             <div className="dd-donut-skeleton">
               <div className="dd-donut-skeleton-ring" />
@@ -665,14 +667,16 @@ export default function DiaryDetailPage() {
                       <span className="dd-legend-pct">{e.score}%</span>
                     </div>
                   ))
-                : [65, 45].map((w, i) => (
-                    <div key={i} className="dd-skeleton-row">
-                      <div className="dd-skeleton-dot" style={{ width: '16px', height: '16px' }} />
-                      <div className="dd-skeleton-text-wrap">
-                        <div className="dd-skeleton-bar" style={{ width: `${w}%` }} />
+                : isCompleted
+                  ? <p className="dd-muted-msg">감정을 분석하지 못했어요.</p>
+                  : [65, 45].map((w, i) => (
+                      <div key={i} className="dd-skeleton-row">
+                        <div className="dd-skeleton-dot" style={{ width: '16px', height: '16px' }} />
+                        <div className="dd-skeleton-text-wrap">
+                          <div className="dd-skeleton-bar" style={{ width: `${w}%` }} />
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    ))
               }
             </div>
           </div>
