@@ -4,12 +4,13 @@ import { useToast } from '@/contexts/ToastContext';
 import { getWeatherByLocation } from '@/api/Weather/Weather';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
 import useSpeechRecognition from '@/hooks/useSpeechRecognition';
-import { createDiary, uploadImage } from '@/services/diaryApi';
+import { createDiary, uploadImage, getDiaryList } from '@/services/diaryApi';
 import { incrementEmotionUsage } from '@/utils/emotionUsage';
 import { EMOTION_MAP, findEmotionById } from '@/constants/emotions';
 import EmotionSelector from './EmotionSelector';
 import mascotFallback from '@/assets/mascot-removebg-preview.png';
 import '@/styles/CreateDiary/DiaryWritePage.css';
+import '@/styles/CharacterGreeting/CharacterGreetingPopup.css';
 
 const DRAFT_KEY = 'emolens_diary_draft';
 
@@ -437,6 +438,10 @@ export default function DiaryWritePage() {
   const [showDraftModal, setShowDraftModal]       = useState(false);
   const [draftData, setDraftData]                 = useState(null);
   const [draftChecked, setDraftChecked]           = useState(false);
+  const [showWritePopup, setShowWritePopup]       = useState(false);
+  const [draftRestored, setDraftRestored]         = useState(false);
+  const [saveStatus, setSaveStatus]               = useState('idle'); // 'idle' | 'saving' | 'saved'
+  const [pastDiaries, setPastDiaries]             = useState({ lastWeek: null, lastYear: null });
 
   const primaryEmotion = selectedEmotions.find(e => e.order === 1) ?? null;
   const primaryId      = primaryEmotion?.id ?? null;
@@ -474,13 +479,43 @@ export default function DiaryWritePage() {
     setDraftChecked(true);
   }, []);
 
-  // 자동 임시저장
+  // 임시저장 확인 + 오프닝 배너 끝난 뒤 질문 팝업 표시 (초안 복원 시엔 표시 안 함)
+  useEffect(() => {
+    if (!draftChecked || showDraftModal || showOpening || draftRestored) return;
+    setShowWritePopup(true);
+  }, [draftChecked, showDraftModal, showOpening, draftRestored]);
+
+  // 자동 임시저장 + 저장 상태 표시
   useEffect(() => {
     if (!draftChecked) return;
     if (!title && !content && selectedEmotions.length === 0) return;
+    setSaveStatus('saving');
     const draft = { title, content, selectedTemplate, selectedEmotions, letterTo, letterFrom, imageUrls };
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    const timer = setTimeout(() => setSaveStatus('saved'), 800);
+    return () => clearTimeout(timer);
   }, [title, content, selectedTemplate, selectedEmotions, letterTo, letterFrom, imageUrls, draftChecked]);
+
+  // 지난 일기 로드 (지난주 오늘 / 1년 전 오늘)
+  useEffect(() => {
+    getDiaryList(0, 200).then(data => {
+      const list = data.content ?? [];
+      const now = new Date();
+
+      const lastWeekDate = new Date(now);
+      lastWeekDate.setDate(now.getDate() - 7);
+      const lastWeekStr = lastWeekDate.toISOString().split('T')[0];
+
+      const lastYearDate = new Date(now);
+      lastYearDate.setFullYear(now.getFullYear() - 1);
+      const lastYearStr = lastYearDate.toISOString().split('T')[0];
+
+      setPastDiaries({
+        lastWeek: list.find(d => d.diaryDate === lastWeekStr) ?? null,
+        lastYear: list.find(d => d.diaryDate === lastYearStr) ?? null,
+      });
+    }).catch(() => {});
+  }, []);
 
   const { isSupported: micSupported, isRecording, interimText, toggle: toggleMic } =
     useSpeechRecognition({
@@ -500,6 +535,7 @@ export default function DiaryWritePage() {
     setImageUrls(draftData.imageUrls ?? []);
     setShowDraftModal(false);
     setDraftData(null);
+    setDraftRestored(true); // 이어서 쓰기 → 질문 팝업 표시 안 함
   };
 
   const handleDiscardDraft = () => {
@@ -528,6 +564,12 @@ export default function DiaryWritePage() {
   };
 
   const handleClear = () => setSelectedEmotions([]);
+
+  // ── 팝업 질문 선택 ──────────────────────────────────────
+  const handlePickPrompt = (prompt) => {
+    setContent(prev => prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`);
+    setShowWritePopup(false);
+  };
 
   // ── 질문 교체 ───────────────────────────────────────────
   const handleNewPrompts = () => {
@@ -605,6 +647,15 @@ export default function DiaryWritePage() {
       setSubmitting(false);
     }
   };
+
+  const WRITE_GOAL = 200;
+  const writeProgress = Math.min(100, Math.round((content.length / WRITE_GOAL) * 100));
+  const writeMsg =
+    content.length === 0 ? '첫 문장을 써보세요 😊' :
+    content.length < 50  ? '시작이 반이에요 ✍️' :
+    content.length < 100 ? '잘 쓰고 있어요 😊' :
+    content.length < 200 ? '거의 다 왔어요 💪' :
+                           '충분히 잘 쓰셨어요 🌟';
 
   const speechText = (primaryId && COMPANION_MESSAGES[primaryId]) || '오늘의 마음을\n천천히 들여다볼게요 😊';
   const primaryEmotionData = primaryId ? EMOTION_MAP[primaryId] : null;
@@ -690,6 +741,44 @@ export default function DiaryWritePage() {
           </div>
         </div>
       )}
+      {/* ── 질문 팝업 ── */}
+      {showWritePopup && (
+        <div className="cg-overlay" onClick={() => setShowWritePopup(false)}>
+          <div className="cg-box" onClick={e => e.stopPropagation()}>
+            <div className="cg-header">
+              <img
+                src={primaryId ? (EMOTION_MAP[primaryId]?.image ?? mascotFallback) : mascotFallback}
+                alt=""
+                className="cg-mascot"
+                onError={e => { e.target.src = mascotFallback; }}
+              />
+              <span className="cg-name-badge">AI 글쓰기 도우미</span>
+            </div>
+            <div className="cg-speech">
+              {speechText.split('\n').map((line, i, arr) => (
+                <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+              ))}
+            </div>
+            <p style={{ fontSize: '13px', color: '#aaa', margin: '8px 0 12px', textAlign: 'center' }}>
+              ✨ 질문을 골라 일기를 시작해보세요
+            </p>
+            <div className="cg-choices">
+              {currentPrompts.map((prompt, i) => (
+                <button key={i} className="cg-choice" onClick={() => handlePickPrompt(prompt)}>
+                  {prompt}
+                </button>
+              ))}
+              <button className="cg-choice" style={{ background: '#f5f0eb', color: '#888' }} onClick={handleNewPrompts}>
+                ↻ 다른 질문 보기
+              </button>
+              <button className="cg-choice muted" onClick={() => setShowWritePopup(false)}>
+                건너뛰기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <SidebarLeft />
 
       <main className="dw-main">
@@ -855,6 +944,48 @@ export default function DiaryWritePage() {
 
       {/* ── 오른쪽 패널 ── */}
       <aside className="dw-panel">
+
+        {/* ① 자동 저장 상태 */}
+        {saveStatus !== 'idle' && (
+          <div className={`dw-save-status ${saveStatus}`}>
+            {saveStatus === 'saving' ? '저장 중...' : '✓ 자동 저장됨'}
+          </div>
+        )}
+
+        {/* ② 작성 진행 상태 바 */}
+        <div className="dw-panel-card dw-progress-card">
+          <div className="dw-panel-card-header">
+            <span className="dw-panel-card-title">작성 진행</span>
+            <span className="dw-progress-count">{content.length}자</span>
+          </div>
+          <div className="dw-progress-bar-wrap">
+            <div className="dw-progress-bar" style={{ width: `${writeProgress}%` }} />
+          </div>
+          <p className="dw-progress-msg">{writeMsg}</p>
+          <span className="dw-progress-goal">목표 {WRITE_GOAL}자</span>
+        </div>
+
+        {/* ③ 지난 일기 돌아보기 */}
+        {(pastDiaries.lastWeek || pastDiaries.lastYear) && (
+          <div className="dw-panel-card">
+            <div className="dw-panel-card-header">
+              <span className="dw-panel-card-title">📅 지난 일기</span>
+            </div>
+            {pastDiaries.lastWeek && (
+              <button className="dw-past-item" onClick={() => navigate(`/diary/${pastDiaries.lastWeek.id}`)}>
+                <span className="dw-past-label">지난주 오늘</span>
+                <span className="dw-past-title">{pastDiaries.lastWeek.title}</span>
+              </button>
+            )}
+            {pastDiaries.lastYear && (
+              <button className="dw-past-item" onClick={() => navigate(`/diary/${pastDiaries.lastYear.id}`)}>
+                <span className="dw-past-label">1년 전 오늘</span>
+                <span className="dw-past-title">{pastDiaries.lastYear.title}</span>
+              </button>
+            )}
+          </div>
+        )}
+
         <div className="dw-companion-card">
           <div className="dw-companion-inner">
             <MascotImage emotionId={primaryId} />
@@ -864,20 +995,9 @@ export default function DiaryWritePage() {
               ))}
             </div>
           </div>
-
-          <p className="dw-companion-label">✨ 막막하면 질문을 골라보세요</p>
-
-          <div className="dw-prompts">
-            {currentPrompts.map((prompt, i) => (
-              <button key={i} className="dw-prompt-bubble"
-                onClick={() => setContent(prev => prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`)}>
-                {prompt}
-              </button>
-            ))}
-          </div>
-
-          <button className="dw-new-prompt-btn" onClick={handleNewPrompts}>
-            ↻ 새 질문 받기
+          <button className="dw-new-prompt-btn" style={{ marginTop: '12px' }}
+            onClick={() => { handleNewPrompts(); setShowWritePopup(true); }}>
+            💬 AI 질문 받기
           </button>
         </div>
 

@@ -1087,6 +1087,102 @@
   .dw-card { padding: 20px 16px 16px; }
 }
 
+/* ── 자동 저장 상태 ── */
+.dw-save-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.dw-save-status.saving {
+  background: #f5f0eb;
+  color: #bbb;
+}
+
+.dw-save-status.saved {
+  background: #f0faf0;
+  color: #4a9a4a;
+  border: 1px solid #c8eac8;
+}
+
+/* ── 작성 진행 바 ── */
+.dw-progress-card { gap: 8px; }
+
+.dw-progress-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.dw-progress-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.dw-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #f26a21, #ffaa6b);
+  border-radius: 6px;
+  transition: width 0.4s ease;
+  min-width: 4px;
+}
+
+.dw-progress-msg {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dw-progress-goal {
+  font-size: 11px;
+  color: #ccc;
+  text-align: right;
+}
+
+/* ── 지난 일기 ── */
+.dw-past-item {
+  width: 100%;
+  text-align: left;
+  padding: 9px 11px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--sidebar-bg);
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dw-past-item:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.dw-past-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.3px;
+}
+
+.dw-past-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ── 오프닝 질문 배너 ── */
 @keyframes dw-banner-in {
   from { opacity: 0; transform: translateY(-10px); }

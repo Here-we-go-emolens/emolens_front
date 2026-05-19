@@ -272,6 +272,8 @@ const Home = () => {
   const [stats, setStats]         = useState(null);
   const [showTutorial, setShowTutorial]               = useState(false);
   const [showGreeting, setShowGreeting]               = useState(false);
+  const [showPostWritePopup, setShowPostWritePopup]   = useState(false);
+  const [showWriteButton, setShowWriteButton]         = useState(false);
   const [showStampCelebration, setShowStampCelebration] = useState(false);
   const [greetingDaysSince, setGreetingDaysSince]     = useState(0);
   const [character, setCharacter]                     = useState(null);
@@ -281,7 +283,8 @@ const Home = () => {
   useEffect(() => {
     if (!user?.id) return;
     if (!localStorage.getItem(`emolens_tutorial_done_${user.id}`)) setShowTutorial(true); // eslint-disable-line react-hooks/set-state-in-effect
-  }, [user?.id]);
+    if (localStorage.getItem(`emolens_show_write_button_${user.id}_${todayStr}`)) setShowWriteButton(true); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!user?.id || showTutorial) return;
@@ -323,6 +326,17 @@ const Home = () => {
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, [loading, user?.id, diaries, showTutorial, character]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 일기 작성 후 복귀 시 후속 팝업 (오늘 일기 있음 + 하루 1회)
+  useEffect(() => {
+    if (loading || !user?.id || showTutorial || !character) return;
+    const hasTodayEntry = diaries.some(d => d.diaryDate === todayStr);
+    if (!hasTodayEntry) return;
+    const popupKey = `emolens_post_write_popup_shown_${user.id}_${todayStr}`;
+    if (localStorage.getItem(popupKey)) return;
+    localStorage.setItem(popupKey, '1');
+    setShowPostWritePopup(true);
+  }, [loading, user?.id, diaries, showTutorial, character]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (!user?.id || showTutorial) return;
     getLetters().then(setLetters).catch(() => {});
@@ -354,6 +368,17 @@ const Home = () => {
       .then(data => setCityName(data.name ?? '날씨'))
       .catch(() => {});
   }, []);
+
+  const handlePostWriteMore = () => {
+    setShowPostWritePopup(false);
+    navigate('/write');
+  };
+
+  const handlePostWriteLater = () => {
+    setShowPostWritePopup(false);
+    localStorage.setItem(`emolens_show_write_button_${user.id}_${todayStr}`, '1');
+    setShowWriteButton(true);
+  };
 
   const filtered = diaries.filter(d => {
     if (!searchQuery) return true;
@@ -387,6 +412,18 @@ const Home = () => {
           onClose={() => setShowGreeting(false)}
         />
       )}
+      {showPostWritePopup && !showStampCelebration && (
+        <CharacterGreetingPopup
+          characterName={character?.name}
+          daysSinceLast={0}
+          onClose={handlePostWriteLater}
+          postWriteMode
+          userName={user?.name}
+          characterTone={character?.tone}
+          onWriteMore={handlePostWriteMore}
+          onLater={handlePostWriteLater}
+        />
+      )}
       {showStampCelebration && (
         <StampCelebration onDone={() => setShowStampCelebration(false)} />
       )}
@@ -404,7 +441,9 @@ const Home = () => {
               <span className="hero-day-badge">{dayOfWeek}요일</span>
             </div>
             {streak > 0 && <div className="hero-streak">🔥 {streak}일 연속 기록 중</div>}
-            <button className="hero-write-btn" onClick={() => navigate('/write')}>✏️ 오늘 일기 쓰기</button>
+            {showWriteButton && (
+              <button className="hero-write-btn" onClick={() => navigate('/write')}>✏️ 오늘 일기 쓰기</button>
+            )}
           </div>
           <div className="hero-right">
             <LiveClock />

@@ -60,23 +60,44 @@ function buildDialogueTree(daysSinceLast) {
   };
 }
 
+function buildPostWriteNode(userName, characterTone) {
+  const name = userName ?? '';
+  const byTone = {
+    FRIENDLY_INFORMAL: `일기 잘 썼어! 👏\n일기는 하루에 여러 번 써도 괜찮아. 자주 쓸수록 내가 ${name}의 감정을 더 깊이 이해할 수 있거든.\n한 편 더 써볼래?`,
+    WARM_FORMAL:       `일기 잘 쓰셨어요! 👏\n일기는 하루에 여러 번 써도 괜찮아요. 자주 쓸수록 제가 ${name}님의 감정을 더 깊이 이해할 수 있어요.\n한 편 더 써볼까요?`,
+    PLAYFUL:           `일기 완성! 🎉 잘했어!\n하루에 여러 번 써도 완전 OK야. 더 쓸수록 나도 더 잘 이해할 수 있거든!\n한 편 더 써볼까?`,
+    COOL:              `일기 작성 완료. 👏\n하루 여러 편 작성 가능해요. 데이터가 많을수록 분석 정확도가 높아져요.\n한 편 더 쓰시겠어요?`,
+  };
+  return {
+    text: byTone[characterTone] ?? byTone.WARM_FORMAL,
+    choices: [
+      { label: '좋아요, 쓸게요', action: 'writeMore' },
+      { label: '다음에 쓸게요',  action: 'later' },
+    ],
+  };
+}
+
 const SPEED = 32;
 
 function getChoiceClass(choice) {
-  if (choice.action === 'write') return 'primary';
-  if (choice.action === 'chat')  return 'chat-primary';
-  if (choice.action === 'close') return 'muted';
+  if (choice.action === 'write' || choice.action === 'writeMore') return 'primary';
+  if (choice.action === 'chat')                                   return 'chat-primary';
+  if (choice.action === 'close' || choice.action === 'later')    return 'muted';
   return '';
 }
 
-const CharacterGreetingPopup = ({ characterName, daysSinceLast = 0, onClose }) => {
+const CharacterGreetingPopup = ({
+  characterName, daysSinceLast = 0, onClose,
+  postWriteMode = false, userName, characterTone,
+  onWriteMore, onLater,
+}) => {
   const navigate = useNavigate();
   const [nodeKey, setNodeKey]         = useState('start');
   const [displayText, setDisplayText] = useState('');
   const [typingDone, setTypingDone]   = useState(false);
 
   const DIALOGUE_TREE = buildDialogueTree(daysSinceLast);
-  const node = DIALOGUE_TREE[nodeKey];
+  const node = postWriteMode ? buildPostWriteNode(userName, characterTone) : DIALOGUE_TREE[nodeKey];
 
   useEffect(() => {
     setDisplayText('');
@@ -107,10 +128,12 @@ const CharacterGreetingPopup = ({ characterName, daysSinceLast = 0, onClose }) =
   };
 
   const handleChoice = (choice) => {
-    if (choice.next)               { setNodeKey(choice.next); return; }
-    if (choice.action === 'close') { onClose(); return; }
-    if (choice.action === 'write') { onClose(); navigate(`/write${choice.emotion ? `?emotion=${encodeURIComponent(choice.emotion)}` : ''}`); return; }
-    if (choice.action === 'chat')  { onClose(); navigate('/ai-chat'); }
+    if (choice.next)                   { setNodeKey(choice.next); return; }
+    if (choice.action === 'close')     { onClose(); return; }
+    if (choice.action === 'write')     { onClose(); navigate(`/write${choice.emotion ? `?emotion=${encodeURIComponent(choice.emotion)}` : ''}`); return; }
+    if (choice.action === 'chat')      { onClose(); navigate('/ai-chat'); return; }
+    if (choice.action === 'writeMore') { onWriteMore?.(); return; }
+    if (choice.action === 'later')     { onLater?.(); }
   };
 
   return (
