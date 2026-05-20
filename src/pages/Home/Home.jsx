@@ -16,6 +16,29 @@ import StampCalendar from '@/components/StampCalendar/StampCalendar';
 import StampCelebration from '@/components/StampCalendar/StampCelebration';
 import "@/styles/Home/Home.css";
 
+const QUOTES = [
+  "감정을 기록하는 것은 자신을 이해하는 첫걸음입니다.",
+  "오늘의 작은 기록이 내일의 나를 만들어갑니다.",
+  "힘든 감정도 글로 쓰면 절반은 가벼워집니다.",
+  "나를 가장 잘 아는 사람은 결국 나 자신입니다.",
+  "오늘 하루도 충분히 잘 살아냈습니다.",
+  "감정은 옳고 그름이 없습니다. 그저 존재할 뿐입니다.",
+  "일기는 나에게 보내는 가장 솔직한 편지입니다.",
+  "작은 기록들이 모여 소중한 역사가 됩니다.",
+  "오늘의 감정을 내일의 내가 고마워할 거예요.",
+  "슬픔도, 기쁨도 모두 나를 이루는 부분입니다.",
+  "지금 이 순간도 언젠간 그리운 날이 됩니다.",
+  "완벽하지 않아도 괜찮아요, 오늘도 충분합니다.",
+  "감정을 억누르지 말고 글로 풀어보세요.",
+  "나의 감정을 존중하는 것이 나를 사랑하는 것입니다.",
+  "매일 조금씩, 나를 알아가는 여정입니다.",
+  "오늘의 나는 어제보다 조금 더 나를 알고 있습니다.",
+  "감정을 느끼는 것은 살아있다는 증거입니다.",
+  "힘든 날의 기록도 언젠가는 큰 힘이 됩니다.",
+  "나 자신과의 대화, 일기에서 시작됩니다.",
+  "기록하지 않으면 기억은 흐려지지만 감정은 남습니다.",
+];
+
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEK_DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 
@@ -269,6 +292,19 @@ const Home = () => {
   const [searchType,  setSearchType]  = useState('제목');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedMonths, setExpandedMonths] = useState({});
+  const [quoteIndex, setQuoteIndex] = useState(() => new Date().getDate() % QUOTES.length);
+  const [quoteVisible, setQuoteVisible] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setQuoteVisible(false);
+      setTimeout(() => {
+        setQuoteIndex(prev => (prev + 1) % QUOTES.length);
+        setQuoteVisible(true);
+      }, 500);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
   const [stampDayDiaries, setStampDayDiaries] = useState(null);
   const [stats, setStats]         = useState(null);
   const [showTutorial, setShowTutorial]               = useState(false);
@@ -448,6 +484,18 @@ const Home = () => {
               <button className="hero-write-btn" onClick={() => navigate('/write')}>✏️ 오늘 일기 쓰기</button>
             )}
           </div>
+          <div className="hero-center">
+            <span className="hero-quote-icon">"</span>
+            <p className={`hero-quote-text ${quoteVisible ? 'quote-visible' : 'quote-hidden'}`}>
+              {QUOTES[quoteIndex]}
+            </p>
+            <div className="hero-quote-dots">
+              {QUOTES.map((_, i) => (
+                <span key={i} className={`hqd ${i === quoteIndex ? 'hqd-active' : ''}`} />
+              ))}
+            </div>
+          </div>
+
           <div className="hero-right">
             <LiveClock />
             <WeatherCard size={36} />
