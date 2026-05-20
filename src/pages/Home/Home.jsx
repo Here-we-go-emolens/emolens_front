@@ -268,6 +268,7 @@ const Home = () => {
   const [loading, setLoading]     = useState(true);
   const [searchType,  setSearchType]  = useState('제목');
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedMonths, setExpandedMonths] = useState({});
   const [stampDayDiaries, setStampDayDiaries] = useState(null);
   const [stats, setStats]         = useState(null);
   const [showTutorial, setShowTutorial]               = useState(false);
@@ -387,13 +388,15 @@ const Home = () => {
     return true;
   });
 
-  const groupedDiaries = filtered.reduce((acc, d) => {
-    const date = d.diaryDate;
-    if (!acc[date]) acc[date] = [];
-    acc[date].push(d);
+  const DIARY_LIMIT = 4;
+
+  const groupedByMonth = filtered.reduce((acc, d) => {
+    const monthKey = d.diaryDate.substring(0, 7);
+    if (!acc[monthKey]) acc[monthKey] = [];
+    acc[monthKey].push(d);
     return acc;
   }, {});
-  const groupedDates = Object.keys(groupedDiaries).sort((a, b) => b.localeCompare(a));
+  const monthKeys = Object.keys(groupedByMonth).sort((a, b) => b.localeCompare(a));
 
   const streak      = stats?.summary?.streak ?? 0;
   const emotionDist = stats?.emotionDistribution ?? [];
@@ -591,28 +594,67 @@ const Home = () => {
               <div className="diary-empty">불러오는 중...</div>
             ) : filtered.length === 0 ? (
               <div className="diary-empty">일기가 없습니다.</div>
-            ) : groupedDates.map(date => (
-              <div key={date} className="diary-date-group">
-                <div className="diary-date-header">
-                  <span className="diary-date-label">{formatDate(date)}</span>
-                  {groupedDiaries[date].length > 1 && (
-                    <span className="diary-date-count">{groupedDiaries[date].length}개</span>
+            ) : monthKeys.map(monthKey => {
+              const allInMonth = groupedByMonth[monthKey].slice().sort((a, b) => b.diaryDate.localeCompare(a.diaryDate));
+              const isExpanded = !!expandedMonths[monthKey];
+              const displayList = isExpanded ? allInMonth : allInMonth.slice(0, DIARY_LIMIT);
+              const remaining = allInMonth.length - displayList.length;
+
+              const byDate = displayList.reduce((acc, d) => {
+                if (!acc[d.diaryDate]) acc[d.diaryDate] = [];
+                acc[d.diaryDate].push(d);
+                return acc;
+              }, {});
+              const dates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
+
+              const [y, m] = monthKey.split('-');
+              const monthLabel = `${parseInt(y)}년 ${parseInt(m)}월`;
+
+              return (
+                <div key={monthKey} className="diary-month-group">
+                  <div className="diary-month-header">
+                    <span className="diary-month-label">{monthLabel}</span>
+                    <span className="diary-month-count">{allInMonth.length}개</span>
+                  </div>
+                  {dates.map(date => (
+                    <div key={date} className="diary-date-group">
+                      <div className="diary-date-header">
+                        <span className="diary-date-label">{formatDate(date)}</span>
+                        {byDate[date].length > 1 && (
+                          <span className="diary-date-count">{byDate[date].length}개</span>
+                        )}
+                      </div>
+                      {byDate[date].map((d, idx) => (
+                        <div key={d.id} className="diary-row" onClick={() => navigate(`/diary/${d.id}`)}>
+                          <span className="dr-title">
+                            {byDate[date].length > 1 && <span className="dr-index">{idx + 1}</span>}
+                            {d.title}
+                          </span>
+                          <span className="dr-emotion">{STATUS_LABEL[d.status] ?? '-'}</span>
+                          <span className="dr-pub">{d.isSecret ? '🔒 비공개' : '🌐 공개'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                  {!isExpanded && remaining > 0 && (
+                    <button
+                      className="diary-more-btn"
+                      onClick={() => setExpandedMonths(prev => ({ ...prev, [monthKey]: true }))}
+                    >
+                      더 보기 ({remaining}개)
+                    </button>
+                  )}
+                  {isExpanded && allInMonth.length > DIARY_LIMIT && (
+                    <button
+                      className="diary-more-btn diary-collapse-btn"
+                      onClick={() => setExpandedMonths(prev => ({ ...prev, [monthKey]: false }))}
+                    >
+                      접기 ↑
+                    </button>
                   )}
                 </div>
-                {groupedDiaries[date].map((d, idx) => (
-                  <div key={d.id} className="diary-row" onClick={() => navigate(`/diary/${d.id}`)}>
-                    <span className="dr-title">
-                      {groupedDiaries[date].length > 1 && (
-                        <span className="dr-index">{idx + 1}</span>
-                      )}
-                      {d.title}
-                    </span>
-                    <span className="dr-emotion">{STATUS_LABEL[d.status] ?? '-'}</span>
-                    <span className="dr-pub">{d.isSecret ? '🔒 비공개' : '🌐 공개'}</span>
-                  </div>
-                ))}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

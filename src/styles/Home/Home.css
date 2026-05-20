@@ -704,6 +704,52 @@
   margin-bottom: 4px;
 }
 
+.diary-month-group {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+.diary-month-group:last-child { border-bottom: none; margin-bottom: 0; }
+
+.diary-month-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px 6px;
+}
+
+.diary-month-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.diary-month-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 1px 8px;
+}
+
+.diary-more-btn {
+  margin: 6px 14px 10px;
+  padding: 7px 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.diary-more-btn:hover { background: #fff3ec; }
+
+.diary-collapse-btn { color: var(--text-muted); font-weight: 500; }
+
 .diary-date-group { display: flex; flex-direction: column; }
 
 .diary-date-header {
