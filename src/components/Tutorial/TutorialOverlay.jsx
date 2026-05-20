@@ -19,11 +19,6 @@ const STEPS = [
     targetId: 'tut-ai-chat',
   },
   {
-    title: '내 모습을 바꿀 수 있어!',
-    desc: '나를 나만의 캐릭터로 꾸며줘.\n네 감정에 맞는 위로와 조언을 건넬게.',
-    targetId: 'tut-character',
-  },
-  {
     title: '주간 리포트도 있어!',
     desc: '매주 네 감정 패턴을 분석해줄게.\n나도 몰랐던 감정 흐름을 함께 발견해봐.',
     targetId: 'tut-weekly',
