@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/contexts/ToastContext';
 import { getAiResponse, previewChat, finishChat } from '@/api/aiChat';
 import { createDiary } from '@/services/diaryApi';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useUserContext } from '@/contexts/UserContext';
+import { getMe } from '@/services/userApi';
 import { useCharacter } from '@/hooks/useCharacter';
 import useSpeechRecognition from '@/hooks/useSpeechRecognition';
 import SidebarLeft from '@/components/Sidebar-left/SidebarLeft';
@@ -229,13 +230,13 @@ function MicIcon() {
 export default function AiDiaryChatPage() {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const user = useCurrentUser();
+  const { user, setUser } = useUserContext();
   const { character, loading: characterLoading, notFound } = useCharacter();
 
   const isPremium = user?.plan === 'PREMIUM';
   const chatLimit = isPremium ? Infinity : (user?.chatLimit ?? 10);
   const [chatAdded, setChatAdded] = useState(0);
-  const chatUsed = (user?.chatUsed ?? 0) + chatAdded;
+  const chatUsed = user?.chatUsed ?? 0;
 
   const [messages,   setMessages]   = useState([
     { id: 1, role: 'ai', text: getCharacterGreeting(null), time: '' },
@@ -280,6 +281,11 @@ export default function AiDiaryChatPage() {
       navigate('/character?next=/ai-chat', { replace: true });
     }
   }, [characterLoading, navigate, notFound]);
+
+  // 페이지 진입 시 최신 chatUsed 동기화
+  useEffect(() => {
+    getMe().then(setUser).catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!character) return;
@@ -356,6 +362,7 @@ export default function AiDiaryChatPage() {
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
     setIsTyping(true);
     setChatAdded(prev => prev + 1);
+    setUser(prev => prev ? { ...prev, chatUsed: (prev.chatUsed ?? 0) + 1 } : prev);
 
     try {
       const aiText = await getAiResponse([...messages, userMsg]);
